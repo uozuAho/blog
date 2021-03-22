@@ -30,8 +30,8 @@ Here's what I want in a blogging tool, and how hugo provides.
   - [hugo docs: rss](https://gohugo.io/templates/rss/)
   - index.xml auto-generated
 - [x] easy to read on phone
-- easy to maintain
 - easy to manage custom domain
+- easy to maintain
 ## nice to have
 - article search
   - don't need it for now. Looks easy enough:

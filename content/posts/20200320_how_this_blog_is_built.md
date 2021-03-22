@@ -16,7 +16,8 @@ Here's what I want in a blogging tool, and how hugo provides.
 - [x] server generated syntax highlighting. Just works.
 - [x] minimal (no) js. Small HTML + CSS.
   - depends on theme - there are tiny themes out there, like
-    [xmin](https://github.com/yihui/hugo-xmin)
+    [xmin](https://github.com/yihui/hugo-xmin). I forked this to make my own
+    tweaks.
 - [x] no kitchen sink trackers like google analytics etc.
 - [x] non-goofy home page
   - depends on theme
@@ -25,8 +26,10 @@ Here's what I want in a blogging tool, and how hugo provides.
 - [x] urls that don't need to change
   - Posts follow directory structure. I timestamp my posts, so the URLs
     shouldn't ever need to change.
-- rss, or however news readers work
-- easy to read on phone
+- [x] rss, or however news readers work
+  - [hugo docs: rss](https://gohugo.io/templates/rss/)
+  - index.xml auto-generated
+- [x] easy to read on phone
 - easy to maintain
 - easy to manage custom domain
 ## nice to have
@@ -59,7 +62,7 @@ Maybe. Markdown is easier to read & edit, and hugo generates HTML that I don't
 need to tweak afterwards.
 
 
-# Other options considered
+# Other static site generators considered
 - [gatsby](https://www.gatsbyjs.com/)
 - [nextjs](https://nextjs.org/)
 
@@ -74,7 +77,8 @@ user, the Ruby usage put me off.
 
 
 # To do
+- finish requirements
 - favicon
 - top bar: home, about
-- better font
 - hosting
+- check: rss reader can read site?

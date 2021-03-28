@@ -127,3 +127,4 @@ html + css from my dev machine seems good enough.
 # References
 - [do I need a CDN?](https://blr.design/blog/cdn-for-fast-static-website/)
   - faster load times around the world
+- [Creating a static home page in Hugo](https://timhilliard.com/blog/static-home-page-in-hugo/)

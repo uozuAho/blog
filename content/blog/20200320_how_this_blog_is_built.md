@@ -1,12 +1,11 @@
 ---
-title: "How this blog is built"
+title: "How this site is built"
 date: 2021-03-20T14:48:00+11:00
 draft: true
 ---
 
-# How this blog is built
 I currently use [hugo](https://gohugo.io/), a static site generator. I write
-posts in markdown, and hugo publishes as HTML.
+content in markdown, and hugo publishes as HTML.
 
 # Tooling requirements
 Here's what I want in a blogging tool, and how hugo provides.

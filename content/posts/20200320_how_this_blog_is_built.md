@@ -8,7 +8,7 @@ draft: true
 I currently use [hugo](https://gohugo.io/), a static site generator. I write
 posts in markdown, and hugo publishes as HTML.
 
-# Requirements
+# Tooling requirements
 Here's what I want in a blogging tool, and how hugo provides.
 
 ## must have
@@ -30,12 +30,20 @@ Here's what I want in a blogging tool, and how hugo provides.
   - [hugo docs: rss](https://gohugo.io/templates/rss/)
   - index.xml auto-generated
 - [x] easy to read on phone
-- easy to manage custom domain
-- easy to maintain
 ## nice to have
 - article search
   - don't need it for now. Looks easy enough:
     [embedded search options](https://gohugo.io/tools/search/)
+
+
+# Hosting requirements
+## must have
+- custom domain
+- HTTPS with automated cert renewal
+- easy deployment process
+- no kitchen sink trackers like google analytics etc.
+## nice to have
+- view/review before deployment
 
 
 # Some more details
@@ -76,9 +84,46 @@ working on GitHub took more effort than I had patience for. Also being a Windows
 user, the Ruby usage put me off.
 
 
+# hosting options
+## hugo-aware
+All of these have https, deploy on push, custom domain options. The drawback is
+that you rely on their support of hugo. For a simple blog, pushing the rendered
+html + css from my dev machine seems good enough.
+
+- [amplify](https://gohugo.io/hosting-and-deployment/hosting-on-aws-amplify/)
+- [render](https://gohugo.io/hosting-and-deployment/hosting-on-render/)
+  - deploy via github, fully managed
+- [netlify](https://gohugo.io/hosting-and-deployment/hosting-on-netlify/)
+  - deploy via github, fully managed
+  - limited by netlify hugo support, eg. themes
+
+## others
+- [netlify](https://docs.netlify.com/)
+  - pro
+    - auto CDN, HTTPS, manged custom domain renewals
+    - hides personal details in domain registration
+- [digital ocean app platform](https://www.digitalocean.com/community/tutorials/how-to-deploy-a-static-website-to-the-cloud-with-digitalocean-app-platform)
+  - pro
+    - auto CDN, HTTPS
+    - deploy static content from github
+  - con
+    - manual configuration for custom domains
+- [aws s3](https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteHosting.html)
+  - lots of manual steps for HTTPS, CDN, DNS
+- https://www.nearlyfreespeech.net/
+  - pro
+    - hides personal details in domain registration
+- https://developers.cloudflare.com/pages/getting-started
+- [aws amplify](https://aws.amazon.com/getting-started/hands-on/host-static-website/)
+
+
 # To do
-- finish requirements
+- hosting
 - favicon
 - top bar: home, about
-- hosting
 - check: rss reader can read site?
+
+
+# References
+- [do I need a CDN?](https://blr.design/blog/cdn-for-fast-static-website/)
+  - faster load times around the world

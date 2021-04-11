@@ -16,6 +16,9 @@ content in markdown, and hugo publishes it as HTML.
   - test branch preview
 - favicon
 - check: rss reader can read site?
+- proof read
+- update publish date & filename
+- merge to main & publish
 
 # Tooling requirements
 Here's what I want in a blogging tool, and how hugo provides.

@@ -7,6 +7,16 @@ draft: true
 I currently use [hugo](https://gohugo.io/), a static site generator. I write
 content in markdown, and hugo publishes it as HTML.
 
+# To do
+- hosting
+  - custom domain
+    - I used [nameboy](https://www.nameboy.com/) to help choose a domain
+    - bought and managed via netlify, $12/year
+    - HTTPS with auto cert renewal
+  - test branch preview
+- favicon
+- check: rss reader can read site?
+
 # Tooling requirements
 Here's what I want in a blogging tool, and how hugo provides.
 
@@ -35,19 +45,9 @@ Here's what I want in a blogging tool, and how hugo provides.
     [embedded search options](https://gohugo.io/tools/search/)
 
 
-# Hosting requirements
-## must have
-- custom domain
-- HTTPS with automated cert renewal
-- easy deployment process
-- no kitchen sink trackers like google analytics etc.
-## nice to have
-- view/review before deployment
+## Some more details
 
-
-# Some more details
-
-## Syntax highlighting
+### Syntax highlighting
 Syntax highlighting works out of the box with hugo, and is done at build time,
 resulting in smaller page sizes than bundling a js syntax highlighter like
 [highlight.js](https://highlightjs.org/). For example, writing the following
@@ -64,12 +64,12 @@ const main = () => { console.log("Hello world!"); }
 ```
 
 
-# Would it be easier to just write the HTML & CSS myself?
+### Would it be easier to just write the HTML & CSS myself?
 Maybe. Markdown is easier to read & edit, and hugo generates HTML that I don't
 need to tweak afterwards.
 
 
-# Other static site generators considered
+## Other static site generators considered
 - [gatsby](https://www.gatsbyjs.com/)
 - [nextjs](https://nextjs.org/)
 
@@ -82,6 +82,28 @@ I've also briefly used [Jekyll](https://jekyllrb.com/) with
 working on GitHub took more effort than I had patience for. Also being a Windows
 user, the Ruby usage put me off.
 
+
+# Hosting requirements
+Here's what I want from hosting, and how netlify provides.
+
+## must have
+- custom domain
+- HTTPS with automated cert renewal
+- easy deployment process
+- no kitchen sink trackers like google analytics etc.
+## nice to have
+- view/review before deployment
+
+
+# Netlify
+I use [netlify](https://docs.netlify.com/) for hosting. It provides managed CDN,
+HTTPS and custom domains, so I don't have to worry about configuring and
+updating them. A nice aspect of custom domains through netlify is that they hide
+personal details in domain registration. This hopefully reduces spam to me.
+
+I configured netlify to not do any build step. I simply build my site content
+with hugo, include the published content in my git repo, and push to GitHub to
+publish new content. This removes complication from the publishing process.
 
 # hosting options
 ## hugo-aware
@@ -114,12 +136,6 @@ html + css from my dev machine seems good enough.
     - hides personal details in domain registration
 - https://developers.cloudflare.com/pages/getting-started
 - [aws amplify](https://aws.amazon.com/getting-started/hands-on/host-static-website/)
-
-
-# To do
-- hosting
-- favicon
-- check: rss reader can read site?
 
 
 # References

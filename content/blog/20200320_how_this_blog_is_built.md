@@ -1,7 +1,7 @@
 ---
 title: "How this site is built"
 date: 2021-03-20T14:48:00+11:00
-draft: true
+draft: false
 ---
 
 I currently use [hugo](https://gohugo.io/), a static site generator. I write

@@ -8,4 +8,6 @@ Install [hugo](https://gohugo.io/). Then:
 hugo server -D
 # or, run local dev server, accessible on the local network
 hugo server -D --bind 0.0.0.0
+# build content & put in public/
+hugo
 ```

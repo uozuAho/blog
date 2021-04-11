@@ -5,7 +5,7 @@ draft: true
 ---
 
 I currently use [hugo](https://gohugo.io/), a static site generator. I write
-content in markdown, and hugo publishes as HTML.
+content in markdown, and hugo publishes it as HTML.
 
 # Tooling requirements
 Here's what I want in a blogging tool, and how hugo provides.
@@ -119,7 +119,6 @@ html + css from my dev machine seems good enough.
 # To do
 - hosting
 - favicon
-- top bar: home, about
 - check: rss reader can read site?
 
 

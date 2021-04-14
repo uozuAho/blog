@@ -27,62 +27,61 @@
 </div>
 
 <main>
-<p>I currently use <a href="https://gohugo.io/">hugo</a>, a static site generator. I write
-content in markdown, and hugo publishes it as HTML.</p>
+<p>I currently use <a href="https://gohugo.io/">hugo</a> to generate the site content from
+markdown. The content is deployed and maintained using
+<a href="https://www.netlify.com">netlify</a>.</p>
 <h1 id="to-do">To do</h1>
 <ul>
-<li>hosting
-<ul>
-<li>custom domain
-<ul>
-<li>I used <a href="https://www.nameboy.com/">nameboy</a> to help choose a domain</li>
-<li>bought and managed via netlify, $12/year</li>
-<li>HTTPS with auto cert renewal</li>
-</ul>
-</li>
-<li>test branch preview</li>
-</ul>
-</li>
 <li>favicon</li>
 <li>check: rss reader can read site?</li>
+<li>check: lighthouse report</li>
+<li>proof read
+<ul>
+<li>any tools to automate? spelling, grammar, consistency (eg. capitalisation)</li>
 </ul>
-<h1 id="tooling-requirements">Tooling requirements</h1>
-<p>Here&rsquo;s what I want in a blogging tool, and how hugo provides.</p>
+</li>
+<li>update publish date &amp; filename</li>
+<li>merge to main &amp; publish</li>
+</ul>
+<hr>
+<h1 id="generating-the-site-content-with-hugo">Generating the site content with Hugo</h1>
+<p>Here&rsquo;s what I want in a blogging tool, and how <a href="https://gohugo.io/">Hugo</a>
+provides.</p>
 <h2 id="must-have">must have</h2>
 <ul>
-<li><input checked="" disabled="" type="checkbox"> easy to write (markdown)</li>
-<li><input checked="" disabled="" type="checkbox"> server generated syntax highlighting. Just works.</li>
-<li><input checked="" disabled="" type="checkbox"> minimal (no) js. Small HTML + CSS.
+<li>easy to write (markdown)</li>
+<li>server generated syntax highlighting. Just works.</li>
+<li>minimal (no) js. Small HTML + CSS.
 <ul>
-<li>depends on theme - there are tiny themes out there, like
-<a href="https://github.com/yihui/hugo-xmin">xmin</a>. I forked this to make my own
-tweaks.</li>
+<li>depends on <a href="https://themes.gohugo.io/">theme</a> - there are tiny themes out
+there, like <a href="https://github.com/yihui/hugo-xmin">xmin</a>. I copied this into
+my repo to make my own tweaks.</li>
 </ul>
 </li>
-<li><input checked="" disabled="" type="checkbox"> no kitchen sink trackers like google analytics etc.</li>
-<li><input checked="" disabled="" type="checkbox"> non-goofy home page
+<li>no invasive trackers like google analytics</li>
+<li>non-goofy home page. I don&rsquo;t want it to look like a Wix/Squarespace site :)
 <ul>
-<li>depends on theme</li>
+<li>fully customisable with <a href="https://themes.gohugo.io/">themes</a></li>
 </ul>
 </li>
-<li><input checked="" disabled="" type="checkbox"> good &lsquo;current&rsquo; and &lsquo;archives&rsquo; view
+<li>good &lsquo;current&rsquo; and &lsquo;archives&rsquo; view
 <ul>
 <li>depends on theme. List of all posts works for now!</li>
 </ul>
 </li>
-<li><input checked="" disabled="" type="checkbox"> urls that don&rsquo;t need to change
+<li>urls that don&rsquo;t need to change
 <ul>
 <li>Posts follow directory structure. I timestamp my posts, so the URLs
 shouldn&rsquo;t ever need to change.</li>
 </ul>
 </li>
-<li><input checked="" disabled="" type="checkbox"> rss, or however news readers work
+<li>rss, or however news readers work
 <ul>
 <li><a href="https://gohugo.io/templates/rss/">hugo docs: rss</a></li>
 <li>index.xml auto-generated</li>
 </ul>
 </li>
-<li><input checked="" disabled="" type="checkbox"> easy to read on phone</li>
+<li>easy to read on phone</li>
 </ul>
 <h2 id="nice-to-have">nice to have</h2>
 <ul>
@@ -118,32 +117,56 @@ go.</p>
 <a href="https://pages.github.com/">GitHub Pages</a>. It was a bit slow, and getting it
 working on GitHub took more effort than I had patience for. Also being a Windows
 user, the Ruby usage put me off.</p>
-<h1 id="hosting-requirements">Hosting requirements</h1>
-<p>Here&rsquo;s what I want from hosting, and how netlify provides.</p>
+<hr>
+<h1 id="hosting-with-netlify">Hosting with Netlify</h1>
+<p>I chose Netlify due to its management of everything I could think of, and more.
+I could learn a lot by building my own infrastructure on AWS or another cloud
+provider, but that&rsquo;s not the intention of this blog.</p>
+<p>Here&rsquo;s what I want from hosting, and how <a href="https://docs.netlify.com/">Netlify</a>
+provides.</p>
 <h2 id="must-have-1">must have</h2>
 <ul>
-<li>custom domain</li>
-<li>HTTPS with automated cert renewal</li>
-<li>easy deployment process</li>
-<li>no kitchen sink trackers like google analytics etc.</li>
+<li>custom domain with automatic renewal</li>
+<li>HTTPS with automatic certificate renewal</li>
+<li>easy deployment process
+<ul>
+<li>push to main, that&rsquo;s it :)</li>
+</ul>
+</li>
+<li>no invasive trackers like google analytics</li>
 </ul>
 <h2 id="nice-to-have-1">nice to have</h2>
 <ul>
-<li>view/review before deployment</li>
+<li>view/review before deployment
+<ul>
+<li>can deploy branches to subdomains. See
+<a href="https://docs.netlify.com/domains-https/custom-domains/multiple-domains/#branch-subdomains">branch subdomains</a>.</li>
 </ul>
-<h1 id="netlify">Netlify</h1>
-<p>I use <a href="https://docs.netlify.com/">netlify</a> for hosting. It provides managed CDN,
-HTTPS and custom domains, so I don&rsquo;t have to worry about configuring and
-updating them. A nice aspect of custom domains through netlify is that they hide
-personal details in domain registration. This hopefully reduces spam to me.</p>
-<p>I configured netlify to not do any build step. I simply build my site content
-with hugo, include the published content in my git repo, and push to GitHub to
-publish new content. This removes complication from the publishing process.</p>
-<h1 id="hosting-options">hosting options</h1>
-<h2 id="hugo-aware">hugo-aware</h2>
-<p>All of these have https, deploy on push, custom domain options. The drawback is
-that you rely on their support of hugo. For a simple blog, pushing the rendered
-html + css from my dev machine seems good enough.</p>
+</li>
+</ul>
+<p>Some extra things that Netlify provides, that I hadn&rsquo;t thought about:</p>
+<ul>
+<li>atomic deployments (no errors for users trying to view the page while content
+is being changed/uploaded)</li>
+<li>managed CDN</li>
+<li>domain registrations use Netlify as the WHOIS contact, keeping my personal
+contact details private from spammers. See
+<a href="https://docs.netlify.com/domains-https/netlify-dns/domain-registration/">domain registration</a>.</li>
+</ul>
+<p>Pushing updates to this site is as simple as pushing to my
+<a href="https://github.com/uozuAho/blog">GitHub repo</a>. Netlify watches my repo for
+updates and deploys them.</p>
+<p>I configured my Netlify site to not do any build step. I simply build my site
+content locally with Hugo, include the published content in my git repo, and
+push to GitHub to publish new content. This removes complication from the
+publishing process. One complication I ran into was git submodules, which Hugo
+uses for themes. Netlify couldn&rsquo;t clone my theme submodule. Instead of trying to
+figure that out, I just included my theme as regular files in my repo.</p>
+<h1 id="hosting-options-considered">Hosting options considered</h1>
+<h2 id="hugo-aware">Hugo-aware</h2>
+<p>All of these have HTTPS, deploy on push, and custom domain options. The drawback
+is that you rely on their support of Hugo. For a simple blog, pushing the
+rendered HTML + CSS from my dev machine seems good enough.</p>
 <ul>
 <li><a href="https://gohugo.io/hosting-and-deployment/hosting-on-aws-amplify/">amplify</a></li>
 <li><a href="https://gohugo.io/hosting-and-deployment/hosting-on-render/">render</a>
@@ -151,25 +174,14 @@ html + css from my dev machine seems good enough.</p>
 <li>deploy via github, fully managed</li>
 </ul>
 </li>
-<li><a href="https://gohugo.io/hosting-and-deployment/hosting-on-netlify/">netlify</a>
+<li><a href="https://gohugo.io/hosting-and-deployment/hosting-on-netlify/">Netlify</a>
 <ul>
 <li>deploy via github, fully managed</li>
-<li>limited by netlify hugo support, eg. themes</li>
 </ul>
 </li>
 </ul>
 <h2 id="others">others</h2>
 <ul>
-<li><a href="https://docs.netlify.com/">netlify</a>
-<ul>
-<li>pro
-<ul>
-<li>auto CDN, HTTPS, manged custom domain renewals</li>
-<li>hides personal details in domain registration</li>
-</ul>
-</li>
-</ul>
-</li>
 <li><a href="https://www.digitalocean.com/community/tutorials/how-to-deploy-a-static-website-to-the-cloud-with-digitalocean-app-platform">digital ocean app platform</a>
 <ul>
 <li>pro
@@ -190,21 +202,13 @@ html + css from my dev machine seems good enough.</p>
 <li>lots of manual steps for HTTPS, CDN, DNS</li>
 </ul>
 </li>
-<li><a href="https://www.nearlyfreespeech.net/">https://www.nearlyfreespeech.net/</a>
-<ul>
-<li>pro
-<ul>
-<li>hides personal details in domain registration</li>
-</ul>
-</li>
-</ul>
-</li>
+<li><a href="https://www.nearlyfreespeech.net/">https://www.nearlyfreespeech.net/</a></li>
 <li><a href="https://developers.cloudflare.com/pages/getting-started">https://developers.cloudflare.com/pages/getting-started</a></li>
 <li><a href="https://aws.amazon.com/getting-started/hands-on/host-static-website/">aws amplify</a></li>
 </ul>
 <h1 id="references">References</h1>
 <ul>
-<li><a href="https://blr.design/blog/cdn-for-fast-static-website/">do I need a CDN?</a>
+<li><a href="https://blr.design/blog/cdn-for-fast-static-website/">Do I need a CDN?</a>
 <ul>
 <li>faster load times around the world</li>
 </ul>

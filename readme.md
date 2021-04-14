@@ -2,6 +2,8 @@
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/3e5e1592-f32d-4243-9705-4bce7636ce80/deploy-status)](https://app.netlify.com/sites/objective-borg-f6eb56/deploys)
 
+This is the source of my site: https://iamwoz.com/
+
 # Local dev
 Install [hugo](https://gohugo.io/). Then:
 

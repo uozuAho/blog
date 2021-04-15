@@ -4,16 +4,15 @@ date: 2021-03-20T14:48:00+11:00
 draft: false
 ---
 
-I currently use [hugo](https://gohugo.io/) to generate the site content from
+I currently use [Hugo](https://gohugo.io/) to generate the site content from
 markdown. The content is deployed and maintained using
-[netlify](https://www.netlify.com).
+[Netlify](https://www.netlify.com).
 
 # To do
 - favicon
-- check: rss reader can read site?
+- check: RSS reader can read site?
 - check: lighthouse report
 - proof read
-  - any tools to automate? spelling, grammar, consistency (eg. capitalisation)
 - update publish date & filename
 - merge to main & publish
 
@@ -26,7 +25,7 @@ provides.
 ## must have
 - easy to write (markdown)
 - server generated syntax highlighting. Just works.
-- minimal (no) js. Small HTML + CSS.
+- minimal (no) JavaScript. Small HTML + CSS.
   - depends on [theme](https://themes.gohugo.io/) - there are tiny themes out
     there, like [xmin](https://github.com/yihui/hugo-xmin). I copied this into
     my repo to make my own tweaks.
@@ -35,14 +34,15 @@ provides.
   - fully customisable with [themes](https://themes.gohugo.io/)
 - good 'current' and 'archives' view
   - depends on theme. List of all posts works for now!
-- urls that don't need to change
+- URLs that don't need to change
   - Posts follow directory structure. I timestamp my posts, so the URLs
     shouldn't ever need to change.
-- rss, or however news readers work
-  - [hugo docs: rss](https://gohugo.io/templates/rss/)
+- RSS, or however news readers work
+  - [Hugo docs: RSS](https://gohugo.io/templates/rss/)
   - index.xml auto-generated
 - easy to read on phone
 ## nice to have
+- dark theme
 - article search
   - don't need it for now. Looks easy enough:
     [embedded search options](https://gohugo.io/tools/search/)
@@ -51,10 +51,10 @@ provides.
 ## Some more details
 
 ### Syntax highlighting
-Syntax highlighting works out of the box with hugo, and is done at build time,
-resulting in smaller page sizes than bundling a js syntax highlighter like
-[highlight.js](https://highlightjs.org/). For example, writing the following
-markdown results in the syntax snippet below:
+Syntax highlighting works out of the box with Hugo, and is done at build time,
+resulting in smaller page sizes than bundling a JavaScript syntax highlighter
+like [highlight.js](https://highlightjs.org/). For example, writing the
+following markdown results in the syntax snippet below:
 
 ````
 ```js
@@ -68,23 +68,21 @@ const main = () => { console.log("Hello world!"); }
 
 
 ### Would it be easier to just write the HTML & CSS myself?
-Maybe. Markdown is easier to read & edit, and hugo generates HTML that I don't
+Maybe. Markdown is easier to read & edit, and Hugo generates HTML that I don't
 need to tweak afterwards.
 
-
 ## Other static site generators considered
-- [gatsby](https://www.gatsbyjs.com/)
-- [nextjs](https://nextjs.org/)
+- [Gatsby](https://www.gatsbyjs.com/)
+- [Next.js](https://nextjs.org/)
 
 Both of these are based on React, which put me off for a simple blog that could
-be hand-written in HTML. I also assumed hugo would be faster, being written in
+be hand-written in HTML. I also assumed Hugo would be faster, being written in
 go.
 
 I've also briefly used [Jekyll](https://jekyllrb.com/) with
 [GitHub Pages](https://pages.github.com/). It was a bit slow, and getting it
 working on GitHub took more effort than I had patience for. Also being a Windows
 user, the Ruby usage put me off.
-
 
 -------------------------------------------------------------------------
 # Hosting with Netlify
@@ -134,22 +132,22 @@ rendered HTML + CSS from my dev machine seems good enough.
 
 - [amplify](https://gohugo.io/hosting-and-deployment/hosting-on-aws-amplify/)
 - [render](https://gohugo.io/hosting-and-deployment/hosting-on-render/)
-  - deploy via github, fully managed
+  - deploy via GitHub, fully managed
 - [Netlify](https://gohugo.io/hosting-and-deployment/hosting-on-netlify/)
-  - deploy via github, fully managed
+  - deploy via GitHub, fully managed
 
 ## others
 - [digital ocean app platform](https://www.digitalocean.com/community/tutorials/how-to-deploy-a-static-website-to-the-cloud-with-digitalocean-app-platform)
   - pro
     - auto CDN, HTTPS
-    - deploy static content from github
+    - deploy static content from GitHub
   - con
     - manual configuration for custom domains
-- [aws s3](https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteHosting.html)
+- [AWS S3](https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteHosting.html)
   - lots of manual steps for HTTPS, CDN, DNS
 - https://www.nearlyfreespeech.net/
 - https://developers.cloudflare.com/pages/getting-started
-- [aws amplify](https://aws.amazon.com/getting-started/hands-on/host-static-website/)
+- [AWS amplify](https://aws.amazon.com/getting-started/hands-on/host-static-website/)
 
 
 # References

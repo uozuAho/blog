@@ -14,8 +14,16 @@ hugo server -D
 hugo server -D --bind 0.0.0.0
 ```
 
-# Publish to the web
+# Spell check
+I use [hunspell](https://hunspell.github.io/) via [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10).
 
+eg.
+
+```sh
+hunspell -d en_GB -p /mnt/c/woz/hugo_test/spelling_dict.md /mnt/c/woz/hugo_test/content/blog/20200320_how_this_blog_is_built.md
+```
+
+# Publish to the web
 ```sh
 # build content & put in public/
 hugo

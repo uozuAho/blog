@@ -9,7 +9,6 @@ markdown. The content is deployed and maintained using
 [Netlify](https://www.netlify.com).
 
 # To do
-- favicon
 - check: RSS reader can read site?
 - check: lighthouse report
 - proof read

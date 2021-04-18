@@ -1,6 +1,6 @@
-baseURL: "http://example.org/"
-languageCode: "en-us"
-title: "uozu"
+baseURL: "https://how-blog-is-built.iamwoz.com/"
+languageCode: "en-GB"
+title: "woz"
 theme: "uozu-xmin"
 
 menu:

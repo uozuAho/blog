@@ -27,19 +27,14 @@
 </div>
 
 <main>
-<p>I currently use <a href="https://gohugo.io/">hugo</a> to generate the site content from
+<p>I currently use <a href="https://gohugo.io/">Hugo</a> to generate the site content from
 markdown. The content is deployed and maintained using
-<a href="https://www.netlify.com">netlify</a>.</p>
+<a href="https://www.netlify.com">Netlify</a>.</p>
 <h1 id="to-do">To do</h1>
 <ul>
-<li>favicon</li>
-<li>check: rss reader can read site?</li>
+<li>check: RSS reader can read site?</li>
 <li>check: lighthouse report</li>
-<li>proof read
-<ul>
-<li>any tools to automate? spelling, grammar, consistency (eg. capitalisation)</li>
-</ul>
-</li>
+<li>proof read</li>
 <li>update publish date &amp; filename</li>
 <li>merge to main &amp; publish</li>
 </ul>
@@ -51,7 +46,7 @@ provides.</p>
 <ul>
 <li>easy to write (markdown)</li>
 <li>server generated syntax highlighting. Just works.</li>
-<li>minimal (no) js. Small HTML + CSS.
+<li>minimal (no) JavaScript. Small HTML + CSS.
 <ul>
 <li>depends on <a href="https://themes.gohugo.io/">theme</a> - there are tiny themes out
 there, like <a href="https://github.com/yihui/hugo-xmin">xmin</a>. I copied this into
@@ -69,15 +64,15 @@ my repo to make my own tweaks.</li>
 <li>depends on theme. List of all posts works for now!</li>
 </ul>
 </li>
-<li>urls that don&rsquo;t need to change
+<li>URLs that don&rsquo;t need to change
 <ul>
 <li>Posts follow directory structure. I timestamp my posts, so the URLs
 shouldn&rsquo;t ever need to change.</li>
 </ul>
 </li>
-<li>rss, or however news readers work
+<li>RSS, or however news readers work
 <ul>
-<li><a href="https://gohugo.io/templates/rss/">hugo docs: rss</a></li>
+<li><a href="https://gohugo.io/templates/rss/">Hugo docs: RSS</a></li>
 <li>index.xml auto-generated</li>
 </ul>
 </li>
@@ -85,6 +80,7 @@ shouldn&rsquo;t ever need to change.</li>
 </ul>
 <h2 id="nice-to-have">nice to have</h2>
 <ul>
+<li>dark theme</li>
 <li>article search
 <ul>
 <li>don&rsquo;t need it for now. Looks easy enough:
@@ -94,24 +90,24 @@ shouldn&rsquo;t ever need to change.</li>
 </ul>
 <h2 id="some-more-details">Some more details</h2>
 <h3 id="syntax-highlighting">Syntax highlighting</h3>
-<p>Syntax highlighting works out of the box with hugo, and is done at build time,
-resulting in smaller page sizes than bundling a js syntax highlighter like
-<a href="https://highlightjs.org/">highlight.js</a>. For example, writing the following
-markdown results in the syntax snippet below:</p>
+<p>Syntax highlighting works out of the box with Hugo, and is done at build time,
+resulting in smaller page sizes than bundling a JavaScript syntax highlighter
+like <a href="https://highlightjs.org/">highlight.js</a>. For example, writing the
+following markdown results in the syntax snippet below:</p>
 <pre><code>```js
 const main = () =&gt; { console.log(&quot;Hello world!&quot;); }
 ```
 </code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">main</span> <span style="color:#f92672">=</span> () =&gt; { <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#34;Hello world!&#34;</span>); }
 </code></pre></div><h3 id="would-it-be-easier-to-just-write-the-html--css-myself">Would it be easier to just write the HTML &amp; CSS myself?</h3>
-<p>Maybe. Markdown is easier to read &amp; edit, and hugo generates HTML that I don&rsquo;t
+<p>Maybe. Markdown is easier to read &amp; edit, and Hugo generates HTML that I don&rsquo;t
 need to tweak afterwards.</p>
 <h2 id="other-static-site-generators-considered">Other static site generators considered</h2>
 <ul>
-<li><a href="https://www.gatsbyjs.com/">gatsby</a></li>
-<li><a href="https://nextjs.org/">nextjs</a></li>
+<li><a href="https://www.gatsbyjs.com/">Gatsby</a></li>
+<li><a href="https://nextjs.org/">Next.js</a></li>
 </ul>
 <p>Both of these are based on React, which put me off for a simple blog that could
-be hand-written in HTML. I also assumed hugo would be faster, being written in
+be hand-written in HTML. I also assumed Hugo would be faster, being written in
 go.</p>
 <p>I&rsquo;ve also briefly used <a href="https://jekyllrb.com/">Jekyll</a> with
 <a href="https://pages.github.com/">GitHub Pages</a>. It was a bit slow, and getting it
@@ -171,12 +167,12 @@ rendered HTML + CSS from my dev machine seems good enough.</p>
 <li><a href="https://gohugo.io/hosting-and-deployment/hosting-on-aws-amplify/">amplify</a></li>
 <li><a href="https://gohugo.io/hosting-and-deployment/hosting-on-render/">render</a>
 <ul>
-<li>deploy via github, fully managed</li>
+<li>deploy via GitHub, fully managed</li>
 </ul>
 </li>
 <li><a href="https://gohugo.io/hosting-and-deployment/hosting-on-netlify/">Netlify</a>
 <ul>
-<li>deploy via github, fully managed</li>
+<li>deploy via GitHub, fully managed</li>
 </ul>
 </li>
 </ul>
@@ -187,7 +183,7 @@ rendered HTML + CSS from my dev machine seems good enough.</p>
 <li>pro
 <ul>
 <li>auto CDN, HTTPS</li>
-<li>deploy static content from github</li>
+<li>deploy static content from GitHub</li>
 </ul>
 </li>
 <li>con
@@ -197,14 +193,14 @@ rendered HTML + CSS from my dev machine seems good enough.</p>
 </li>
 </ul>
 </li>
-<li><a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteHosting.html">aws s3</a>
+<li><a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteHosting.html">AWS S3</a>
 <ul>
 <li>lots of manual steps for HTTPS, CDN, DNS</li>
 </ul>
 </li>
 <li><a href="https://www.nearlyfreespeech.net/">https://www.nearlyfreespeech.net/</a></li>
 <li><a href="https://developers.cloudflare.com/pages/getting-started">https://developers.cloudflare.com/pages/getting-started</a></li>
-<li><a href="https://aws.amazon.com/getting-started/hands-on/host-static-website/">aws amplify</a></li>
+<li><a href="https://aws.amazon.com/getting-started/hands-on/host-static-website/">AWS amplify</a></li>
 </ul>
 <h1 id="references">References</h1>
 <ul>

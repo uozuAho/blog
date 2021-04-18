@@ -9,10 +9,14 @@ markdown. The content is deployed and maintained using
 [Netlify](https://www.netlify.com).
 
 # To do
-- check: RSS reader can read site?
+- RSS
+  - https://blog.feedly.com/10-ways-to-optimize-your-feed-for-feedly/
+  - allow feedly to find RSS feed from base URL
+  - Get full article on feedly
 - check: lighthouse report
 - proof read
 - update publish date & filename
+- change config baseURL back to main site
 - merge to main & publish
 
 
@@ -42,6 +46,8 @@ provides.
 - easy to read on phone
 ## nice to have
 - dark theme
+  - I use [dark reader](https://darkreader.org) and [feedly](https://feedly.com)
+    to read most sites, so pretty colours/formatting doesn't bother me that much
 - article search
   - don't need it for now. Looks easy enough:
     [embedded search options](https://gohugo.io/tools/search/)

@@ -15,7 +15,12 @@ hugo server -D --bind 0.0.0.0
 ```
 
 # Spell check
-I use [hunspell](https://hunspell.github.io/) via [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10).
+## Option 1: Spell Right VS Code plugin
+https://github.com/bartosz-antosik/vscode-spellright
+
+## Option 2: hunspell
+- [hunspell](https://hunspell.github.io/)
+- via [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10).
 
 eg.
 

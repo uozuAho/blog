@@ -31,7 +31,7 @@ hunspell -d en_GB -p /mnt/c/woz/hugo_test/spelling_dict.md /mnt/c/woz/hugo_test/
 # Publish to the web
 ```sh
 # build content & put in public/
-hugo
+./publish.sh
 # publish to web - simples!
 git push
 ```

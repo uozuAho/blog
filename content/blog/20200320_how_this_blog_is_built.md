@@ -10,6 +10,8 @@ markdown. The content is deployed and maintained using
 
 # To do
 - RSS
+  - don't generate blog/index.xml
+    - make sure to delete existing
   - https://blog.feedly.com/10-ways-to-optimize-your-feed-for-feedly/
   - allow feedly to find RSS feed from base URL
   - Get full article on feedly

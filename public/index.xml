@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Welcome on woz</title>
+    <title>I am Woz</title>
     <link>https://how-blog-is-built.iamwoz.com/</link>
     <description>Recent content in Welcome on woz</description>
     <generator>Hugo -- gohugo.io</generator>
@@ -14,8 +14,7 @@
       
       <guid>https://how-blog-is-built.iamwoz.com/blog/20200320_how_this_blog_is_built/</guid>
       <description>I currently use Hugo to generate the site content from markdown. The content is deployed and maintained using Netlify.
-To do  check: RSS reader can read site? check: lighthouse report proof read update publish date &amp;amp; filename merge to main &amp;amp; publish   Generating the site content with Hugo Here&amp;rsquo;s what I want in a blogging tool, and how Hugo provides.
-must have  easy to write (markdown) server generated syntax highlighting.</description>
+To do  RSS  don&amp;rsquo;t generate blog/index.xml  make sure to delete existing   https://blog.feedly.com/10-ways-to-optimize-your-feed-for-feedly/ allow feedly to find RSS feed from base URL Get full article on feedly   check: lighthouse report proof read update publish date &amp;amp; filename change config baseURL back to main site merge to main &amp;amp; publish   Generating the site content with Hugo Here&amp;rsquo;s what I want in a blogging tool, and how Hugo provides.</description>
     </item>
     
   </channel>

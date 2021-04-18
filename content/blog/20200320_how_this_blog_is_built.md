@@ -14,7 +14,8 @@ source for this site is on [GitHub](https://github.com/uozuAho/blog).
     - check icon & description are correct
     - ensure all content shows on feedly
 - check: lighthouse report
-- check: other blogs for layout/formatting hints
+    - add [site meta](https://web.dev/meta-description/?utm_source=lighthouse&utm_medium=devtools)
+- add copyright?
 - proof read
 - update publish date & filename
 - change config baseURL back to main site

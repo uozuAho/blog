@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Welcome on uozu</title>
-    <link>http://example.org/</link>
-    <description>Recent content in Welcome on uozu</description>
+    <title>Welcome on woz</title>
+    <link>https://how-blog-is-built.iamwoz.com/</link>
+    <description>Recent content in Welcome on woz</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    <lastBuildDate>Sat, 20 Mar 2021 14:48:00 +1100</lastBuildDate><atom:link href="http://example.org/index.xml" rel="self" type="application/rss+xml" />
+    <language>en-GB</language>
+    <lastBuildDate>Sat, 20 Mar 2021 14:48:00 +1100</lastBuildDate><atom:link href="https://how-blog-is-built.iamwoz.com/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>How this site is built</title>
-      <link>http://example.org/blog/20200320_how_this_blog_is_built/</link>
+      <link>https://how-blog-is-built.iamwoz.com/blog/20200320_how_this_blog_is_built/</link>
       <pubDate>Sat, 20 Mar 2021 14:48:00 +1100</pubDate>
       
-      <guid>http://example.org/blog/20200320_how_this_blog_is_built/</guid>
+      <guid>https://how-blog-is-built.iamwoz.com/blog/20200320_how_this_blog_is_built/</guid>
       <description>I currently use Hugo to generate the site content from markdown. The content is deployed and maintained using Netlify.
 To do  check: RSS reader can read site? check: lighthouse report proof read update publish date &amp;amp; filename merge to main &amp;amp; publish   Generating the site content with Hugo Here&amp;rsquo;s what I want in a blogging tool, and how Hugo provides.
 must have  easy to write (markdown) server generated syntax highlighting.</description>

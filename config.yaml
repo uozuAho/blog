@@ -3,6 +3,11 @@ languageCode: "en-GB"
 title: "woz"
 theme: "uozu-xmin"
 
+disableKinds:
+  - "taxonomy"
+ignoreErrors:
+  - "error-disable-taxonomy"
+
 menu:
   main:
     - name: Home

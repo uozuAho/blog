@@ -27,18 +27,22 @@
 
 <main>
 <p>I currently use <a href="https://gohugo.io/">Hugo</a> to generate the site content from
-markdown. The content is deployed and maintained using
-<a href="https://www.netlify.com">Netlify</a>.</p>
+markdown. The content is hosted by <a href="https://www.netlify.com">Netlify</a>. The
+source for this site is on <a href="https://github.com/uozuAho/blog">GitHub</a>.</p>
 <h1 id="to-do">To do</h1>
 <ul>
 <li>RSS
 <ul>
-<li><a href="https://blog.feedly.com/10-ways-to-optimize-your-feed-for-feedly/">https://blog.feedly.com/10-ways-to-optimize-your-feed-for-feedly/</a></li>
-<li>allow feedly to find RSS feed from base URL</li>
-<li>Get full article on feedly</li>
+<li><a href="https://blog.feedly.com/10-ways-to-optimize-your-feed-for-feedly/">https://blog.feedly.com/10-ways-to-optimize-your-feed-for-feedly/</a>
+<ul>
+<li>check icon &amp; description are correct</li>
+<li>ensure all content shows on feedly</li>
+</ul>
+</li>
 </ul>
 </li>
 <li>check: lighthouse report</li>
+<li>check: other blogs for layout/formatting hints</li>
 <li>proof read</li>
 <li>update publish date &amp; filename</li>
 <li>change config baseURL back to main site</li>
@@ -109,7 +113,18 @@ following markdown results in the syntax snippet below:</p>
 const main = () =&gt; { console.log(&quot;Hello world!&quot;); }
 ```
 </code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">main</span> <span style="color:#f92672">=</span> () =&gt; { <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#34;Hello world!&#34;</span>); }
-</code></pre></div><h3 id="would-it-be-easier-to-just-write-the-html--css-myself">Would it be easier to just write the HTML &amp; CSS myself?</h3>
+</code></pre></div><h3 id="rss-with-hugo">RSS with Hugo</h3>
+<p>This took more effort than I expected. By default, Hugo generates an RSS feed
+for your home page, and each &lsquo;section&rsquo; of your site, such as ~/blog, ~/about.
+I couldn&rsquo;t figure out how to disable this, so I ended up deleting these files
+after generation. See <a href="https://github.com/uozuAho/blog">this site&rsquo;s source</a> for
+more information.</p>
+<p>Also, Hugo&rsquo;s default RSS template only shows a summary of each article in the
+feed, which I find annoying when reading articles via my RSS aggregator. See
+<a href="https://gretchenlouise.com/wordpress-rss-feeds-summary-full-custom">RSS: Summary or full text?</a>
+for more information about choosing between a summary or full text in your RSS
+feed.</p>
+<h3 id="would-it-be-easier-to-just-write-the-html--css-myself">Would it be easier to just write the HTML &amp; CSS myself?</h3>
 <p>Maybe. Markdown is easier to read &amp; edit, and Hugo generates HTML that I don&rsquo;t
 need to tweak afterwards.</p>
 <h2 id="other-static-site-generators-considered">Other static site generators considered</h2>
@@ -213,14 +228,16 @@ rendered HTML + CSS from my dev machine seems good enough.</p>
 <li><a href="https://developers.cloudflare.com/pages/getting-started">https://developers.cloudflare.com/pages/getting-started</a></li>
 <li><a href="https://aws.amazon.com/getting-started/hands-on/host-static-website/">AWS amplify</a></li>
 </ul>
-<h1 id="references">References</h1>
+<h1 id="references-and-further-reading">References and further reading</h1>
 <ul>
-<li><a href="https://blr.design/blog/cdn-for-fast-static-website/">Do I need a CDN?</a>
+<li><a href="https://timhilliard.com/blog/static-home-page-in-hugo">Creating a static home page in Hugo</a></li>
+<li><a href="https://blr.design/blog/cdn-for-fast-static-website">Do I need a CDN?</a>
 <ul>
 <li>faster load times around the world</li>
 </ul>
 </li>
-<li><a href="https://timhilliard.com/blog/static-home-page-in-hugo/">Creating a static home page in Hugo</a></li>
+<li><a href="https://blog.feedly.com/10-ways-to-optimize-your-feed-for-feedly">Feedly: optimise your RSS feed</a></li>
+<li><a href="https://gretchenlouise.com/wordpress-rss-feeds-summary-full-custom">RSS: Summary or full text?</a></li>
 </ul>
 
 </main>

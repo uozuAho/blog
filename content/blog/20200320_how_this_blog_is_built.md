@@ -5,15 +5,16 @@ draft: false
 ---
 
 I currently use [Hugo](https://gohugo.io/) to generate the site content from
-markdown. The content is deployed and maintained using
-[Netlify](https://www.netlify.com).
+markdown. The content is hosted by [Netlify](https://www.netlify.com). The
+source for this site is on [GitHub](https://github.com/uozuAho/blog).
 
 # To do
 - RSS
   - https://blog.feedly.com/10-ways-to-optimize-your-feed-for-feedly/
-  - allow feedly to find RSS feed from base URL
-  - Get full article on feedly
+    - check icon & description are correct
+    - ensure all content shows on feedly
 - check: lighthouse report
+- check: other blogs for layout/formatting hints
 - proof read
 - update publish date & filename
 - change config baseURL back to main site
@@ -70,6 +71,19 @@ const main = () => { console.log("Hello world!"); }
 ```js
 const main = () => { console.log("Hello world!"); }
 ```
+
+### RSS with Hugo
+This took more effort than I expected. By default, Hugo generates an RSS feed
+for your home page, and each 'section' of your site, such as ~/blog, ~/about.
+I couldn't figure out how to disable this, so I ended up deleting these files
+after generation. See [this site's source](https://github.com/uozuAho/blog) for
+more information.
+
+Also, Hugo's default RSS template only shows a summary of each article in the
+feed, which I find annoying when reading articles via my RSS aggregator. See
+[RSS: Summary or full text?](https://gretchenlouise.com/wordpress-rss-feeds-summary-full-custom)
+for more information about choosing between a summary or full text in your RSS
+feed.
 
 
 ### Would it be easier to just write the HTML & CSS myself?
@@ -155,7 +169,9 @@ rendered HTML + CSS from my dev machine seems good enough.
 - [AWS amplify](https://aws.amazon.com/getting-started/hands-on/host-static-website/)
 
 
-# References
-- [Do I need a CDN?](https://blr.design/blog/cdn-for-fast-static-website/)
+# References and further reading
+- [Creating a static home page in Hugo](https://timhilliard.com/blog/static-home-page-in-hugo)
+- [Do I need a CDN?](https://blr.design/blog/cdn-for-fast-static-website)
   - faster load times around the world
-- [Creating a static home page in Hugo](https://timhilliard.com/blog/static-home-page-in-hugo/)
+- [Feedly: optimise your RSS feed](https://blog.feedly.com/10-ways-to-optimize-your-feed-for-feedly)
+- [RSS: Summary or full text?](https://gretchenlouise.com/wordpress-rss-feeds-summary-full-custom)

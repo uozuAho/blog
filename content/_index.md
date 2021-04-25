@@ -11,7 +11,7 @@ site.
 Check out my [blog](blog).
 
 If you're interested in how this site is built & hosted, see
-[how this site is built](./blog/20200320_how_this_blog_is_built).
+[how this site is built](./blog/20210424_how_this_site_is_built).
 
 If you want to get in touch, try [twitter](https://twitter.com/uozu_aho) for
 now.

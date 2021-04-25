@@ -1,7 +1,12 @@
-baseURL: "http://example.org/"
-languageCode: "en-us"
-title: "uozu"
+baseURL: "https://iamwoz.com/"
+languageCode: "en-GB"
+title: "woz"
 theme: "uozu-xmin"
+
+disableKinds:
+  - "taxonomy"
+ignoreErrors:
+  - "error-disable-taxonomy"
 
 menu:
   main:

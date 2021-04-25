@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>How this site is built | woz</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">Home</a></li>
+      
+      <li><a href="/blog/">Blog</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+  <h1><span class="title">How this site is built</span></h1>
+  <h2 class="date">2021-03-20</h2>
+</div>
+
+<main>
+<p>I currently use <a href="https://gohugo.io/">Hugo</a> to generate the site content from
+markdown. The content is hosted by <a href="https://www.netlify.com">Netlify</a>. The
+source for this site is on <a href="https://github.com/uozuAho/blog">GitHub</a>.</p>
+<h1 id="to-do">To do</h1>
+<ul>
+<li>RSS
+<ul>
+<li><a href="https://blog.feedly.com/10-ways-to-optimize-your-feed-for-feedly/">https://blog.feedly.com/10-ways-to-optimize-your-feed-for-feedly/</a>
+<ul>
+<li>check icon &amp; description are correct</li>
+<li>ensure all content shows on feedly</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>check: lighthouse report</li>
+<li>check: other blogs for layout/formatting hints</li>
+<li>proof read</li>
+<li>update publish date &amp; filename</li>
+<li>change config baseURL back to main site</li>
+<li>merge to main &amp; publish</li>
+</ul>
+<hr>
+<h1 id="generating-the-site-content-with-hugo">Generating the site content with Hugo</h1>
+<p>Here&rsquo;s what I want in a blogging tool, and how <a href="https://gohugo.io/">Hugo</a>
+provides.</p>
+<h2 id="must-have">must have</h2>
+<ul>
+<li>easy to write (markdown)</li>
+<li>server generated syntax highlighting. Just works.</li>
+<li>minimal (no) JavaScript. Small HTML + CSS.
+<ul>
+<li>depends on <a href="https://themes.gohugo.io/">theme</a> - there are tiny themes out
+there, like <a href="https://github.com/yihui/hugo-xmin">xmin</a>. I copied this into
+my repo to make my own tweaks.</li>
+</ul>
+</li>
+<li>no invasive trackers like google analytics</li>
+<li>non-goofy home page. I don&rsquo;t want it to look like a Wix/Squarespace site :)
+<ul>
+<li>fully customisable with <a href="https://themes.gohugo.io/">themes</a></li>
+</ul>
+</li>
+<li>good &lsquo;current&rsquo; and &lsquo;archives&rsquo; view
+<ul>
+<li>depends on theme. List of all posts works for now!</li>
+</ul>
+</li>
+<li>URLs that don&rsquo;t need to change
+<ul>
+<li>Posts follow directory structure. I timestamp my posts, so the URLs
+shouldn&rsquo;t ever need to change.</li>
+</ul>
+</li>
+<li>RSS, or however news readers work
+<ul>
+<li><a href="https://gohugo.io/templates/rss/">Hugo docs: RSS</a></li>
+<li>index.xml auto-generated</li>
+</ul>
+</li>
+<li>easy to read on phone</li>
+</ul>
+<h2 id="nice-to-have">nice to have</h2>
+<ul>
+<li>dark theme
+<ul>
+<li>I use <a href="https://darkreader.org">dark reader</a> and <a href="https://feedly.com">feedly</a>
+to read most sites, so pretty colours/formatting doesn&rsquo;t bother me that much</li>
+</ul>
+</li>
+<li>article search
+<ul>
+<li>don&rsquo;t need it for now. Looks easy enough:
+<a href="https://gohugo.io/tools/search/">embedded search options</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="some-more-details">Some more details</h2>
+<h3 id="syntax-highlighting">Syntax highlighting</h3>
+<p>Syntax highlighting works out of the box with Hugo, and is done at build time,
+resulting in smaller page sizes than bundling a JavaScript syntax highlighter
+like <a href="https://highlightjs.org/">highlight.js</a>. For example, writing the
+following markdown results in the syntax snippet below:</p>
+<pre><code>```js
+const main = () =&gt; { console.log(&quot;Hello world!&quot;); }
+```
+</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">main</span> <span style="color:#f92672">=</span> () =&gt; { <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#34;Hello world!&#34;</span>); }
+</code></pre></div><h3 id="rss-with-hugo">RSS with Hugo</h3>
+<p>This took more effort than I expected. By default, Hugo generates an RSS feed
+for your home page, and each &lsquo;section&rsquo; of your site, such as ~/blog, ~/about.
+I couldn&rsquo;t figure out how to disable this, so I ended up deleting these files
+after generation. See <a href="https://github.com/uozuAho/blog">this site&rsquo;s source</a> for
+more information.</p>
+<p>Also, Hugo&rsquo;s default RSS template only shows a summary of each article in the
+feed, which I find annoying when reading articles via my RSS aggregator. See
+<a href="https://gretchenlouise.com/wordpress-rss-feeds-summary-full-custom">RSS: Summary or full text?</a>
+for more information about choosing between a summary or full text in your RSS
+feed.</p>
+<h3 id="would-it-be-easier-to-just-write-the-html--css-myself">Would it be easier to just write the HTML &amp; CSS myself?</h3>
+<p>Maybe. Markdown is easier to read &amp; edit, and Hugo generates HTML that I don&rsquo;t
+need to tweak afterwards.</p>
+<h2 id="other-static-site-generators-considered">Other static site generators considered</h2>
+<ul>
+<li><a href="https://www.gatsbyjs.com/">Gatsby</a></li>
+<li><a href="https://nextjs.org/">Next.js</a></li>
+</ul>
+<p>Both of these are based on React, which put me off for a simple blog that could
+be hand-written in HTML. I also assumed Hugo would be faster, being written in
+go.</p>
+<p>I&rsquo;ve also briefly used <a href="https://jekyllrb.com/">Jekyll</a> with
+<a href="https://pages.github.com/">GitHub Pages</a>. It was a bit slow, and getting it
+working on GitHub took more effort than I had patience for. Also being a Windows
+user, the Ruby usage put me off.</p>
+<hr>
+<h1 id="hosting-with-netlify">Hosting with Netlify</h1>
+<p>I chose Netlify due to its management of everything I could think of, and more.
+I could learn a lot by building my own infrastructure on AWS or another cloud
+provider, but that&rsquo;s not the intention of this blog.</p>
+<p>Here&rsquo;s what I want from hosting, and how <a href="https://docs.netlify.com/">Netlify</a>
+provides.</p>
+<h2 id="must-have-1">must have</h2>
+<ul>
+<li>custom domain with automatic renewal</li>
+<li>HTTPS with automatic certificate renewal</li>
+<li>easy deployment process
+<ul>
+<li>push to main, that&rsquo;s it :)</li>
+</ul>
+</li>
+<li>no invasive trackers like google analytics</li>
+</ul>
+<h2 id="nice-to-have-1">nice to have</h2>
+<ul>
+<li>view/review before deployment
+<ul>
+<li>can deploy branches to subdomains. See
+<a href="https://docs.netlify.com/domains-https/custom-domains/multiple-domains/#branch-subdomains">branch subdomains</a>.</li>
+</ul>
+</li>
+</ul>
+<p>Some extra things that Netlify provides, that I hadn&rsquo;t thought about:</p>
+<ul>
+<li>atomic deployments (no errors for users trying to view the page while content
+is being changed/uploaded)</li>
+<li>managed CDN</li>
+<li>domain registrations use Netlify as the WHOIS contact, keeping my personal
+contact details private from spammers. See
+<a href="https://docs.netlify.com/domains-https/netlify-dns/domain-registration/">domain registration</a>.</li>
+</ul>
+<p>Pushing updates to this site is as simple as pushing to my
+<a href="https://github.com/uozuAho/blog">GitHub repo</a>. Netlify watches my repo for
+updates and deploys them.</p>
+<p>I configured my Netlify site to not do any build step. I simply build my site
+content locally with Hugo, include the published content in my git repo, and
+push to GitHub to publish new content. This removes complication from the
+publishing process. One complication I ran into was git submodules, which Hugo
+uses for themes. Netlify couldn&rsquo;t clone my theme submodule. Instead of trying to
+figure that out, I just included my theme as regular files in my repo.</p>
+<h1 id="hosting-options-considered">Hosting options considered</h1>
+<h2 id="hugo-aware">Hugo-aware</h2>
+<p>All of these have HTTPS, deploy on push, and custom domain options. The drawback
+is that you rely on their support of Hugo. For a simple blog, pushing the
+rendered HTML + CSS from my dev machine seems good enough.</p>
+<ul>
+<li><a href="https://gohugo.io/hosting-and-deployment/hosting-on-aws-amplify/">amplify</a></li>
+<li><a href="https://gohugo.io/hosting-and-deployment/hosting-on-render/">render</a>
+<ul>
+<li>deploy via GitHub, fully managed</li>
+</ul>
+</li>
+<li><a href="https://gohugo.io/hosting-and-deployment/hosting-on-netlify/">Netlify</a>
+<ul>
+<li>deploy via GitHub, fully managed</li>
+</ul>
+</li>
+</ul>
+<h2 id="others">others</h2>
+<ul>
+<li><a href="https://www.digitalocean.com/community/tutorials/how-to-deploy-a-static-website-to-the-cloud-with-digitalocean-app-platform">digital ocean app platform</a>
+<ul>
+<li>pro
+<ul>
+<li>auto CDN, HTTPS</li>
+<li>deploy static content from GitHub</li>
+</ul>
+</li>
+<li>con
+<ul>
+<li>manual configuration for custom domains</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteHosting.html">AWS S3</a>
+<ul>
+<li>lots of manual steps for HTTPS, CDN, DNS</li>
+</ul>
+</li>
+<li><a href="https://www.nearlyfreespeech.net/">https://www.nearlyfreespeech.net/</a></li>
+<li><a href="https://developers.cloudflare.com/pages/getting-started">https://developers.cloudflare.com/pages/getting-started</a></li>
+<li><a href="https://aws.amazon.com/getting-started/hands-on/host-static-website/">AWS amplify</a></li>
+</ul>
+<h1 id="references-and-further-reading">References and further reading</h1>
+<ul>
+<li><a href="https://timhilliard.com/blog/static-home-page-in-hugo">Creating a static home page in Hugo</a></li>
+<li><a href="https://blr.design/blog/cdn-for-fast-static-website">Do I need a CDN?</a>
+<ul>
+<li>faster load times around the world</li>
+</ul>
+</li>
+<li><a href="https://blog.feedly.com/10-ways-to-optimize-your-feed-for-feedly">Feedly: optimise your RSS feed</a></li>
+<li><a href="https://gretchenlouise.com/wordpress-rss-feeds-summary-full-custom">RSS: Summary or full text?</a></li>
+</ul>
+
+</main>
+
+  <footer>
+  
+  
+  </footer>
+  </body>
+</html>
+

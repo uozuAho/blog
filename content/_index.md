@@ -1,6 +1,7 @@
 ---
 title: "Welcome"
 draft: false
+summary: Warwick's site
 ---
 
 Hi, I'm Warwick. I'm a guy in Melbourne, Australia. I write software for money

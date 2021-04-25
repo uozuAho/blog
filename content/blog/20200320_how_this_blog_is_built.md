@@ -2,6 +2,7 @@
 title: "How this site is built"
 date: 2021-03-20T14:48:00+11:00
 draft: false
+summary: "How this site is built, using Hugo, GitHub and Netlify"
 ---
 
 I currently use [Hugo](https://gohugo.io/) to generate the site content from
@@ -9,13 +10,6 @@ markdown. The content is hosted by [Netlify](https://www.netlify.com). The
 source for this site is on [GitHub](https://github.com/uozuAho/blog).
 
 # To do
-- RSS
-  - https://blog.feedly.com/10-ways-to-optimize-your-feed-for-feedly/
-    - check icon & description are correct
-    - ensure all content shows on feedly
-- check: lighthouse report
-    - add [site meta](https://web.dev/meta-description/?utm_source=lighthouse&utm_medium=devtools)
-- add copyright?
 - proof read
 - update publish date & filename
 - change config baseURL back to main site

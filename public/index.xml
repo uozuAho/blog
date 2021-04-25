@@ -2,89 +2,73 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>I am Woz</title>
-    <link>https://how-blog-is-built.iamwoz.com/</link>
+    <link>https://iamwoz.com/</link>
     <description>Mostly programming-related stuff</description>
-    <atom:icon>https://how-blog-is-built.iamwoz.com/favicon.ico</atom:icon>
+    <atom:icon>https://iamwoz.com/favicon.ico</atom:icon>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-GB</language>
-    <lastBuildDate>Sat, 20 Mar 2021 14:48:00 +1100</lastBuildDate><atom:link href="https://how-blog-is-built.iamwoz.com/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 24 Apr 2021 14:48:00 +1100</lastBuildDate><atom:link href="https://iamwoz.com/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>How this site is built</title>
-      <link>https://how-blog-is-built.iamwoz.com/blog/20200320_how_this_blog_is_built/</link>
-      <pubDate>Sat, 20 Mar 2021 14:48:00 +1100</pubDate>
+      <link>https://iamwoz.com/blog/20210424_how_this_site_is_built/</link>
+      <pubDate>Sat, 24 Apr 2021 14:48:00 +1100</pubDate>
       
-      <guid>https://how-blog-is-built.iamwoz.com/blog/20200320_how_this_blog_is_built/</guid>
+      <guid>https://iamwoz.com/blog/20210424_how_this_site_is_built/</guid>
       <description>&lt;p&gt;I currently use &lt;a href=&#34;https://gohugo.io/&#34;&gt;Hugo&lt;/a&gt; to generate the site content from
 markdown. The content is hosted by &lt;a href=&#34;https://www.netlify.com&#34;&gt;Netlify&lt;/a&gt;. The
 source for this site is on &lt;a href=&#34;https://github.com/uozuAho/blog&#34;&gt;GitHub&lt;/a&gt;.&lt;/p&gt;
-&lt;h1 id=&#34;to-do&#34;&gt;To do&lt;/h1&gt;
-&lt;ul&gt;
-&lt;li&gt;RSS
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://blog.feedly.com/10-ways-to-optimize-your-feed-for-feedly/&#34;&gt;https://blog.feedly.com/10-ways-to-optimize-your-feed-for-feedly/&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;check icon &amp;amp; description are correct&lt;/li&gt;
-&lt;li&gt;ensure all content shows on feedly&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;check: lighthouse report&lt;/li&gt;
-&lt;li&gt;check: other blogs for layout/formatting hints&lt;/li&gt;
-&lt;li&gt;proof read&lt;/li&gt;
-&lt;li&gt;update publish date &amp;amp; filename&lt;/li&gt;
-&lt;li&gt;change config baseURL back to main site&lt;/li&gt;
-&lt;li&gt;merge to main &amp;amp; publish&lt;/li&gt;
-&lt;/ul&gt;
 &lt;hr&gt;
-&lt;h1 id=&#34;generating-the-site-content-with-hugo&#34;&gt;Generating the site content with Hugo&lt;/h1&gt;
-&lt;p&gt;Here&amp;rsquo;s what I want in a blogging tool, and how &lt;a href=&#34;https://gohugo.io/&#34;&gt;Hugo&lt;/a&gt;
-provides.&lt;/p&gt;
-&lt;h2 id=&#34;must-have&#34;&gt;must have&lt;/h2&gt;
+&lt;h1 id=&#34;generating-site-content&#34;&gt;Generating site content&lt;/h1&gt;
+&lt;p&gt;I want a simple tool that allows full control over the content I publish, and
+isn&amp;rsquo;t too difficult to maintain. Below are some more specifics, and how
+&lt;a href=&#34;https://gohugo.io/&#34;&gt;Hugo&lt;/a&gt; provides.&lt;/p&gt;
+&lt;h2 id=&#34;must-have&#34;&gt;Must have&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;easy to write (markdown)&lt;/li&gt;
-&lt;li&gt;server generated syntax highlighting. Just works.&lt;/li&gt;
+&lt;li&gt;server generated syntax highlighting. See below for details.&lt;/li&gt;
 &lt;li&gt;minimal (no) JavaScript. Small HTML + CSS.
 &lt;ul&gt;
-&lt;li&gt;depends on &lt;a href=&#34;https://themes.gohugo.io/&#34;&gt;theme&lt;/a&gt; - there are tiny themes out
-there, like &lt;a href=&#34;https://github.com/yihui/hugo-xmin&#34;&gt;xmin&lt;/a&gt;. I copied this into
-my repo to make my own tweaks.&lt;/li&gt;
+&lt;li&gt;this depends on the &lt;a href=&#34;https://themes.gohugo.io/&#34;&gt;Hugo theme&lt;/a&gt; you use - there
+are tiny themes out there, like &lt;a href=&#34;https://github.com/yihui/hugo-xmin&#34;&gt;xmin&lt;/a&gt;.
+I copied this into my repo to make my own tweaks.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;li&gt;no invasive trackers like google analytics&lt;/li&gt;
-&lt;li&gt;non-goofy home page. I don&amp;rsquo;t want it to look like a Wix/Squarespace site :)
+&lt;li&gt;doesn&amp;rsquo;t look like a Wix/Squarespace site :)
 &lt;ul&gt;
-&lt;li&gt;fully customisable with &lt;a href=&#34;https://themes.gohugo.io/&#34;&gt;themes&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;published content is fully customisable with &lt;a href=&#34;https://themes.gohugo.io/&#34;&gt;Hugo themes&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;good &amp;lsquo;current&amp;rsquo; and &amp;lsquo;archives&amp;rsquo; view
+&lt;li&gt;An easy-to-navigate &amp;lsquo;current&amp;rsquo; and &amp;lsquo;archives&amp;rsquo; view
 &lt;ul&gt;
-&lt;li&gt;depends on theme. List of all posts works for now!&lt;/li&gt;
+&lt;li&gt;again, this depends on the theme. My &lt;a href=&#34;..&#34;&gt;blog base page&lt;/a&gt; is simply a list
+of all my posts. That works for now!&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;li&gt;URLs that don&amp;rsquo;t need to change
 &lt;ul&gt;
-&lt;li&gt;Posts follow directory structure. I timestamp my posts, so the URLs
+&lt;li&gt;posts follow directory structure. I timestamp my posts, so the URLs
 shouldn&amp;rsquo;t ever need to change.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;li&gt;RSS, or however news readers work
 &lt;ul&gt;
+&lt;li&gt;Hugo automatically generates an RSS index.xml by default&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://gohugo.io/templates/rss/&#34;&gt;Hugo docs: RSS&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;index.xml auto-generated&lt;/li&gt;
+&lt;li&gt;this actually took some work to get right, see details below&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;easy to read on phone&lt;/li&gt;
+&lt;li&gt;easy to read on a phone, tablet and PC&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2 id=&#34;nice-to-have&#34;&gt;nice to have&lt;/h2&gt;
+&lt;h2 id=&#34;nice-to-have&#34;&gt;Nice to have&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;dark theme
 &lt;ul&gt;
-&lt;li&gt;I use &lt;a href=&#34;https://darkreader.org&#34;&gt;dark reader&lt;/a&gt; and &lt;a href=&#34;https://feedly.com&#34;&gt;feedly&lt;/a&gt;
-to read most sites, so pretty colours/formatting doesn&amp;rsquo;t bother me that much&lt;/li&gt;
+&lt;li&gt;I use &lt;a href=&#34;https://darkreader.org&#34;&gt;dark reader&lt;/a&gt; and &lt;a href=&#34;https://feedly.com&#34;&gt;Feedly&lt;/a&gt;
+to read most sites, so pretty colours &amp;amp; formatting don&amp;rsquo;t bother me that much&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;article search
+&lt;li&gt;embedded search feature
 &lt;ul&gt;
 &lt;li&gt;don&amp;rsquo;t need it for now. Looks easy enough:
 &lt;a href=&#34;https://gohugo.io/tools/search/&#34;&gt;embedded search options&lt;/a&gt;&lt;/li&gt;
@@ -101,20 +85,20 @@ following markdown results in the syntax snippet below:&lt;/p&gt;
 const main = () =&amp;gt; { console.log(&amp;quot;Hello world!&amp;quot;); }
 ```
 &lt;/code&gt;&lt;/pre&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-js&#34; data-lang=&#34;js&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; () =&amp;gt; { &lt;span style=&#34;color:#a6e22e&#34;&gt;console&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;log&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Hello world!&amp;#34;&lt;/span&gt;); }
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;rss-with-hugo&#34;&gt;RSS with Hugo&lt;/h3&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;rss&#34;&gt;RSS&lt;/h3&gt;
 &lt;p&gt;This took more effort than I expected. By default, Hugo generates an RSS feed
 for your home page, and each &amp;lsquo;section&amp;rsquo; of your site, such as ~/blog, ~/about.
 I couldn&amp;rsquo;t figure out how to disable this, so I ended up deleting these files
-after generation. See &lt;a href=&#34;https://github.com/uozuAho/blog&#34;&gt;this site&amp;rsquo;s source&lt;/a&gt; for
-more information.&lt;/p&gt;
+after generation in my &amp;lsquo;publish&amp;rsquo; script. See
+&lt;a href=&#34;https://github.com/uozuAho/blog&#34;&gt;this site&amp;rsquo;s source&lt;/a&gt; for more information.&lt;/p&gt;
 &lt;p&gt;Also, Hugo&amp;rsquo;s default RSS template only shows a summary of each article in the
 feed, which I find annoying when reading articles via my RSS aggregator. See
 &lt;a href=&#34;https://gretchenlouise.com/wordpress-rss-feeds-summary-full-custom&#34;&gt;RSS: Summary or full text?&lt;/a&gt;
 for more information about choosing between a summary or full text in your RSS
 feed.&lt;/p&gt;
 &lt;h3 id=&#34;would-it-be-easier-to-just-write-the-html--css-myself&#34;&gt;Would it be easier to just write the HTML &amp;amp; CSS myself?&lt;/h3&gt;
-&lt;p&gt;Maybe. Markdown is easier to read &amp;amp; edit, and Hugo generates HTML that I don&amp;rsquo;t
-need to tweak afterwards.&lt;/p&gt;
+&lt;p&gt;Probably not. Markdown is easier to read &amp;amp; edit, and Hugo generates HTML that I
+don&amp;rsquo;t need to tweak afterwards.&lt;/p&gt;
 &lt;h2 id=&#34;other-static-site-generators-considered&#34;&gt;Other static site generators considered&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;https://www.gatsbyjs.com/&#34;&gt;Gatsby&lt;/a&gt;&lt;/li&gt;
@@ -128,13 +112,14 @@ go.&lt;/p&gt;
 working on GitHub took more effort than I had patience for. Also being a Windows
 user, the Ruby usage put me off.&lt;/p&gt;
 &lt;hr&gt;
-&lt;h1 id=&#34;hosting-with-netlify&#34;&gt;Hosting with Netlify&lt;/h1&gt;
-&lt;p&gt;I chose Netlify due to its management of everything I could think of, and more.
-I could learn a lot by building my own infrastructure on AWS or another cloud
-provider, but that&amp;rsquo;s not the intention of this blog.&lt;/p&gt;
+&lt;h1 id=&#34;hosting&#34;&gt;Hosting&lt;/h1&gt;
+&lt;p&gt;I chose &lt;a href=&#34;https://docs.netlify.com/&#34;&gt;Netlify&lt;/a&gt; due to its easy management of
+everything I could think of, and more. I could learn a lot by building my own
+infrastructure on AWS or another cloud provider, but that&amp;rsquo;s not the intention of
+this site.&lt;/p&gt;
 &lt;p&gt;Here&amp;rsquo;s what I want from hosting, and how &lt;a href=&#34;https://docs.netlify.com/&#34;&gt;Netlify&lt;/a&gt;
 provides.&lt;/p&gt;
-&lt;h2 id=&#34;must-have-1&#34;&gt;must have&lt;/h2&gt;
+&lt;h2 id=&#34;must-have-1&#34;&gt;Must have&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;custom domain with automatic renewal&lt;/li&gt;
 &lt;li&gt;HTTPS with automatic certificate renewal&lt;/li&gt;
@@ -145,11 +130,11 @@ provides.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;no invasive trackers like google analytics&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2 id=&#34;nice-to-have-1&#34;&gt;nice to have&lt;/h2&gt;
+&lt;h2 id=&#34;nice-to-have-1&#34;&gt;Nice to have&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;view/review before deployment
 &lt;ul&gt;
-&lt;li&gt;can deploy branches to subdomains. See
+&lt;li&gt;Netlify has a feature that allows deploying branches to subdomains. See
 &lt;a href=&#34;https://docs.netlify.com/domains-https/custom-domains/multiple-domains/#branch-subdomains&#34;&gt;branch subdomains&lt;/a&gt;.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
@@ -172,14 +157,14 @@ push to GitHub to publish new content. This removes complication from the
 publishing process. One complication I ran into was git submodules, which Hugo
 uses for themes. Netlify couldn&amp;rsquo;t clone my theme submodule. Instead of trying to
 figure that out, I just included my theme as regular files in my repo.&lt;/p&gt;
-&lt;h1 id=&#34;hosting-options-considered&#34;&gt;Hosting options considered&lt;/h1&gt;
+&lt;h1 id=&#34;other-hosting-options-considered&#34;&gt;Other hosting options considered&lt;/h1&gt;
 &lt;h2 id=&#34;hugo-aware&#34;&gt;Hugo-aware&lt;/h2&gt;
 &lt;p&gt;All of these have HTTPS, deploy on push, and custom domain options. The drawback
 is that you rely on their support of Hugo. For a simple blog, pushing the
 rendered HTML + CSS from my dev machine seems good enough.&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://gohugo.io/hosting-and-deployment/hosting-on-aws-amplify/&#34;&gt;amplify&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://gohugo.io/hosting-and-deployment/hosting-on-render/&#34;&gt;render&lt;/a&gt;
+&lt;li&gt;&lt;a href=&#34;https://gohugo.io/hosting-and-deployment/hosting-on-aws-amplify/&#34;&gt;AWS amplify&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://gohugo.io/hosting-and-deployment/hosting-on-render/&#34;&gt;Render&lt;/a&gt;
 &lt;ul&gt;
 &lt;li&gt;deploy via GitHub, fully managed&lt;/li&gt;
 &lt;/ul&gt;
@@ -190,9 +175,9 @@ rendered HTML + CSS from my dev machine seems good enough.&lt;/p&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2 id=&#34;others&#34;&gt;others&lt;/h2&gt;
+&lt;h2 id=&#34;others&#34;&gt;Others&lt;/h2&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://www.digitalocean.com/community/tutorials/how-to-deploy-a-static-website-to-the-cloud-with-digitalocean-app-platform&#34;&gt;digital ocean app platform&lt;/a&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.digitalocean.com/community/tutorials/how-to-deploy-a-static-website-to-the-cloud-with-digitalocean-app-platform&#34;&gt;DigitalOcean app platform&lt;/a&gt;
 &lt;ul&gt;
 &lt;li&gt;pro
 &lt;ul&gt;

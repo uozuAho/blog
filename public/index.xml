@@ -65,7 +65,13 @@ shouldn&amp;rsquo;t ever need to change.&lt;/li&gt;
 &lt;li&gt;dark theme
 &lt;ul&gt;
 &lt;li&gt;I use &lt;a href=&#34;https://darkreader.org&#34;&gt;dark reader&lt;/a&gt; and &lt;a href=&#34;https://feedly.com&#34;&gt;Feedly&lt;/a&gt;
-to read most sites, so pretty colours &amp;amp; formatting don&amp;rsquo;t bother me that much&lt;/li&gt;
+to read most sites, so pretty colours &amp;amp; formatting don&amp;rsquo;t bother me that much
+&lt;ul&gt;
+&lt;li&gt;Update 2021-05-05: I just learned about the
+&lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme&#34;&gt;prefers-color-scheme&lt;/a&gt;
+css media query. This site is now dark if your OS/browser is set to dark!&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;li&gt;embedded search feature

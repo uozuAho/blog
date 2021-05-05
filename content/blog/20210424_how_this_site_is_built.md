@@ -41,6 +41,9 @@ isn't too difficult to maintain. Below are some more specifics, and how
 - dark theme
   - I use [dark reader](https://darkreader.org) and [Feedly](https://feedly.com)
     to read most sites, so pretty colours & formatting don't bother me that much
+    - Update 2021-05-05: I just learned about the
+      [prefers-color-scheme](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme)
+      css media query. This site is now dark if your OS/browser is set to dark!
 - embedded search feature
   - don't need it for now. Looks easy enough:
     [embedded search options](https://gohugo.io/tools/search/)

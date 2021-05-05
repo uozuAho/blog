@@ -24,3 +24,7 @@ hugo server -D --bind 0.0.0.0
 # publish to web - simples!
 git push
 ```
+
+
+# todo
+- site/blog info missing on feedly

@@ -16,3 +16,10 @@ menu:
     - name: Blog
       url: "blog/"
       weight: 2
+
+markup:
+  goldmark:
+    renderer:
+      # render inline html
+      # alternative: custom shortcode: https://gohugo.io/templates/shortcode-templates/
+      unsafe: true

@@ -1,4 +1,12 @@
 #!/bin/bash
+# steps
+# local dev
+# - proof-read, test on mobile
+# - run lighthouse
+# branch deploy
+# - set draft to false
+# - run this script
+# - push to branch
 
 rm -rf public
 hugo

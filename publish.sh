@@ -7,6 +7,9 @@
 # - set draft to false
 # - run this script
 # - push to branch
+# - goto https://app.netlify.com/, log in
+# - goto site settings -> domain management -> branch subdomains, do the thing
+# - wait a while, while DNS updates (?)
 
 rm -rf public
 hugo

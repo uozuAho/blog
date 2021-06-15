@@ -7,7 +7,141 @@
     <atom:icon>https://iamwoz.com/favicon.ico</atom:icon>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-GB</language>
-    <lastBuildDate>Sat, 24 Apr 2021 14:48:00 +1100</lastBuildDate><atom:link href="https://iamwoz.com/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 13 Jun 2021 14:48:00 +1100</lastBuildDate><atom:link href="https://iamwoz.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Of mice and men - my battle with house mice</title>
+      <link>https://iamwoz.com/blog/20210613_mouse/</link>
+      <pubDate>Sun, 13 Jun 2021 14:48:00 +1100</pubDate>
+      
+      <guid>https://iamwoz.com/blog/20210613_mouse/</guid>
+      <description>&lt;p&gt;I&amp;rsquo;ve been playing a game of human and mouse recently. A couple of weeks ago,
+as I was walking into the kitchen, I spotted a mouse darting under the fridge.
+My first thought was to create an elaborate security camera system to find out
+where they go in the house.&lt;/p&gt;
+&lt;h1 id=&#34;the-setup&#34;&gt;The setup&lt;/h1&gt;
+&lt;p&gt;I&amp;rsquo;d been meaning to put together a camera system that makes it easy to observe
+plants &amp;amp; animals etc., so this was all the motivation I needed.&lt;/p&gt;
+&lt;p&gt;You can find all the technical details in &lt;a href=&#34;https://github.com/uozuAho/pi_cam_v1&#34;&gt;this repo&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;I already had most of the parts I needed to make the camera - a raspberry pi
+zero, night vision camera, infrared (IR) spotlight, flexible tripod, and of
+course, Blu Tack, rubber bands and determination. Here&amp;rsquo;s the camera and
+spotlight:&lt;/p&gt;
+&lt;p&gt;&lt;img
+src=&#34;https://iamwoz.com/blog/20210613_mouse/camera_front.webp&#34;
+alt=&#34;front of the camera on a tripod&#34;
+width=&#34;352&#34;
+loading=&#34;lazy&#34; /&gt;
+&lt;img
+src=&#34;https://iamwoz.com/blog/20210613_mouse/camera_back.webp&#34;
+alt=&#34;back of the camear on a tripod&#34;
+width=&#34;366&#34;
+loading=&#34;lazy&#34; /&gt;
+&lt;img
+src=&#34;https://iamwoz.com/blog/20210613_mouse/ir_spotlight.webp&#34;
+alt=&#34;IR spotlight&#34;
+width=&#34;409&#34;
+loading=&#34;lazy&#34; /&gt;&lt;/p&gt;
+&lt;h1 id=&#34;day-0---the-stakeout&#34;&gt;Day 0 - the stakeout&lt;/h1&gt;
+&lt;p&gt;Each evening, I set up the camera in the spot I wanted to monitor, and set it
+recording. Each morning, I scanned the recorded videos for motion using a handy
+tool called &lt;a href=&#34;https://dvr-scan.readthedocs.io/en/latest/&#34;&gt;dvr-scan&lt;/a&gt;.&lt;/p&gt;
+&lt;h1 id=&#34;day-1---theyre-on-the-kitchen-bench&#34;&gt;Day 1 - they&amp;rsquo;re on the kitchen bench&lt;/h1&gt;
+&lt;p&gt;They&amp;rsquo;re all over the kitchen bench, eww! How did they get there? They climbed
+the network cable! Exhibit A:&lt;/p&gt;
+&lt;video width=&#34;400&#34; height=&#34;300&#34; autoplay loop loading=&#34;lazy&#34;&gt;
+   &lt;source src=&#34;https://iamwoz.com/blog/20210613_mouse/mousefall.webm&#34; type=&#34;video/webm&#34; /&gt;
+   Sorry, your browser doesn&#39;t support embedded videos.
+&lt;/video&gt;
+&lt;p&gt;Look at it go!&lt;/p&gt;
+&lt;p&gt;They also jump! Apparently their eyesight isn&amp;rsquo;t that great, so good effort here,
+for not much reward (apart from the funny video):&lt;/p&gt;
+&lt;video width=&#34;400&#34; height=&#34;300&#34; autoplay loop loading=&#34;lazy&#34;&gt;
+   &lt;source src=&#34;https://iamwoz.com/blog/20210613_mouse/jump.webm&#34; type=&#34;video/webm&#34; /&gt;
+   Sorry, your browser doesn&#39;t support embedded videos.
+&lt;/video&gt;
+&lt;h2 id=&#34;the-cable-guard&#34;&gt;The cable guard&lt;/h2&gt;
+&lt;p&gt;To stop them climbing the cable, I made a cable guard based on the plastic rings
+I&amp;rsquo;ve seen around some power lines. I assume those are to stop possums. My guard
+is made from high quality materials: cardboard, sticky tape and Blu Tack.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://iamwoz.com/blog/20210613_mouse/cable_mouse_barrier_top.webp&#34;
+alt=&#34;cable barrier, from the top&#34;
+width=&#34;366&#34;
+loading=&#34;lazy&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://iamwoz.com/blog/20210613_mouse/cable_mouse_barrier_bottom.webp&#34;
+alt=&#34;cable barrier, from underneath&#34;
+width=&#34;481&#34;
+loading=&#34;lazy&#34; /&gt;&lt;/p&gt;
+&lt;h1 id=&#34;day-2---theyre-still-on-the-kitchen-bench&#34;&gt;Day 2 - they&amp;rsquo;re still on the kitchen bench&lt;/h1&gt;
+&lt;p&gt;D&amp;rsquo;oh. The first cable guard I made was too small. It stopped them for a while,
+but they outsmarted it before too long. Mice 1, Warwick 0.&lt;/p&gt;
+&lt;video width=&#34;400&#34; height=&#34;300&#34; autoplay loop loading=&#34;lazy&#34;&gt;
+   &lt;source src=&#34;https://iamwoz.com/blog/20210613_mouse/cable_barrier_wins.webm&#34; type=&#34;video/webm&#34; /&gt;
+   Sorry, your browser doesn&#39;t support embedded videos.
+&lt;/video&gt;
+&lt;video width=&#34;400&#34; height=&#34;300&#34; autoplay loop loading=&#34;lazy&#34;&gt;
+   &lt;source src=&#34;https://iamwoz.com/blog/20210613_mouse/defeat_cable_barrier.webm&#34; type=&#34;video/webm&#34; /&gt;
+   Sorry, your browser doesn&#39;t support embedded videos.
+&lt;/video&gt;
+&lt;p&gt;I made a bigger guard. Hopefully they can&amp;rsquo;t climb around this one. The photo of
+the guard above is actually the bigger one I made.&lt;/p&gt;
+&lt;h1 id=&#34;day-3---theyre-_still_-on-the-kitchen-bench-but-i-caught-one&#34;&gt;Day 3 - they&amp;rsquo;re &lt;em&gt;still&lt;/em&gt; on the kitchen bench, but I caught one!&lt;/h1&gt;
+&lt;p&gt;There was no sign of the mice on the network cable this time. However, they&amp;rsquo;re
+still on the kitchen bench. How are they getting there? Time to move the camera.&lt;/p&gt;
+&lt;p&gt;In the meantime, I&amp;rsquo;ve had traps set up around the crime scene:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://iamwoz.com/blog/20210613_mouse/trap.webp&#34;
+alt=&#34;mouse trap&#34;
+width=&#34;517&#34;
+loading=&#34;lazy&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://iamwoz.com/blog/20210613_mouse/trap_inside.webp&#34;
+alt=&#34;inside the mouse trap&#34;
+width=&#34;384&#34;
+loading=&#34;lazy&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;The food/bait sits deep inside, and when the mouse goes in to get it, the lid
+falls shut:&lt;/p&gt;
+&lt;video width=&#34;600&#34; height=&#34;300&#34; autoplay loop loading=&#34;lazy&#34;&gt;
+   &lt;source src=&#34;https://iamwoz.com/blog/20210613_mouse/trap.webm&#34; type=&#34;video/webm&#34; /&gt;
+   Sorry, your browser doesn&#39;t support embedded videos.
+&lt;/video&gt;
+&lt;p&gt;Genius!&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://iamwoz.com/blog/20210613_mouse/mouse_with_cheese.webp&#34;
+alt=&#34;mouse with a piece of cheese&#34;
+width=&#34;417&#34;
+loading=&#34;lazy&#34; /&gt;&lt;/p&gt;
+&lt;video width=&#34;400&#34; height=&#34;300&#34; autoplay loop loading=&#34;lazy&#34;&gt;
+   &lt;source src=&#34;https://iamwoz.com/blog/20210613_mouse/mouse_eat_cheese.webm&#34; type=&#34;video/webm&#34; /&gt;
+   Sorry, your browser doesn&#39;t support embedded videos.
+&lt;/video&gt;
+&lt;p&gt;D&amp;rsquo;aww he eats cheese just like I do. Off to the park!&lt;/p&gt;
+&lt;h1 id=&#34;day-4---a-new-route-to-the-kitchen-bench-is-discovered&#34;&gt;Day 4 - a new route to the kitchen bench is discovered&lt;/h1&gt;
+&lt;p&gt;I often saw the mice loitering around the dishwasher, so I set the camera up a
+bit closer to see what was going on there.&lt;/p&gt;
+&lt;video width=&#34;400&#34; height=&#34;300&#34; autoplay loop loading=&#34;lazy&#34;&gt;
+   &lt;source src=&#34;https://iamwoz.com/blog/20210613_mouse/climb_wood_panel.webm&#34; type=&#34;video/webm&#34; /&gt;
+   Sorry, your browser doesn&#39;t support embedded videos.
+&lt;/video&gt;
+&lt;p&gt;Aha! You sneaky, clever mouse! I stood staring at this wooden panel between the
+fridge and dishwasher for an unreasonably long time. Eventually, I devised a
+sophisticated barrier:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://iamwoz.com/blog/20210613_mouse/wood_panel_barrier.webp&#34;
+alt=&#34;cardboard taped to wooden panel&#34;
+width=&#34;335&#34;
+loading=&#34;lazy&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Cardboard again, sticky-taped to the panel. The idea was that it&amp;rsquo;d be too fiddly
+for the mice to hold on to on their way up&amp;hellip;&lt;/p&gt;
+&lt;video width=&#34;300&#34; height=&#34;300&#34; autoplay loop loading=&#34;lazy&#34;&gt;
+   &lt;source src=&#34;https://iamwoz.com/blog/20210613_mouse/wood_barrier.webm&#34; type=&#34;video/webm&#34; /&gt;
+   Sorry, your browser doesn&#39;t support embedded videos.
+&lt;/video&gt;
+&lt;p&gt;It worked! Mice 1, Warwick 1.&lt;/p&gt;
+&lt;h1 id=&#34;the-following-week&#34;&gt;The following week&lt;/h1&gt;
+&lt;p&gt;The following few nights, I didn&amp;rsquo;t catch any mice on the kitchen bench, but
+they&amp;rsquo;ve still been foraging around on the floor. I&amp;rsquo;ve caught two more since, but
+the &amp;lsquo;last&amp;rsquo; one seems to have caught on that its friends don&amp;rsquo;t come back from the
+traps. It&amp;rsquo;s been visiting less and less, and I haven&amp;rsquo;t seen it in the last
+couple of days. The battle is over, for now&amp;hellip;&lt;/p&gt;
+</description>
+    </item>
+    
     <item>
       <title>How this site is built</title>
       <link>https://iamwoz.com/blog/20210424_how_this_site_is_built/</link>

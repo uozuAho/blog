@@ -49,6 +49,7 @@ reasons in priority order
     - git - the cli's not the easiest, but at least it works the same everywhere
     - raspberry pi - they're much cheaper to use if you know how to use an ssh
       terminal!
+- Linux dev environment. More tools available, open source, common text interfaces
 - can do powerful things that you may otherwise use a spreadsheet & lots of
   manual work to do
     - bulk moving/renaming/editing files

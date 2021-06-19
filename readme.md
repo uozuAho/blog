@@ -28,3 +28,5 @@ git push
 
 # todo
 - site/blog info missing on feedly
+- automate lighthouse testing
+  - webdriver integrates with lighthouse

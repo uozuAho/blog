@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>testing on woz</title>
+    <link>https://iamwoz.com/tags/testing/</link>
+    <description>Recent content in testing on woz</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 18 Jun 2021 23:33:40 +1000</lastBuildDate><atom:link href="https://iamwoz.com/tags/testing/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Automated visual testing with Percy</title>
+      <link>https://iamwoz.com/blog/20210618_percy/</link>
+      <pubDate>Fri, 18 Jun 2021 23:33:40 +1000</pubDate>
+      
+      <guid>https://iamwoz.com/blog/20210618_percy/</guid>
+      <description>I shared my last post with some friends, and soon found out that the images and videos didn&amp;rsquo;t load on Safari. What better time than to introduce an overly complicated automated testing process to catch these problems in the future!
+I first checked my site in BrowserStack. Sure enough, it didn&amp;rsquo;t display correctly on any iPhones or Safari on MacOS.
+I&amp;rsquo;d heard of Percy before, but never used it. It takes snapshots of your site, and provides a visual tool for comparing differences as you make changes.</description>
+    </item>
+    
+  </channel>
+</rss>

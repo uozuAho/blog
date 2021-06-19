@@ -27,23 +27,18 @@
 </div>
 
 <main>
-<h1 id="todo">todo</h1>
-<ul>
-<li>note to self: webdriver integrates with lighthouse, try that out</li>
-<li>add link to repo saying see the final code there</li>
-</ul>
 <p>I shared my <a href="https://iamwoz.com/blog/20210613_mouse/">last post</a> with some friends, and
 soon found out that the images and videos didn&rsquo;t load on Safari. What better
 time than to introduce an overly complicated automated testing process to catch
 these problems in the future!</p>
-<p>I first checked my site in <a href="https://www.browserstack.com/">browserstack</a>. Sure
+<p>I first checked my site in <a href="https://www.browserstack.com/">BrowserStack</a>. Sure
 enough, it didn&rsquo;t display correctly on any iPhones or Safari on MacOS.</p>
-<p>I&rsquo;d heard of <a href="https://percy.io/">percy</a> before, but never used it. It takes
+<p>I&rsquo;d heard of <a href="https://percy.io/">Percy</a> before, but never used it. It takes
 snapshots of your site, and provides a visual tool for comparing differences as
 you make changes. Seems like a good way to make sure I don&rsquo;t break the site as
 I inevitably try out new stuff.</p>
-<h1 id="running-percy-locally">Running percy locally</h1>
-<h2 id="using-webdriver">Using webdriver</h2>
+<h1 id="running-percy-locally">Running Percy locally</h1>
+<h2 id="using-webdriverio">Using WebdriverIO</h2>
 <p>Percy is just a visual comparison tool, not a testing framework. It supports
 many frameworks, including <a href="https://webdriver.io/">WebdriverIO</a> which I&rsquo;m
 familiar with, so let&rsquo;s start with that:</p>
@@ -79,24 +74,31 @@ pages on my site running locally:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">hugo server
 </code></pre></div><p>In another terminal:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">npm test
-</code></pre></div><p>OK. This should be enough to take a couple of snapshots with percy. Install it:</p>
+</code></pre></div><p>OK. This should be enough to take a couple of snapshots with Percy. Install it:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">npm i @percy/cli @percy/webdriverio
 </code></pre></div><p>Add a <code>percySnapshot</code> at the end of each test, then run:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">export PERCY_TOKEN<span style="color:#f92672">=</span>my_secret_token
 npx percy exec -- wdio ./wdio.conf.js
-</code></pre></div><h2 id="using-percy-cli">Using percy CLI</h2>
-<p>I just saw that there&rsquo;s an easier process for static sites. Let&rsquo;s try that:</p>
-<p><a href="https://docs.percy.io/docs/snapshot-cli-command">https://docs.percy.io/docs/snapshot-cli-command</a></p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># publish everything, including drafts</span>
-hugo -D
-<span style="color:#75715e"># snapshot all html files</span>
-npx percy snapshot public/
 </code></pre></div><p>All my pages are new at this point, so there&rsquo;s no changes to compare:</p>
 <p><img
-src="/blog/20210618/new_snapshot.png"
+src="/blog/20210618_percy/new_snapshot.png"
 alt="example of a new snapshot display on Percy's UI" /></p>
-<p>I&rsquo;ve just realised that the only browsers currently supported are Chrome, Edge
-and Firefox. Derp. Ah well, I&rsquo;ve come this far, let&rsquo;s get it running in GitHub.</p>
+<h2 id="using-percy-cli">Using Percy CLI</h2>
+<p>As usual, after setting up a complicated way to do something, I discovered that
+there&rsquo;s an easier process. For static sites like this one, the
+<a href="https://docs.percy.io/docs/snapshot-cli-command">Percy CLI</a> can take snapshots
+of all published content. Let&rsquo;s try that:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># publish everything</span>
+hugo
+<span style="color:#75715e"># snapshot all html files, and send to percy</span>
+npx percy snapshot public/
+</code></pre></div><p>This is much easier than using webdriver! In the bin!</p>
+<p>Also, I&rsquo;ve just realised that the only browsers currently supported by Percy are
+Chrome, Edge and Firefox. Derp. So much for using it to detect problems on
+Safari. Ah well, I&rsquo;ve come this far, and it may still come in handy. Let&rsquo;s get
+it running in GitHub instead of locally. Add the Percy token to the GitHub repo:
+Go to the repo, then: settings -&gt; secrets -&gt; new secret.</p>
+<p>Then, create an action in <code>.github/workflows</code>:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml"><span style="color:#f92672">name</span>: <span style="color:#ae81ff">Percy</span>
 <span style="color:#f92672">on</span>: [<span style="color:#ae81ff">push]</span>
 <span style="color:#f92672">jobs</span>:
@@ -111,30 +113,30 @@ and Firefox. Derp. Ah well, I&rsquo;ve come this far, let&rsquo;s get it running
       - <span style="color:#f92672">run</span>: <span style="color:#ae81ff">npm ci</span>
       <span style="color:#75715e"># don&#39;t need to do a hugo build here - I do that locally, for now at least</span>
       - <span style="color:#f92672">run</span>: <span style="color:#ae81ff">npx percy snapshot public/</span>
-</code></pre></div><p>set mah token in github. repo -&gt; settings -&gt; secrets -&gt; new secret. PERCY_TOKEN</p>
-<h1 id="next-steps">next steps</h1>
-<ul>
-<li>run in CI
-<ul>
-<li>create github action
-<ul>
-<li><a href="https://docs.percy.io/docs/github-actions">https://docs.percy.io/docs/github-actions</a></li>
-</ul>
-</li>
-<li>check out percy github integration
-<ul>
-<li><a href="https://docs.percy.io/docs/getting-started">https://docs.percy.io/docs/getting-started</a></li>
-<li><a href="https://percy.io/7ec1e795/iamwoz/integrations">https://percy.io/7ec1e795/iamwoz/integrations</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li>actually fix things for safari</li>
-</ul>
+        <span style="color:#f92672">env</span>:
+          <span style="color:#f92672">PERCY_TOKEN</span>: <span style="color:#ae81ff">${{ secrets.PERCY_TOKEN }}</span>
+</code></pre></div><p>Push the changes. If all&rsquo;s gone well, the action will upload the site&rsquo;s
+snapshots to Percy, where changes can be reviewed:</p>
+<p><img
+src="/blog/20210618_percy/compare_page_versions.png"
+alt="example of comparing two versions of a page in Percy's UI" /></p>
+<p>The Percy UI shows a list of pages, with visual changes highlighted in red. You
+can toggle the highlighting on/off with the &rsquo;d' key, which makes finding and
+comparing changes easy.</p>
+<h1 id="next-steps">Next steps</h1>
+<p>OK. I&rsquo;m tired, and as usual, have learned a bunch of stuff without solving my
+original problem. Time to actually fix things for Safari :) I&rsquo;ll just manually
+test things in BrowserStack for now.</p>
+<p>It&rsquo;s possible to set up easy navigation to/from Percy from PRs on GitHub. This
+means PRs will show the Percy review status, which presumably goes green when I
+approve all the changes. I can&rsquo;t be bothered setting that up right now, but
+<a href="https://docs.percy.io/docs/source-code-integrations">here</a> are the docs for
+setting that up.</p>
 <h1 id="references">References</h1>
 <ul>
-<li><a href="https://docs.percy.io/docs/getting-started">percy: Getting started</a></li>
-<li><a href="https://docs.percy.io/docs/webdriverio">percy: WebdriverIO</a></li>
+<li><a href="https://docs.percy.io/docs/getting-started">Percy: Getting started</a></li>
+<li><a href="https://docs.percy.io/docs/webdriverio">Percy: WebdriverIO</a></li>
+<li><a href="https://github.com/uozuAho/blog">source code for this blog</a></li>
 </ul>
 
 </main>

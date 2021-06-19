@@ -10,6 +10,13 @@
 # - goto https://app.netlify.com/, log in
 # - goto site settings -> domain management -> branch subdomains, do the thing
 # - wait a while, while DNS updates (?)
+# final steps
+# - proof read
+# - read in feedly
+# - run lighthouse
+# - merge to main
+# - publish
+# - push
 
 rm -rf public
 hugo

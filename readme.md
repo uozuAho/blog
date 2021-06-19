@@ -20,6 +20,7 @@ hugo server -D --bind 0.0.0.0
 # Publish to the web
 ```sh
 # build content & put in public/
+# publish.sh lists more steps like proof reading, lighthouse etc.
 ./publish.sh
 # publish to web - simples!
 git push

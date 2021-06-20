@@ -1,7 +1,8 @@
 #!/bin/bash
 #
 # Requires ImageMagick
-# Resize to max specified pixels, webp format
+# Resize to max specified pixels, jpg format.
+# Note that Safari only recently supports webp.
 #
 # Usage:
 #
@@ -17,4 +18,4 @@ PATTERN=$2
 MAX_PIXELS=200000
 
 mkdir -p $OUT_DIR
-magick.exe mogrify -resize ${MAX_PIXELS}@ -path $OUT_DIR -format webp -quality 75 $PATTERN
+magick.exe mogrify -resize ${MAX_PIXELS}@ -path $OUT_DIR -format jpg -quality 75 $PATTERN

@@ -7,6 +7,16 @@ body {
 h1 {
   line-height: 1em;
 }
+h1:not(.page_title) {
+  line-height: 1em;
+  padding-top: 1em;
+}
+h2 {
+  padding-top: 0.5em;
+}
+li {
+  line-height: 1.8em;
+}
 @media (prefers-color-scheme: dark) {
   body {
     background: #1d1c1c;
@@ -63,7 +73,6 @@ hr {
     overflow-x: auto;
   }
 }
-code { background: #f9f9f9; }
 pre code { background: none; }
 
 /* misc elements */

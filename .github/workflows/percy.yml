@@ -1,0 +1,15 @@
+name: Percy
+on: [push]
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: get Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      - run: npm ci
+      - run: npx percy snapshot public/
+        env:
+          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}

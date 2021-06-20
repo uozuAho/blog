@@ -3,7 +3,7 @@
 # local dev
 # - proof-read, test on mobile
 # - run lighthouse
-# branch deploy
+# branch deploy (netlify subdomain)
 # - set draft to false
 # - run this script
 # - push to branch

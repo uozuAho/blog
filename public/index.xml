@@ -117,8 +117,8 @@ test things in BrowserStack for now.&lt;/p&gt;
 &lt;p&gt;It&amp;rsquo;s possible to set up easy navigation to/from Percy from PRs on GitHub. This
 means PRs will show the Percy review status, which presumably goes green when I
 approve all the changes. I can&amp;rsquo;t be bothered setting that up right now, but
-&lt;a href=&#34;https://docs.percy.io/docs/source-code-integrations&#34;&gt;here&lt;/a&gt; are the docs for
-setting that up.&lt;/p&gt;
+the docs for setting that up are at
+&lt;a href=&#34;https://docs.percy.io/docs/source-code-integrations&#34;&gt;Percy docs: source code integrations&lt;/a&gt;.&lt;/p&gt;
 &lt;h1 id=&#34;epilogue---why-wasnt-safari-showing-images-and-videos&#34;&gt;Epilogue - why wasn&amp;rsquo;t Safari showing images and videos?&lt;/h1&gt;
 &lt;p&gt;It looks like only very recent versions of Safari support &lt;code&gt;webp&lt;/code&gt; and &lt;code&gt;webm&lt;/code&gt;
 formats, which I was using. I&amp;rsquo;ve since converted them to &lt;code&gt;jpg&lt;/code&gt; and

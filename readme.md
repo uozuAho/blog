@@ -28,6 +28,7 @@ git push
 
 
 # todo
+- videos don't play on iphone (safari)
 - site/blog info missing on feedly
 - automate lighthouse testing
   - webdriver integrates with lighthouse

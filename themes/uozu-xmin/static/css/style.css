@@ -4,6 +4,9 @@ body {
   padding: 1em;
   line-height: 1.5em;
 }
+h1 {
+  line-height: 1em;
+}
 h1:not(.page_title) {
   line-height: 1em;
   padding-top: 1em;

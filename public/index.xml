@@ -12,7 +12,7 @@
       <title>Automated visual testing with Percy</title>
       <link>https://iamwoz.com/blog/20210618_percy/</link>
       <pubDate>Fri, 18 Jun 2021 23:33:40 +1000</pubDate>
-
+      
       <guid>https://iamwoz.com/blog/20210618_percy/</guid>
       <description>&lt;p&gt;I shared my &lt;a href=&#34;https://iamwoz.com/blog/20210613_mouse/&#34;&gt;last post&lt;/a&gt; with some friends, and
 soon found out that the images and videos didn&amp;rsquo;t load on Safari. What better
@@ -119,6 +119,10 @@ means PRs will show the Percy review status, which presumably goes green when I
 approve all the changes. I can&amp;rsquo;t be bothered setting that up right now, but
 &lt;a href=&#34;https://docs.percy.io/docs/source-code-integrations&#34;&gt;here&lt;/a&gt; are the docs for
 setting that up.&lt;/p&gt;
+&lt;h1 id=&#34;epilogue---why-wasnt-safari-showing-images-and-videos&#34;&gt;Epilogue - why wasn&amp;rsquo;t Safari showing images and videos?&lt;/h1&gt;
+&lt;p&gt;It looks like only very recent versions of Safari support &lt;code&gt;webp&lt;/code&gt; and &lt;code&gt;webm&lt;/code&gt;
+formats, which I was using. I&amp;rsquo;ve since converted them to &lt;code&gt;jpg&lt;/code&gt; and
+&lt;code&gt;mp4 (with h264 video)&lt;/code&gt;.&lt;/p&gt;
 &lt;h1 id=&#34;references&#34;&gt;References&lt;/h1&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;https://docs.percy.io/docs/getting-started&#34;&gt;Percy: Getting started&lt;/a&gt;&lt;/li&gt;
@@ -127,12 +131,12 @@ setting that up.&lt;/p&gt;
 &lt;/ul&gt;
 </description>
     </item>
-
+    
     <item>
       <title>Of mice and men - my battle with house mice</title>
       <link>https://iamwoz.com/blog/20210613_mouse/</link>
       <pubDate>Sun, 13 Jun 2021 14:48:00 +1100</pubDate>
-
+      
       <guid>https://iamwoz.com/blog/20210613_mouse/</guid>
       <description>&lt;p&gt;I&amp;rsquo;ve been playing a game of human and mouse recently. A couple of weeks ago,
 as I was walking into the kitchen, I spotted a mouse darting under the fridge.
@@ -261,12 +265,12 @@ traps. It&amp;rsquo;s been visiting less and less, and I haven&amp;rsquo;t seen 
 couple of days. The battle is over, for now&amp;hellip;&lt;/p&gt;
 </description>
     </item>
-
+    
     <item>
       <title>How this site is built</title>
       <link>https://iamwoz.com/blog/20210424_how_this_site_is_built/</link>
       <pubDate>Sat, 24 Apr 2021 14:48:00 +1100</pubDate>
-
+      
       <guid>https://iamwoz.com/blog/20210424_how_this_site_is_built/</guid>
       <description>&lt;p&gt;I currently use &lt;a href=&#34;https://gohugo.io/&#34;&gt;Hugo&lt;/a&gt; to generate the site content from
 markdown. The content is hosted by &lt;a href=&#34;https://www.netlify.com&#34;&gt;Netlify&lt;/a&gt;. The
@@ -474,6 +478,6 @@ rendered HTML + CSS from my dev machine seems good enough.&lt;/p&gt;
 &lt;/ul&gt;
 </description>
     </item>
-
+    
   </channel>
 </rss>

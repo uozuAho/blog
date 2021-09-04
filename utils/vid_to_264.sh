@@ -12,4 +12,5 @@ set -u
 input=$1
 output=$2
 
+# -an removes audio
 ffmpeg -i $input -c:v libx264 -an $output

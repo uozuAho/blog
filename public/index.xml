@@ -225,14 +225,14 @@ tool called &lt;a href=&#34;https://dvr-scan.readthedocs.io/en/latest/&#34;&gt;d
 &lt;h1 id=&#34;day-1---theyre-on-the-kitchen-bench&#34;&gt;Day 1 - they&amp;rsquo;re on the kitchen bench&lt;/h1&gt;
 &lt;p&gt;They&amp;rsquo;re all over the kitchen bench, eww! How did they get there? They climbed
 the network cable! Exhibit A:&lt;/p&gt;
-&lt;video width=&#34;400&#34; height=&#34;300&#34; autoplay loop loading=&#34;lazy&#34;&gt;
+&lt;video width=&#34;400&#34; height=&#34;300&#34; controls loading=&#34;lazy&#34;&gt;
    &lt;source src=&#34;https://iamwoz.com/blog/20210613_mouse/mousefall.mp4&#34; type=&#34;video/mp4&#34; /&gt;
    Sorry, your browser doesn&#39;t support embedded videos.
 &lt;/video&gt;
 &lt;p&gt;Look at it go!&lt;/p&gt;
 &lt;p&gt;They also jump! Apparently their eyesight isn&amp;rsquo;t that great, so good effort here,
 for not much reward (apart from the funny video):&lt;/p&gt;
-&lt;video width=&#34;400&#34; height=&#34;300&#34; autoplay loop loading=&#34;lazy&#34;&gt;
+&lt;video width=&#34;400&#34; height=&#34;300&#34; controls loading=&#34;lazy&#34;&gt;
    &lt;source src=&#34;https://iamwoz.com/blog/20210613_mouse/jump.mp4&#34; type=&#34;video/mp4&#34; /&gt;
    Sorry, your browser doesn&#39;t support embedded videos.
 &lt;/video&gt;
@@ -251,11 +251,11 @@ loading=&#34;lazy&#34; /&gt;&lt;/p&gt;
 &lt;h1 id=&#34;day-2---theyre-still-on-the-kitchen-bench&#34;&gt;Day 2 - they&amp;rsquo;re still on the kitchen bench&lt;/h1&gt;
 &lt;p&gt;D&amp;rsquo;oh. The first cable guard I made was too small. It stopped them for a while,
 but they outsmarted it before too long. Mice 1, Warwick 0.&lt;/p&gt;
-&lt;video width=&#34;400&#34; height=&#34;300&#34; autoplay loop loading=&#34;lazy&#34;&gt;
+&lt;video width=&#34;400&#34; height=&#34;300&#34; controls loading=&#34;lazy&#34;&gt;
    &lt;source src=&#34;https://iamwoz.com/blog/20210613_mouse/cable_barrier_wins.mp4&#34; type=&#34;video/mp4&#34; /&gt;
    Sorry, your browser doesn&#39;t support embedded videos.
 &lt;/video&gt;
-&lt;video width=&#34;400&#34; height=&#34;300&#34; autoplay loop loading=&#34;lazy&#34;&gt;
+&lt;video width=&#34;400&#34; height=&#34;300&#34; controls loading=&#34;lazy&#34;&gt;
    &lt;source src=&#34;https://iamwoz.com/blog/20210613_mouse/defeat_cable_barrier.mp4&#34; type=&#34;video/mp4&#34; /&gt;
    Sorry, your browser doesn&#39;t support embedded videos.
 &lt;/video&gt;
@@ -275,7 +275,7 @@ width=&#34;384&#34;
 loading=&#34;lazy&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;The food/bait sits deep inside, and when the mouse goes in to get it, the lid
 falls shut:&lt;/p&gt;
-&lt;video width=&#34;600&#34; height=&#34;300&#34; autoplay loop loading=&#34;lazy&#34;&gt;
+&lt;video width=&#34;600&#34; height=&#34;300&#34; controls loading=&#34;lazy&#34;&gt;
    &lt;source src=&#34;https://iamwoz.com/blog/20210613_mouse/trap.mp4&#34; type=&#34;video/mp4&#34; /&gt;
    Sorry, your browser doesn&#39;t support embedded videos.
 &lt;/video&gt;
@@ -284,7 +284,7 @@ falls shut:&lt;/p&gt;
 alt=&#34;mouse with a piece of cheese&#34;
 width=&#34;417&#34;
 loading=&#34;lazy&#34; /&gt;&lt;/p&gt;
-&lt;video width=&#34;400&#34; height=&#34;300&#34; autoplay loop loading=&#34;lazy&#34;&gt;
+&lt;video width=&#34;400&#34; height=&#34;300&#34; controls loading=&#34;lazy&#34;&gt;
    &lt;source src=&#34;https://iamwoz.com/blog/20210613_mouse/mouse_eat_cheese.mp4&#34; type=&#34;video/mp4&#34; /&gt;
    Sorry, your browser doesn&#39;t support embedded videos.
 &lt;/video&gt;
@@ -292,7 +292,7 @@ loading=&#34;lazy&#34; /&gt;&lt;/p&gt;
 &lt;h1 id=&#34;day-4---a-new-route-to-the-kitchen-bench-is-discovered&#34;&gt;Day 4 - a new route to the kitchen bench is discovered&lt;/h1&gt;
 &lt;p&gt;I often saw the mice loitering around the dishwasher, so I set the camera up a
 bit closer to see what was going on there.&lt;/p&gt;
-&lt;video width=&#34;400&#34; height=&#34;300&#34; autoplay loop loading=&#34;lazy&#34;&gt;
+&lt;video width=&#34;400&#34; height=&#34;300&#34; controls loading=&#34;lazy&#34;&gt;
    &lt;source src=&#34;https://iamwoz.com/blog/20210613_mouse/climb_wood_panel.mp4&#34; type=&#34;video/mp4&#34; /&gt;
    Sorry, your browser doesn&#39;t support embedded videos.
 &lt;/video&gt;
@@ -305,7 +305,7 @@ width=&#34;335&#34;
 loading=&#34;lazy&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;Cardboard again, sticky-taped to the panel. The idea was that it&amp;rsquo;d be too fiddly
 for the mice to hold on to on their way up&amp;hellip;&lt;/p&gt;
-&lt;video width=&#34;300&#34; height=&#34;300&#34; autoplay loop loading=&#34;lazy&#34;&gt;
+&lt;video width=&#34;300&#34; height=&#34;300&#34; controls loading=&#34;lazy&#34;&gt;
    &lt;source src=&#34;https://iamwoz.com/blog/20210613_mouse/wood_barrier.mp4&#34; type=&#34;video/mp4&#34; /&gt;
    Sorry, your browser doesn&#39;t support embedded videos.
 &lt;/video&gt;

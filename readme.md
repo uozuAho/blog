@@ -29,6 +29,11 @@ git push
 
 # todo
 - videos don't play on iphone (safari)
+  - remove autoplay
+- add footer with nav links
+- improve contrast in dark theme
+  - see lighthouse report
+  - clicked links are dim
 - site/blog info missing on feedly
 - automate lighthouse testing
   - webdriver integrates with lighthouse

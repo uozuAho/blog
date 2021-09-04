@@ -7,7 +7,60 @@
     <atom:icon>https://iamwoz.com/favicon.ico</atom:icon>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-GB</language>
-    <lastBuildDate>Fri, 18 Jun 2021 23:33:40 +1000</lastBuildDate><atom:link href="https://iamwoz.com/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 29 Aug 2021 11:00:00 +1100</lastBuildDate><atom:link href="https://iamwoz.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>A new mouse trap - the tub</title>
+      <link>https://iamwoz.com/blog/20210829_mouse2/</link>
+      <pubDate>Sun, 29 Aug 2021 11:00:00 +1100</pubDate>
+      
+      <guid>https://iamwoz.com/blog/20210829_mouse2/</guid>
+      <description>&lt;p&gt;It&amp;rsquo;s been a while since I set up my elaborate set of mouse traps, barriers and
+surveillance. See &lt;a href=&#34;https://iamwoz.com/blog/20210613_mouse/&#34;&gt;this post&lt;/a&gt;. Everything has
+been in place since then, and I enjoyed a few mouse-free weeks after catching
+the first 3 mice. However, at least one mouse came back, and was wise enough to
+avoid the existing traps, no matter what bait I used. I tried peanut butter,
+cheese, bread, bird seed, vegemite and honey. It was time for a new trap.&lt;/p&gt;
+&lt;h1 id=&#34;the-new-trap&#34;&gt;The new trap&lt;/h1&gt;
+&lt;p&gt;There are plenty of ideas out there on how to build a DIY mouse trap. For
+example, here&amp;rsquo;s a big list of &lt;a href=&#34;https://www.itsoverflowing.com/homemade-mouse-trap-diy/&#34;&gt;DIY mouse traps&lt;/a&gt;.
+A lot of them follow a similar concept: the mouse gets lured into/onto an
+unstable platform over a large container. The weight of the mouse is enough to
+make the platform or just the mouse fall into the container. Here&amp;rsquo;s my version,
+using bits I had around the house:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://iamwoz.com/blog/20210829_mouse2/20210829_102835.jpg&#34;
+alt=&#34;&#34;
+width=&#34;530&#34;
+loading=&#34;lazy&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;There&amp;rsquo;s peanut butter and cheese on top of the empty toilet roll. If all goes to
+plan, the mouse should lose its footing on the roll, and fall into the tub.&lt;/p&gt;
+&lt;p&gt;At first, it looked as if the mouse was well aware that this was a
+human-constructed trap, and kept its distance. Over the next couple of days,
+lured by little bits of cheese I put on the ramp, the mouse got more
+adventurous:&lt;/p&gt;
+&lt;video width=&#34;600&#34; height=&#34;400&#34; controls loading=&#34;lazy&#34;&gt;
+   &lt;source src=&#34;https://iamwoz.com/blog/20210829_mouse2/snooping_around_tub.mp4&#34; type=&#34;video/mp4&#34; /&gt;
+   Sorry, your browser doesn&#39;t support embedded videos.
+&lt;/video&gt;
+&lt;p&gt;It looked as though again, the mouse was too smart for me.&lt;/p&gt;
+&lt;h1 id=&#34;a-critical-error&#34;&gt;A critical error&lt;/h1&gt;
+&lt;p&gt;The mouse was confidently strutting around the top of the tub, and carefully
+examining the food in the middle of the trap from a distance. I thought I was
+going to have to go back to the drawing board. But then, one morning, I heard
+some noises coming from the tub&amp;hellip;&lt;/p&gt;
+&lt;video width=&#34;600&#34; height=&#34;400&#34; controls loading=&#34;lazy&#34;&gt;
+   &lt;source src=&#34;https://iamwoz.com/blog/20210829_mouse2/mouse_in_tub.mp4&#34; type=&#34;video/mp4&#34; /&gt;
+   Sorry, your browser doesn&#39;t support embedded videos.
+&lt;/video&gt;
+&lt;p&gt;I had beaten the mouse! I reviewed the night&amp;rsquo;s footage to see that little mousey
+had made a critical misstep, and its dreams of spending its retirement in my
+house were over.&lt;/p&gt;
+&lt;video width=&#34;600&#34; height=&#34;400&#34; controls loading=&#34;lazy&#34;&gt;
+   &lt;source src=&#34;https://iamwoz.com/blog/20210829_mouse2/mouse_tub_fall.mp4&#34; type=&#34;video/mp4&#34; /&gt;
+   Sorry, your browser doesn&#39;t support embedded videos.
+&lt;/video&gt;
+</description>
+    </item>
+    
     <item>
       <title>Automated visual testing with Percy</title>
       <link>https://iamwoz.com/blog/20210618_percy/</link>

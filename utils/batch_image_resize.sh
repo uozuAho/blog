@@ -15,7 +15,7 @@ set -eu
 
 OUT_DIR=$1
 PATTERN=$2
-MAX_PIXELS=200000
+MAX_PIXELS=400000
 
 mkdir -p $OUT_DIR
-magick.exe mogrify -resize ${MAX_PIXELS}@ -path $OUT_DIR -format jpg -quality 75 $PATTERN
+magick.exe mogrify -resize ${MAX_PIXELS}@ -path $OUT_DIR -format jpg -quality 80 $PATTERN

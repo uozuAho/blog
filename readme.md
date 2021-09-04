@@ -29,7 +29,7 @@ git push
 
 # todo
 - videos don't play on iphone (safari)
-  - also some android?
+  - remove autoplay
 - add footer with nav links
 - improve contrast in dark theme
   - see lighthouse report

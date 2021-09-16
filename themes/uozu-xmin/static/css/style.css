@@ -1,10 +1,21 @@
 body {
+  max-width: 800px;
   margin: auto;
   padding: 1em;
   line-height: 1.5em;
 }
 h1 {
   line-height: 1em;
+}
+h1:not(.page_title) {
+  line-height: 1em;
+  padding-top: 1em;
+}
+h2 {
+  padding-top: 0.5em;
+}
+li {
+  line-height: 1.8em;
 }
 @media (prefers-color-scheme: dark) {
   body {
@@ -62,11 +73,12 @@ hr {
     overflow-x: auto;
   }
 }
-code { background: #f9f9f9; }
 pre code { background: none; }
 
 /* misc elements */
-img, iframe, video { max-width: 100%; }
+img, iframe, video {
+  max-width: 100%;
+}
 main { hyphens: auto; }
 blockquote {
   background: #f9f9f9;

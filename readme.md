@@ -20,6 +20,7 @@ hugo server -D --bind 0.0.0.0
 # Publish to the web
 ```sh
 # build content & put in public/
+# publish.sh lists more steps like proof reading, lighthouse etc.
 ./publish.sh
 # publish to web - simples!
 git push
@@ -27,4 +28,11 @@ git push
 
 
 # todo
+- how to find links to my posts?
+- any SEO I should be doing?
+- improve contrast in dark theme
+  - see lighthouse report
+  - clicked links are dim
 - site/blog info missing on feedly
+- automate lighthouse testing
+  - webdriver integrates with lighthouse

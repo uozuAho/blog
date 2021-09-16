@@ -7,7 +7,318 @@
     <atom:icon>https://iamwoz.com/favicon.ico</atom:icon>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-GB</language>
-    <lastBuildDate>Sat, 24 Apr 2021 14:48:00 +1100</lastBuildDate><atom:link href="https://iamwoz.com/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 29 Aug 2021 11:00:00 +1100</lastBuildDate><atom:link href="https://iamwoz.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>A new mouse trap - the tub</title>
+      <link>https://iamwoz.com/blog/20210829_mouse2/</link>
+      <pubDate>Sun, 29 Aug 2021 11:00:00 +1100</pubDate>
+      
+      <guid>https://iamwoz.com/blog/20210829_mouse2/</guid>
+      <description>&lt;p&gt;It&amp;rsquo;s been a while since I set up my elaborate set of mouse traps, barriers and
+surveillance. See &lt;a href=&#34;https://iamwoz.com/blog/20210613_mouse/&#34;&gt;this post&lt;/a&gt;. Everything has
+been in place since then, and I enjoyed a few mouse-free weeks after catching
+the first 3 mice. However, at least one mouse came back, and was wise enough to
+avoid the existing traps, no matter what bait I used. I tried peanut butter,
+cheese, bread, bird seed, vegemite and honey. It was time for a new trap.&lt;/p&gt;
+&lt;h1 id=&#34;the-new-trap&#34;&gt;The new trap&lt;/h1&gt;
+&lt;p&gt;There are plenty of ideas out there on how to build a DIY mouse trap. For
+example, here&amp;rsquo;s a big list of &lt;a href=&#34;https://www.itsoverflowing.com/homemade-mouse-trap-diy/&#34;&gt;DIY mouse traps&lt;/a&gt;.
+A lot of them follow a similar concept: the mouse gets lured into/onto an
+unstable platform over a large container. The weight of the mouse is enough to
+make the platform or just the mouse fall into the container. Here&amp;rsquo;s my version,
+using bits I had around the house:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://iamwoz.com/blog/20210829_mouse2/20210829_102835.jpg&#34;
+alt=&#34;&#34;
+width=&#34;530&#34;
+loading=&#34;lazy&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;There&amp;rsquo;s peanut butter and cheese on top of the empty toilet roll. If all goes to
+plan, the mouse should lose its footing on the roll, and fall into the tub.&lt;/p&gt;
+&lt;p&gt;At first, it looked as if the mouse was well aware that this was a
+human-constructed trap, and kept its distance. Over the next couple of days,
+lured by little bits of cheese I put on the ramp, the mouse got more
+adventurous:&lt;/p&gt;
+&lt;video width=&#34;600&#34; height=&#34;400&#34; controls loading=&#34;lazy&#34;&gt;
+   &lt;source src=&#34;https://iamwoz.com/blog/20210829_mouse2/snooping_around_tub.mp4&#34; type=&#34;video/mp4&#34; /&gt;
+   Sorry, your browser doesn&#39;t support embedded videos.
+&lt;/video&gt;
+&lt;p&gt;It looked as though again, the mouse was too smart for me.&lt;/p&gt;
+&lt;h1 id=&#34;a-critical-error&#34;&gt;A critical error&lt;/h1&gt;
+&lt;p&gt;The mouse was confidently strutting around the top of the tub, and carefully
+examining the food in the middle of the trap from a distance. I thought I was
+going to have to go back to the drawing board. But then, one morning, I heard
+some noises coming from the tub&amp;hellip;&lt;/p&gt;
+&lt;video width=&#34;600&#34; height=&#34;400&#34; controls loading=&#34;lazy&#34;&gt;
+   &lt;source src=&#34;https://iamwoz.com/blog/20210829_mouse2/mouse_in_tub.mp4&#34; type=&#34;video/mp4&#34; /&gt;
+   Sorry, your browser doesn&#39;t support embedded videos.
+&lt;/video&gt;
+&lt;p&gt;I had beaten the mouse! I reviewed the night&amp;rsquo;s footage to see that little mousey
+had made a critical misstep, and its dreams of spending its retirement in my
+house were over.&lt;/p&gt;
+&lt;video width=&#34;600&#34; height=&#34;400&#34; controls loading=&#34;lazy&#34;&gt;
+   &lt;source src=&#34;https://iamwoz.com/blog/20210829_mouse2/mouse_tub_fall.mp4&#34; type=&#34;video/mp4&#34; /&gt;
+   Sorry, your browser doesn&#39;t support embedded videos.
+&lt;/video&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Automated visual testing with Percy</title>
+      <link>https://iamwoz.com/blog/20210618_percy/</link>
+      <pubDate>Fri, 18 Jun 2021 23:33:40 +1000</pubDate>
+      
+      <guid>https://iamwoz.com/blog/20210618_percy/</guid>
+      <description>&lt;p&gt;I shared my &lt;a href=&#34;https://iamwoz.com/blog/20210613_mouse/&#34;&gt;last post&lt;/a&gt; with some friends, and
+soon found out that the images and videos didn&amp;rsquo;t load on Safari. What better
+time than to introduce an overly complicated automated testing process to catch
+these problems in the future!&lt;/p&gt;
+&lt;p&gt;I first checked my site in &lt;a href=&#34;https://www.browserstack.com/&#34;&gt;BrowserStack&lt;/a&gt;. Sure
+enough, it didn&amp;rsquo;t display correctly on any iPhones or Safari on MacOS.&lt;/p&gt;
+&lt;p&gt;I&amp;rsquo;d heard of &lt;a href=&#34;https://percy.io/&#34;&gt;Percy&lt;/a&gt; before, but never used it. It takes
+snapshots of your site, and provides a visual tool for comparing differences as
+you make changes. Seems like a good way to make sure I don&amp;rsquo;t break the site as
+I inevitably try out new stuff.&lt;/p&gt;
+&lt;h1 id=&#34;running-percy-locally&#34;&gt;Running Percy locally&lt;/h1&gt;
+&lt;h2 id=&#34;using-webdriverio&#34;&gt;Using WebdriverIO&lt;/h2&gt;
+&lt;p&gt;Percy is just a visual comparison tool, not a testing framework. It supports
+many frameworks, including &lt;a href=&#34;https://webdriver.io/&#34;&gt;WebdriverIO&lt;/a&gt; which I&amp;rsquo;m
+familiar with, so let&amp;rsquo;s start with that:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# initialise npm in my blog project (nooo! I didn&amp;#39;t think it would happen so soon :( )&lt;/span&gt;
+npm init
+&lt;span style=&#34;color:#75715e&#34;&gt;# add webdriver&lt;/span&gt;
+npm install @wdio/cli
+npx wdio init
+&lt;span style=&#34;color:#75715e&#34;&gt;# modify package.json to make the test script = wdio ./wdio.conf.js&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;# check it works:&lt;/span&gt;
+npm test
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;All good. Now replace the example test &lt;code&gt;wdio&lt;/code&gt; created with just opening a few
+pages on my site running locally:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-js&#34; data-lang=&#34;js&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;baseUrl&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;http://localhost:1313&amp;#39;&lt;/span&gt;;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;async&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;function&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;click&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;selector&lt;/span&gt;) {
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;elem&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;await&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;$&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;selector&lt;/span&gt;);
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;await&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;elem&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;waitForDisplayed&lt;/span&gt;();
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;await&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;elem&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;click&lt;/span&gt;();
+}
+
+&lt;span style=&#34;color:#a6e22e&#34;&gt;describe&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;stuff&amp;#39;&lt;/span&gt;, () =&amp;gt; {
+  &lt;span style=&#34;color:#a6e22e&#34;&gt;it&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;goto homepage&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#66d9ef&#34;&gt;async&lt;/span&gt; () =&amp;gt; {
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;await&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;browser&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;url&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;baseUrl&lt;/span&gt;);
+  });
+
+  &lt;span style=&#34;color:#a6e22e&#34;&gt;it&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;goto blog&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#66d9ef&#34;&gt;async&lt;/span&gt; () =&amp;gt; {
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;await&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;browser&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;url&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;baseUrl&lt;/span&gt;);
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;await&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;click&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;=Blog&amp;#39;&lt;/span&gt;);
+  });
+});
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;In one terminal:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;hugo server
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;In another terminal:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;npm test
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;OK. This should be enough to take a couple of snapshots with Percy. Install it:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;npm i @percy/cli @percy/webdriverio
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Add a &lt;code&gt;percySnapshot&lt;/code&gt; at the end of each test, then run:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;export PERCY_TOKEN&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;my_secret_token
+npx percy exec -- wdio ./wdio.conf.js
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;All my pages are new at this point, so there&amp;rsquo;s no changes to compare:&lt;/p&gt;
+&lt;p&gt;&lt;img
+src=&#34;https://iamwoz.com/blog/20210618_percy/new_snapshot.png&#34;
+alt=&#34;example of a new snapshot display on Percy&#39;s UI&#34; /&gt;&lt;/p&gt;
+&lt;h2 id=&#34;using-percy-cli&#34;&gt;Using Percy CLI&lt;/h2&gt;
+&lt;p&gt;As usual, after setting up a complicated way to do something, I discovered that
+there&amp;rsquo;s an easier process. For static sites like this one, the
+&lt;a href=&#34;https://docs.percy.io/docs/snapshot-cli-command&#34;&gt;Percy CLI&lt;/a&gt; can take snapshots
+of all published content. Let&amp;rsquo;s try that:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# publish everything&lt;/span&gt;
+hugo
+&lt;span style=&#34;color:#75715e&#34;&gt;# snapshot all html files, and send to percy&lt;/span&gt;
+npx percy snapshot public/
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This is much easier than using webdriver! In the bin!&lt;/p&gt;
+&lt;p&gt;Also, I&amp;rsquo;ve just realised that the only browsers currently supported by Percy are
+Chrome, Edge and Firefox. Derp. So much for using it to detect problems on
+Safari. Ah well, I&amp;rsquo;ve come this far, and it may still come in handy. Let&amp;rsquo;s get
+it running in GitHub instead of locally. Add the Percy token to the GitHub repo:
+Go to the repo, then: settings -&amp;gt; secrets -&amp;gt; new secret.&lt;/p&gt;
+&lt;p&gt;Then, create an action in &lt;code&gt;.github/workflows&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-yml&#34; data-lang=&#34;yml&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;name&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;Percy&lt;/span&gt;
+&lt;span style=&#34;color:#f92672&#34;&gt;on&lt;/span&gt;: [&lt;span style=&#34;color:#ae81ff&#34;&gt;push]&lt;/span&gt;
+&lt;span style=&#34;color:#f92672&#34;&gt;jobs&lt;/span&gt;:
+  &lt;span style=&#34;color:#f92672&#34;&gt;snapshot&lt;/span&gt;:
+    &lt;span style=&#34;color:#f92672&#34;&gt;runs-on&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;ubuntu-latest&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;steps&lt;/span&gt;:
+      - &lt;span style=&#34;color:#f92672&#34;&gt;uses&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;actions/checkout@v2&lt;/span&gt;
+      - &lt;span style=&#34;color:#f92672&#34;&gt;name&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;get Node.js&lt;/span&gt;
+        &lt;span style=&#34;color:#f92672&#34;&gt;uses&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;actions/setup-node@v1&lt;/span&gt;
+        &lt;span style=&#34;color:#f92672&#34;&gt;with&lt;/span&gt;:
+          &lt;span style=&#34;color:#f92672&#34;&gt;node-version&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;12.&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;x&lt;/span&gt;
+      - &lt;span style=&#34;color:#f92672&#34;&gt;run&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;npm ci&lt;/span&gt;
+      &lt;span style=&#34;color:#75715e&#34;&gt;# don&amp;#39;t need to do a hugo build here - I do that locally, for now at least&lt;/span&gt;
+      - &lt;span style=&#34;color:#f92672&#34;&gt;run&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;npx percy snapshot public/&lt;/span&gt;
+        &lt;span style=&#34;color:#f92672&#34;&gt;env&lt;/span&gt;:
+          &lt;span style=&#34;color:#f92672&#34;&gt;PERCY_TOKEN&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;${{ secrets.PERCY_TOKEN }}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Push the changes. If all&amp;rsquo;s gone well, the action will upload the site&amp;rsquo;s
+snapshots to Percy, where changes can be reviewed:&lt;/p&gt;
+&lt;p&gt;&lt;img
+src=&#34;https://iamwoz.com/blog/20210618_percy/compare_page_versions.png&#34;
+alt=&#34;example of comparing two versions of a page in Percy&#39;s UI&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;The Percy UI shows a list of pages, with visual changes highlighted in red. You
+can toggle the highlighting on/off with the &amp;rsquo;d&#39; key, which makes finding and
+comparing changes easy.&lt;/p&gt;
+&lt;h1 id=&#34;next-steps&#34;&gt;Next steps&lt;/h1&gt;
+&lt;p&gt;OK. I&amp;rsquo;m tired, and as usual, have learned a bunch of stuff without solving my
+original problem. Time to actually fix things for Safari :) I&amp;rsquo;ll just manually
+test things in BrowserStack for now.&lt;/p&gt;
+&lt;p&gt;It&amp;rsquo;s possible to set up easy navigation to/from Percy from PRs on GitHub. This
+means PRs will show the Percy review status, which presumably goes green when I
+approve all the changes. I can&amp;rsquo;t be bothered setting that up right now, but
+the docs for setting that up are at
+&lt;a href=&#34;https://docs.percy.io/docs/source-code-integrations&#34;&gt;Percy docs: source code integrations&lt;/a&gt;.&lt;/p&gt;
+&lt;h1 id=&#34;epilogue---why-wasnt-safari-showing-images-and-videos&#34;&gt;Epilogue - why wasn&amp;rsquo;t Safari showing images and videos?&lt;/h1&gt;
+&lt;p&gt;It looks like only very recent versions of Safari support &lt;code&gt;webp&lt;/code&gt; and &lt;code&gt;webm&lt;/code&gt;
+formats, which I was using. I&amp;rsquo;ve since converted them to &lt;code&gt;jpg&lt;/code&gt; and
+&lt;code&gt;mp4 (with h264 video)&lt;/code&gt;.&lt;/p&gt;
+&lt;h1 id=&#34;references&#34;&gt;References&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://docs.percy.io/docs/getting-started&#34;&gt;Percy: Getting started&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://docs.percy.io/docs/webdriverio&#34;&gt;Percy: WebdriverIO&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/uozuAho/blog&#34;&gt;source code for this blog&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Of mice and men - my battle with house mice</title>
+      <link>https://iamwoz.com/blog/20210613_mouse/</link>
+      <pubDate>Sun, 13 Jun 2021 14:48:00 +1100</pubDate>
+      
+      <guid>https://iamwoz.com/blog/20210613_mouse/</guid>
+      <description>&lt;p&gt;I&amp;rsquo;ve been playing a game of human and mouse recently. A couple of weeks ago,
+as I was walking into the kitchen, I spotted a mouse darting under the fridge.
+My first thought was to create an elaborate security camera system to find out
+where they go in the house.&lt;/p&gt;
+&lt;h1 id=&#34;the-setup&#34;&gt;The setup&lt;/h1&gt;
+&lt;p&gt;I&amp;rsquo;d been meaning to put together a camera system that makes it easy to observe
+plants &amp;amp; animals etc., so this was all the motivation I needed.&lt;/p&gt;
+&lt;p&gt;You can find all the technical details in &lt;a href=&#34;https://github.com/uozuAho/pi_cam_v1&#34;&gt;this repo&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;I already had most of the parts I needed to make the camera - a raspberry pi
+zero, night vision camera, infrared (IR) spotlight, flexible tripod, and of
+course, Blu Tack, rubber bands and determination. Here&amp;rsquo;s the camera and
+spotlight:&lt;/p&gt;
+&lt;p&gt;&lt;img
+src=&#34;https://iamwoz.com/blog/20210613_mouse/camera_front.jpg&#34;
+alt=&#34;front of the camera on a tripod&#34;
+width=&#34;352&#34;
+loading=&#34;lazy&#34; /&gt;
+&lt;img
+src=&#34;https://iamwoz.com/blog/20210613_mouse/camera_back.jpg&#34;
+alt=&#34;back of the camera on a tripod&#34;
+width=&#34;366&#34;
+loading=&#34;lazy&#34; /&gt;
+&lt;img
+src=&#34;https://iamwoz.com/blog/20210613_mouse/ir_spotlight.jpg&#34;
+alt=&#34;IR spotlight&#34;
+width=&#34;409&#34;
+loading=&#34;lazy&#34; /&gt;&lt;/p&gt;
+&lt;h1 id=&#34;day-0---the-stakeout&#34;&gt;Day 0 - the stakeout&lt;/h1&gt;
+&lt;p&gt;Each evening, I set up the camera in the spot I wanted to monitor, and set it
+recording. Each morning, I scanned the recorded videos for motion using a handy
+tool called &lt;a href=&#34;https://dvr-scan.readthedocs.io/en/latest/&#34;&gt;dvr-scan&lt;/a&gt;.&lt;/p&gt;
+&lt;h1 id=&#34;day-1---theyre-on-the-kitchen-bench&#34;&gt;Day 1 - they&amp;rsquo;re on the kitchen bench&lt;/h1&gt;
+&lt;p&gt;They&amp;rsquo;re all over the kitchen bench, eww! How did they get there? They climbed
+the network cable! Exhibit A:&lt;/p&gt;
+&lt;video width=&#34;400&#34; height=&#34;300&#34; controls loading=&#34;lazy&#34;&gt;
+   &lt;source src=&#34;https://iamwoz.com/blog/20210613_mouse/mousefall.mp4&#34; type=&#34;video/mp4&#34; /&gt;
+   Sorry, your browser doesn&#39;t support embedded videos.
+&lt;/video&gt;
+&lt;p&gt;Look at it go!&lt;/p&gt;
+&lt;p&gt;They also jump! Apparently their eyesight isn&amp;rsquo;t that great, so good effort here,
+for not much reward (apart from the funny video):&lt;/p&gt;
+&lt;video width=&#34;400&#34; height=&#34;300&#34; controls loading=&#34;lazy&#34;&gt;
+   &lt;source src=&#34;https://iamwoz.com/blog/20210613_mouse/jump.mp4&#34; type=&#34;video/mp4&#34; /&gt;
+   Sorry, your browser doesn&#39;t support embedded videos.
+&lt;/video&gt;
+&lt;h2 id=&#34;the-cable-guard&#34;&gt;The cable guard&lt;/h2&gt;
+&lt;p&gt;To stop them climbing the cable, I made a cable guard based on the plastic rings
+I&amp;rsquo;ve seen around some power lines. I assume those are to stop possums. My guard
+is made from high quality materials: cardboard, sticky tape and Blu Tack.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://iamwoz.com/blog/20210613_mouse/cable_mouse_barrier_top.jpg&#34;
+alt=&#34;cable barrier, from the top&#34;
+width=&#34;366&#34;
+loading=&#34;lazy&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://iamwoz.com/blog/20210613_mouse/cable_mouse_barrier_bottom.jpg&#34;
+alt=&#34;cable barrier, from underneath&#34;
+width=&#34;481&#34;
+loading=&#34;lazy&#34; /&gt;&lt;/p&gt;
+&lt;h1 id=&#34;day-2---theyre-still-on-the-kitchen-bench&#34;&gt;Day 2 - they&amp;rsquo;re still on the kitchen bench&lt;/h1&gt;
+&lt;p&gt;D&amp;rsquo;oh. The first cable guard I made was too small. It stopped them for a while,
+but they outsmarted it before too long. Mice 1, Warwick 0.&lt;/p&gt;
+&lt;video width=&#34;400&#34; height=&#34;300&#34; controls loading=&#34;lazy&#34;&gt;
+   &lt;source src=&#34;https://iamwoz.com/blog/20210613_mouse/cable_barrier_wins.mp4&#34; type=&#34;video/mp4&#34; /&gt;
+   Sorry, your browser doesn&#39;t support embedded videos.
+&lt;/video&gt;
+&lt;video width=&#34;400&#34; height=&#34;300&#34; controls loading=&#34;lazy&#34;&gt;
+   &lt;source src=&#34;https://iamwoz.com/blog/20210613_mouse/defeat_cable_barrier.mp4&#34; type=&#34;video/mp4&#34; /&gt;
+   Sorry, your browser doesn&#39;t support embedded videos.
+&lt;/video&gt;
+&lt;p&gt;I made a bigger guard. Hopefully they can&amp;rsquo;t climb around this one. The photo of
+the guard above is actually the bigger one I made.&lt;/p&gt;
+&lt;h1 id=&#34;day-3---theyre-_still_-on-the-kitchen-bench-but-i-caught-one&#34;&gt;Day 3 - they&amp;rsquo;re &lt;em&gt;still&lt;/em&gt; on the kitchen bench, but I caught one!&lt;/h1&gt;
+&lt;p&gt;There was no sign of the mice on the network cable this time. However, they&amp;rsquo;re
+still on the kitchen bench. How are they getting there? Time to move the camera.&lt;/p&gt;
+&lt;p&gt;In the meantime, I&amp;rsquo;ve had traps set up around the crime scene:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://iamwoz.com/blog/20210613_mouse/trap.jpg&#34;
+alt=&#34;mouse trap&#34;
+width=&#34;517&#34;
+loading=&#34;lazy&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://iamwoz.com/blog/20210613_mouse/trap_inside.jpg&#34;
+alt=&#34;inside the mouse trap&#34;
+width=&#34;384&#34;
+loading=&#34;lazy&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;The food/bait sits deep inside, and when the mouse goes in to get it, the lid
+falls shut:&lt;/p&gt;
+&lt;video width=&#34;600&#34; height=&#34;300&#34; controls loading=&#34;lazy&#34;&gt;
+   &lt;source src=&#34;https://iamwoz.com/blog/20210613_mouse/trap.mp4&#34; type=&#34;video/mp4&#34; /&gt;
+   Sorry, your browser doesn&#39;t support embedded videos.
+&lt;/video&gt;
+&lt;p&gt;Genius!&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://iamwoz.com/blog/20210613_mouse/mouse_with_cheese.jpg&#34;
+alt=&#34;mouse with a piece of cheese&#34;
+width=&#34;417&#34;
+loading=&#34;lazy&#34; /&gt;&lt;/p&gt;
+&lt;video width=&#34;400&#34; height=&#34;300&#34; controls loading=&#34;lazy&#34;&gt;
+   &lt;source src=&#34;https://iamwoz.com/blog/20210613_mouse/mouse_eat_cheese.mp4&#34; type=&#34;video/mp4&#34; /&gt;
+   Sorry, your browser doesn&#39;t support embedded videos.
+&lt;/video&gt;
+&lt;p&gt;D&amp;rsquo;aww he eats cheese just like I do. Off to the park!&lt;/p&gt;
+&lt;h1 id=&#34;day-4---a-new-route-to-the-kitchen-bench-is-discovered&#34;&gt;Day 4 - a new route to the kitchen bench is discovered&lt;/h1&gt;
+&lt;p&gt;I often saw the mice loitering around the dishwasher, so I set the camera up a
+bit closer to see what was going on there.&lt;/p&gt;
+&lt;video width=&#34;400&#34; height=&#34;300&#34; controls loading=&#34;lazy&#34;&gt;
+   &lt;source src=&#34;https://iamwoz.com/blog/20210613_mouse/climb_wood_panel.mp4&#34; type=&#34;video/mp4&#34; /&gt;
+   Sorry, your browser doesn&#39;t support embedded videos.
+&lt;/video&gt;
+&lt;p&gt;Aha! You sneaky, clever mouse! I stood staring at this wooden panel between the
+fridge and dishwasher for an unreasonably long time. Eventually, I devised a
+sophisticated barrier:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://iamwoz.com/blog/20210613_mouse/wood_panel_barrier.jpg&#34;
+alt=&#34;cardboard taped to wooden panel&#34;
+width=&#34;335&#34;
+loading=&#34;lazy&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Cardboard again, sticky-taped to the panel. The idea was that it&amp;rsquo;d be too fiddly
+for the mice to hold on to on their way up&amp;hellip;&lt;/p&gt;
+&lt;video width=&#34;300&#34; height=&#34;300&#34; controls loading=&#34;lazy&#34;&gt;
+   &lt;source src=&#34;https://iamwoz.com/blog/20210613_mouse/wood_barrier.mp4&#34; type=&#34;video/mp4&#34; /&gt;
+   Sorry, your browser doesn&#39;t support embedded videos.
+&lt;/video&gt;
+&lt;p&gt;It worked! Mice 1, Warwick 1.&lt;/p&gt;
+&lt;h1 id=&#34;the-following-week&#34;&gt;The following week&lt;/h1&gt;
+&lt;p&gt;The following few nights, I didn&amp;rsquo;t catch any mice on the kitchen bench, but
+they&amp;rsquo;ve still been foraging around on the floor. I&amp;rsquo;ve caught two more since, but
+the &amp;lsquo;last&amp;rsquo; one seems to have caught on that its friends don&amp;rsquo;t come back from the
+traps. It&amp;rsquo;s been visiting less and less, and I haven&amp;rsquo;t seen it in the last
+couple of days. The battle is over, for now&amp;hellip;&lt;/p&gt;
+</description>
+    </item>
+    
     <item>
       <title>How this site is built</title>
       <link>https://iamwoz.com/blog/20210424_how_this_site_is_built/</link>

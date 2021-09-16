@@ -10,7 +10,7 @@ Install:
 - (optional) [Spell Right VS Code plugin](https://github.com/bartosz-antosik/vscode-spellright)
 
 ```sh
-# run local dev server
+# run local dev server (-D to show drafts)
 hugo server -D
 # or, run local dev server, accessible on the local network
 hugo server -D --bind 0.0.0.0

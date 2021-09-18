@@ -8,6 +8,7 @@ This is the source of my site: https://iamwoz.com
 Install:
 - [Hugo](https://gohugo.io/)
 - (optional) [Spell Right VS Code plugin](https://github.com/bartosz-antosik/vscode-spellright)
+- start a new post `./newpost.sh`
 
 ```sh
 # run local dev server (-D to show drafts)

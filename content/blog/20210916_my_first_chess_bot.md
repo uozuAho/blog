@@ -46,7 +46,7 @@ def random_move(board: chess.Board) -> chess.Move:
 
 The result:
 
-```
+```sh
 Random [W] vs Andoma [b]:
 r . . . . r k .
 p p p . . p p p
@@ -247,7 +247,7 @@ game rules), and this experiment was just for curiosity's sake.
 I've just finished part one of [Reinforcement Learning: An Introduction](https://www.goodreads.com/book/show/739791.Reinforcement_Learning),
 which is all about 'tabular' methods. These are algorithms that learn by storing
 all observed states and estimating each state's value through many playthroughs
-of the game. These method is impractical for chess, which apparently has more
+of the game. These methods are impractical for chess, which apparently has more
 possible game states than there are atoms in the universe!
 
 Part two of the book covers approximation strategies, which are essentially
@@ -282,7 +282,7 @@ A FEN string looks like this:
 The first chunk of characters describes the position of the chess pieces. The
 above string translates to:
 
-```
+```sh
 r n b q k . n r
 p . p p p p b p
 . p . . . . p .
@@ -302,7 +302,7 @@ The characters after the piece positions:
   the game a draw if this clock reaches 100
 - `1`: fullmove counter: increments by one after each black move
 
-```
+```sh
 rnbqk1nr/p1ppppbp/1p4p1/8/2P5/2Q5/PP1PPPPP/RNB1KBNR b KQkq - 0 1
 ───────────┬───────────   ────────────┬──────────── ▲ ──┬─ ▲ ▲ ▲
            │                          │             │   │  │ │ └─fullmove counter
@@ -330,7 +330,7 @@ seems to be pretty common.
 - rank = row
 - file = column
 
-```
+```sh
 rank
    |
    v

@@ -1,7 +1,7 @@
 ---
 title: "My first chess bot"
 date: 2021-09-16T21:57:19+10:00
-draft: true
+draft: false
 summary: "Making computers play chess"
 tags:
 - AI

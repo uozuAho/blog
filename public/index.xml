@@ -106,7 +106,9 @@ approach for the MCTS algorithm in OpenSpiel.&lt;/p&gt;
     width=&#34;1024&#34;
     loding=&#34;lazy&#34; /&gt;
   &lt;figcaption&gt;Alpha-beta pruning. Lower scores are better. Branches that cannot
-  achieve the low scores of other branches are abandoned.&lt;/figcaption&gt;
+  achieve the low scores of other branches are abandoned.
+  &lt;a href=&#34;https://commons.wikimedia.org/wiki/File:AB_pruning.svg&#34;&gt;Original image&lt;/a&gt;
+  &lt;/figcaption&gt;
 &lt;/figure&gt;
 &lt;figure&gt;
   &lt;img src=&#34;https://iamwoz.com/blog/20210916_my_first_chess_bot/MCTS_rollout.png&#34;
@@ -306,6 +308,7 @@ the current game state.&lt;/p&gt;
 at the time of writing this post.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://en.wikipedia.org/wiki/Monte_Carlo_tree_search&#34;&gt;Monte Carlo Tree Search&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://www.goodreads.com/book/show/739791.Reinforcement_Learning&#34;&gt;Reinforcement Learning: An Introduction&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </description>

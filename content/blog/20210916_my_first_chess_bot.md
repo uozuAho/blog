@@ -4,7 +4,7 @@ date: 2021-09-16T21:57:19+10:00
 draft: true
 summary: "Making computers play chess"
 tags:
-- ai
+- AI
 - chess
 - python
 ---
@@ -13,9 +13,6 @@ In my spare time, I've been slowly learning about reinforcement learning. I came
 upon [this post](https://healeycodes.com/building-my-own-chess-engine/) by
 Andrew Healey about making a chess engine, and thought "I know all about AI,
 I'll make a bot that beats his!". Read on to see how that went.
-
-# todo
-- are code blocks distracting? make them smaller?
 
 
 # Step one: Andoma vs. random bot
@@ -111,7 +108,7 @@ the most promising move based on the outcomes of those trajectories. The
 difference is that while Andoma only explores a few moves in advance, MCTS plays
 multiple games to completion from the current state (this is actually not the
 case for AlphaGo, but that's beyond the scope of this post). The average outcome
-of games played from that state detemines how 'promising' a state it is. For
+of games played from that state determines how 'promising' a state it is. For
 example, if you see 10 wins and 10 losses from one game state, but 18 wins and 2
 losses from another state, then the latter state is more promising.
 
@@ -299,7 +296,7 @@ R N B . K B N R
 The characters after the piece positions:
 - `b`: it is currently black's turn to move (w for white's move)
 - `KQkq`: castling rights
-- `-`: "en passant targets". I don't really know what this means, but it didn't
+- `-`: "En passant targets". I don't really know what this means, but it didn't
   get in the way of making my chess bots.
 - `0`: halfmove clock: number of moves since a pawn move or a capture. Can call
   the game a draw if this clock reaches 100
@@ -365,6 +362,7 @@ the current game state.
 # References
 - [Andrew Healey: Building My Own Chess Engine](https://healeycodes.com/building-my-own-chess-engine/)
 - Python chess implementation: [chess](https://pypi.org/project/chess/)
+- [Forsyth-Edwards Notation (FEN)](https://www.chess.com/terms/fen-chess)
 - [OpenSpiel](https://github.com/deepmind/open_spiel)
 - My [OpenSpiel playground](https://github.com/uozuAho/open_spiel_playground)
   - My [chess bot battle ground](https://github.com/uozuAho/open_spiel_playground/blob/fc8903bb71a237150bf6742a24a513ab7b1f02ff/chess/bot_vs_bot.py#L22),

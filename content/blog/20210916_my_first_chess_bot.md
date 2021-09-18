@@ -16,7 +16,7 @@ I'll make a bot that beats his!". Read on to see how that went.
 
 
 # Step one: Andoma vs. random bot
-Andrew's chess engine is called Andoma. See the code [here](https://github.com/healeycodes/andoma).
+Andrew's chess engine is called Andoma. See the code here: [Andoma](https://github.com/healeycodes/andoma).
 
 To get a better understanding of how to use Andoma, I made a random bot that it
 could play against. This way, I could quickly see how Andoma performs against
@@ -157,8 +157,8 @@ I wrapped Andoma in an OpenSpiel bot interface (see below). It took a bit of
 learning about chess notation to map [pychess](https://pypi.org/project/chess/)'s
 moves to the valid moves presented by OpenSpiel's chess implementation. See the
 [appendix]({{< ref "#notation" >}}) for the notation used in this post. You can
-see the full code
-[here](https://github.com/uozuAho/open_spiel_playground/blob/fc8903bb71a237150bf6742a24a513ab7b1f02ff/chess/bot_vs_bot.py#L22).
+see the full code from my
+[bot_vs_bot.py script](https://github.com/uozuAho/open_spiel_playground/blob/fc8903bb71a237150bf6742a24a513ab7b1f02ff/chess/bot_vs_bot.py#L22).
 
 ```py
 class AndomaBot(pyspiel.Bot):

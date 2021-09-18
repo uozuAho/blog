@@ -19,7 +19,7 @@ upon &lt;a href=&#34;https://healeycodes.com/building-my-own-chess-engine/&#34;&
 Andrew Healey about making a chess engine, and thought &amp;ldquo;I know all about AI,
 I&amp;rsquo;ll make a bot that beats his!&amp;rdquo;. Read on to see how that went.&lt;/p&gt;
 &lt;h1 id=&#34;step-one-andoma-vs-random-bot&#34;&gt;Step one: Andoma vs. random bot&lt;/h1&gt;
-&lt;p&gt;Andrew&amp;rsquo;s chess engine is called Andoma. See the code &lt;a href=&#34;https://github.com/healeycodes/andoma&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Andrew&amp;rsquo;s chess engine is called Andoma. See the code here: &lt;a href=&#34;https://github.com/healeycodes/andoma&#34;&gt;Andoma&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;To get a better understanding of how to use Andoma, I made a random bot that it
 could play against. This way, I could quickly see how Andoma performs against
 a rubbish opponent. As expected, Andoma wins every game.&lt;/p&gt;
@@ -131,8 +131,8 @@ alpha-beta pruning is breadth-first.&lt;/p&gt;
 learning about chess notation to map &lt;a href=&#34;https://pypi.org/project/chess/&#34;&gt;pychess&lt;/a&gt;&amp;rsquo;s
 moves to the valid moves presented by OpenSpiel&amp;rsquo;s chess implementation. See the
 &lt;a href=&#34;#notation&#34;&gt;appendix&lt;/a&gt; for the notation used in this post. You can
-see the full code
-&lt;a href=&#34;https://github.com/uozuAho/open_spiel_playground/blob/fc8903bb71a237150bf6742a24a513ab7b1f02ff/chess/bot_vs_bot.py#L22&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+see the full code from my
+&lt;a href=&#34;https://github.com/uozuAho/open_spiel_playground/blob/fc8903bb71a237150bf6742a24a513ab7b1f02ff/chess/bot_vs_bot.py#L22&#34;&gt;bot_vs_bot.py script&lt;/a&gt;.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-py&#34; data-lang=&#34;py&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;AndomaBot&lt;/span&gt;(pyspiel&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Bot):
   &lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; __init__(self, search_depth&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;):
     pyspiel&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Bot&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;__init__(self)

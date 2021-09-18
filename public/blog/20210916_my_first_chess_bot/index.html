@@ -34,7 +34,7 @@ upon <a href="https://healeycodes.com/building-my-own-chess-engine/">this post</
 Andrew Healey about making a chess engine, and thought &ldquo;I know all about AI,
 I&rsquo;ll make a bot that beats his!&rdquo;. Read on to see how that went.</p>
 <h1 id="step-one-andoma-vs-random-bot">Step one: Andoma vs. random bot</h1>
-<p>Andrew&rsquo;s chess engine is called Andoma. See the code <a href="https://github.com/healeycodes/andoma">here</a>.</p>
+<p>Andrew&rsquo;s chess engine is called Andoma. See the code here: <a href="https://github.com/healeycodes/andoma">Andoma</a>.</p>
 <p>To get a better understanding of how to use Andoma, I made a random bot that it
 could play against. This way, I could quickly see how Andoma performs against
 a rubbish opponent. As expected, Andoma wins every game.</p>
@@ -146,8 +146,8 @@ alpha-beta pruning is breadth-first.</p>
 learning about chess notation to map <a href="https://pypi.org/project/chess/">pychess</a>&rsquo;s
 moves to the valid moves presented by OpenSpiel&rsquo;s chess implementation. See the
 <a href="#notation">appendix</a> for the notation used in this post. You can
-see the full code
-<a href="https://github.com/uozuAho/open_spiel_playground/blob/fc8903bb71a237150bf6742a24a513ab7b1f02ff/chess/bot_vs_bot.py#L22">here</a>.</p>
+see the full code from my
+<a href="https://github.com/uozuAho/open_spiel_playground/blob/fc8903bb71a237150bf6742a24a513ab7b1f02ff/chess/bot_vs_bot.py#L22">bot_vs_bot.py script</a>.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-py" data-lang="py"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AndomaBot</span>(pyspiel<span style="color:#f92672">.</span>Bot):
   <span style="color:#66d9ef">def</span> __init__(self, search_depth<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>):
     pyspiel<span style="color:#f92672">.</span>Bot<span style="color:#f92672">.</span>__init__(self)

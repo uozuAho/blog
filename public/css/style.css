@@ -19,14 +19,14 @@ li {
 }
 @media (prefers-color-scheme: dark) {
   body {
-    background: #1d1c1c;
+    background: #171616;
     color: #ddd8d8;
   }
   a:link {
     color: #3e9edd;
   }
   a:visited {
-    color: #4d3f68;
+    color: #6f5b99;
   }
 }
 
@@ -59,18 +59,18 @@ hr {
 /* code */
 @media (prefers-color-scheme: light) {
   pre {
-    border: 1px solid #ddd;
-    box-shadow: 5px 5px 5px #eee;
     padding: 1em;
     overflow-x: auto;
+    margin-top: 2em;
+    margin-bottom: 2em;
   }
 }
 @media (prefers-color-scheme: dark) {
   pre {
-    border: 1px solid rgb(95, 95, 95);
-    box-shadow: 5px 5px 5px rgb(56, 56, 56);
     padding: 1em;
     overflow-x: auto;
+    margin-top: 2em;
+    margin-bottom: 2em;
   }
 }
 pre code { background: none; }
@@ -78,6 +78,11 @@ pre code { background: none; }
 /* misc elements */
 img, iframe, video {
   max-width: 100%;
+}
+figcaption {
+  text-align: center;
+  font-weight: bold;
+  font-size: small;
 }
 main { hyphens: auto; }
 blockquote {

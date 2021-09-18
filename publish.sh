@@ -1,7 +1,9 @@
 #!/bin/bash
 # steps
 # local dev
-# - proof-read, test on mobile
+# - proof read
+# - test on other browsers
+# - test on mobile
 # - run lighthouse
 # branch deploy (netlify subdomain)
 # - set draft to false
@@ -14,11 +16,10 @@
 # - goto site settings -> domain management -> branch subdomains, do the thing
 # - wait a while, while DNS updates (?)
 # final steps
-# - proof read
 # - read in feedly
 # - run lighthouse
 # - merge to main
-# - publish
+# - publish (run this script)
 # - push
 
 rm -rf public

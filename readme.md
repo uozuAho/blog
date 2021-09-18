@@ -29,11 +29,7 @@ git push
 
 
 # todo
+- light/dark syntax highlighting
 - how to find links to my posts?
 - any SEO I should be doing?
-- improve contrast in dark theme
-  - see lighthouse report
-  - clicked links are dim
 - site/blog info missing on feedly
-- automate lighthouse testing
-  - webdriver integrates with lighthouse

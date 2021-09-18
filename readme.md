@@ -29,7 +29,8 @@ git push
 
 
 # todo
-- light/dark syntax highlighting
+- light syntax highlighting for light mode
+- percy: how to compare branch vs main?
 - how to find links to my posts?
 - any SEO I should be doing?
 - site/blog info missing on feedly

@@ -1,7 +1,7 @@
 ---
 title: "My first chess bot"
 date: 2021-09-16T21:57:19+10:00
-draft: true
+draft: false
 summary: "Making computers play chess"
 tags:
 - AI
@@ -16,7 +16,7 @@ I'll make a bot that beats his!". Read on to see how that went.
 
 
 # Step one: Andoma vs. random bot
-Andrew's chess engine is called Andoma. See the code [here](https://github.com/healeycodes/andoma).
+Andrew's chess engine is called Andoma. See the code here: [Andoma](https://github.com/healeycodes/andoma).
 
 To get a better understanding of how to use Andoma, I made a random bot that it
 could play against. This way, I could quickly see how Andoma performs against
@@ -124,7 +124,9 @@ approach for the MCTS algorithm in OpenSpiel.
     width="1024"
     loding="lazy" />
   <figcaption>Alpha-beta pruning. Lower scores are better. Branches that cannot
-  achieve the low scores of other branches are abandoned.</figcaption>
+  achieve the low scores of other branches are abandoned.
+  <a href="https://commons.wikimedia.org/wiki/File:AB_pruning.svg">Original image</a>
+  </figcaption>
 </figure>
 
 <figure>
@@ -155,8 +157,8 @@ I wrapped Andoma in an OpenSpiel bot interface (see below). It took a bit of
 learning about chess notation to map [pychess](https://pypi.org/project/chess/)'s
 moves to the valid moves presented by OpenSpiel's chess implementation. See the
 [appendix]({{< ref "#notation" >}}) for the notation used in this post. You can
-see the full code
-[here](https://github.com/uozuAho/open_spiel_playground/blob/fc8903bb71a237150bf6742a24a513ab7b1f02ff/chess/bot_vs_bot.py#L22).
+see the full code from my
+[bot_vs_bot.py script](https://github.com/uozuAho/open_spiel_playground/blob/fc8903bb71a237150bf6742a24a513ab7b1f02ff/chess/bot_vs_bot.py#L22).
 
 ```py
 class AndomaBot(pyspiel.Bot):
@@ -367,4 +369,5 @@ the current game state.
 - My [OpenSpiel playground](https://github.com/uozuAho/open_spiel_playground)
   - My [chess bot battle ground](https://github.com/uozuAho/open_spiel_playground/blob/fc8903bb71a237150bf6742a24a513ab7b1f02ff/chess/bot_vs_bot.py#L22),
     at the time of writing this post.
+- [Monte Carlo Tree Search](https://en.wikipedia.org/wiki/Monte_Carlo_tree_search)
 - [Reinforcement Learning: An Introduction](https://www.goodreads.com/book/show/739791.Reinforcement_Learning)

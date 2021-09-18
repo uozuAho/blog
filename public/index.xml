@@ -7,7 +7,313 @@
     <atom:icon>https://iamwoz.com/favicon.ico</atom:icon>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-GB</language>
-    <lastBuildDate>Sun, 29 Aug 2021 11:00:00 +1100</lastBuildDate><atom:link href="https://iamwoz.com/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 16 Sep 2021 21:57:19 +1000</lastBuildDate><atom:link href="https://iamwoz.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>My first chess bot</title>
+      <link>https://iamwoz.com/blog/20210916_my_first_chess_bot/</link>
+      <pubDate>Thu, 16 Sep 2021 21:57:19 +1000</pubDate>
+      
+      <guid>https://iamwoz.com/blog/20210916_my_first_chess_bot/</guid>
+      <description>&lt;p&gt;In my spare time, I&amp;rsquo;ve been slowly learning about reinforcement learning. I came
+upon &lt;a href=&#34;https://healeycodes.com/building-my-own-chess-engine/&#34;&gt;this post&lt;/a&gt; by
+Andrew Healey about making a chess engine, and thought &amp;ldquo;I know all about AI,
+I&amp;rsquo;ll make a bot that beats his!&amp;rdquo;. Read on to see how that went.&lt;/p&gt;
+&lt;h1 id=&#34;step-one-andoma-vs-random-bot&#34;&gt;Step one: Andoma vs. random bot&lt;/h1&gt;
+&lt;p&gt;Andrew&amp;rsquo;s chess engine is called Andoma. See the code here: &lt;a href=&#34;https://github.com/healeycodes/andoma&#34;&gt;Andoma&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;To get a better understanding of how to use Andoma, I made a random bot that it
+could play against. This way, I could quickly see how Andoma performs against
+a rubbish opponent. As expected, Andoma wins every game.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-py&#34; data-lang=&#34;py&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;andoma_vs_random&lt;/span&gt;():
+    board &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; chess&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Board()
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;move&lt;/span&gt;():
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; random_move(board) &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; board&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;turn &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; chess&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;WHITE &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt; andoma_move(board)
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;not&lt;/span&gt; board&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;is_game_over():
+        board&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;push(move())
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;print&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;Random [W] vs Andoma [b]:&amp;#39;&lt;/span&gt;)
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;print&lt;/span&gt;(board)
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;print&lt;/span&gt;(f&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;Result: [W] {board.result()} [b]&amp;#34;&lt;/span&gt;)
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;andoma_move&lt;/span&gt;(board: chess&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Board) &lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt; chess&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Move:
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; next_move(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, board, debug&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;False)
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;random_move&lt;/span&gt;(board: chess&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Board) &lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt; chess&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Move:
+    legal_moves &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; list(board&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;legal_moves)
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; random&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;choice(legal_moves)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The result:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;Random &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;W&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; vs Andoma &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;b&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;:
+r . . . . r k .
+p p p . . p p p
+. . p . . . . .
+. . b . . . . .
+. . . . . . . .
+. . . n p . . .
+. . . q . . . P
+. . . K . . . R
+
+Result: &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;W&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; 0-1 &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;b&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;See &lt;a href=&#34;#notation&#34;&gt;notation&lt;/a&gt; to understand the output.&lt;/p&gt;
+&lt;h1 id=&#34;step-two-make-a-random-bot-with-openspiel&#34;&gt;Step two: make a random bot with OpenSpiel&lt;/h1&gt;
+&lt;p&gt;I&amp;rsquo;ve been playing with &lt;a href=&#34;https://github.com/deepmind/open_spiel&#34;&gt;OpenSpiel&lt;/a&gt;,
+which comes with a bunch of algorithms and environments. It&amp;rsquo;s got an algorithm I
+want to use to fight Andoma, but my first baby step is to just make a simple
+bot. OpenSpiel comes with a chess implementation and a generic random bot. All
+games/environments share a common interface, so it&amp;rsquo;s simply a matter of hooking
+up the pieces:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-py&#34; data-lang=&#34;py&#34;&gt;game &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; pyspiel&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;load_game(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;chess&amp;#34;&lt;/span&gt;)
+player_1 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; uniform_random&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;UniformRandomBot(&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, np&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;random&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;RandomState())
+player_2 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; uniform_random&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;UniformRandomBot(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, np&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;random&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;RandomState())
+players &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; [player_1, player_2]
+
+state &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; game&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;new_initial_state()
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;not&lt;/span&gt; state&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;is_terminal():
+  current_player_idx &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; state&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;current_player()
+  current_player &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; players[current_player_idx]
+  action &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; current_player&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;step(state)
+  state&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;apply_action(action)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;If you&amp;rsquo;re interested in using OpenSpiel, my &lt;a href=&#34;https://github.com/uozuAho/open_spiel_playground&#34;&gt;OpenSpiel playground&lt;/a&gt;
+can get you up and running with relative ease. OpenSpiel&amp;rsquo;s &lt;a href=&#34;https://github.com/deepmind/open_spiel/blob/master/docs/intro.md&#34;&gt;documentation&lt;/a&gt;
+is enough to cobble bits together, but you may end up needing to read some of
+the source code for specifics.&lt;/p&gt;
+&lt;h1 id=&#34;step-3-mcts&#34;&gt;Step 3: MCTS&lt;/h1&gt;
+&lt;p&gt;Time for a stronger opponent. Now that I&amp;rsquo;ve got OpenSpiel set up, I want to try
+its &lt;a href=&#34;https://en.wikipedia.org/wiki/Monte_Carlo_tree_search&#34;&gt;Monte Carlo Tree Search&lt;/a&gt;
+(MCTS) algorithm.&lt;/p&gt;
+&lt;p&gt;I&amp;rsquo;ve recently learned about MCTS. It&amp;rsquo;s more of a planning algorithm than a
+learning algorithm, but can be coupled with learning algorithms to make it more
+effective. This is the approach used by the various &lt;a href=&#34;https://en.wikipedia.org/wiki/AlphaGo_Zero&#34;&gt;Alpha*&lt;/a&gt;
+agents, one of which famously &lt;a href=&#34;https://en.wikipedia.org/wiki/AlphaGo_versus_Lee_Sedol&#34;&gt;beat world champion Lee Sedol in a Go match&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;MCTS is somewhat similar to alpha-beta pruning (which Andoma uses), in that it
+explores a number of game trajectories from the current game state, and picks
+the most promising move based on the outcomes of those trajectories. The
+difference is that while Andoma only explores a few moves in advance, MCTS plays
+multiple games to completion from the current state (this is actually not the
+case for AlphaGo, but that&amp;rsquo;s beyond the scope of this post). The average outcome
+of games played from that state determines how &amp;lsquo;promising&amp;rsquo; a state it is. For
+example, if you see 10 wins and 10 losses from one game state, but 18 wins and 2
+losses from another state, then the latter state is more promising.&lt;/p&gt;
+&lt;p&gt;An advantage of this approach is that MCTS does not need any evaluation of
+intermediate game states or moves like Andoma does. MCTS only cares about the
+outcomes of completed games. In fact, a simple MCTS implementation can make
+random moves to simulate games from the current state. This is the default
+approach for the MCTS algorithm in OpenSpiel.&lt;/p&gt;
+&lt;figure&gt;
+  &lt;img src=&#34;https://iamwoz.com/blog/20210916_my_first_chess_bot/alpha-beta-pruning.png&#34;
+    alt=&#34;alpha-beta pruning in progress - low value branches are abandoned&#34;
+    width=&#34;1024&#34;
+    loding=&#34;lazy&#34; /&gt;
+  &lt;figcaption&gt;Alpha-beta pruning. Lower scores are better. Branches that cannot
+  achieve the low scores of other branches are abandoned.
+  &lt;a href=&#34;https://commons.wikimedia.org/wiki/File:AB_pruning.svg&#34;&gt;Original image&lt;/a&gt;
+  &lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;figure&gt;
+  &lt;img src=&#34;https://iamwoz.com/blog/20210916_my_first_chess_bot/MCTS_rollout.png&#34;
+    alt=&#34;outcomes of multiple game playthroughs, represented as a graph of game states&#34;
+    width=&#34;684&#34;
+    loding=&#34;lazy&#34; /&gt;
+  &lt;figcaption&gt;A representation of MCTS &#39;rollout&#39;. After playing a number of
+  games from the current state, branch B looks the most promising.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;p&gt;The above images show that MCTS is more akin to depth-first search, while
+alpha-beta pruning is breadth-first.&lt;/p&gt;
+&lt;p&gt;To create a generic MCTS bot with OpenSpiel:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-py&#34; data-lang=&#34;py&#34;&gt;bot &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; mcts&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;MCTSBot(
+    game,
+    uct_c&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;math&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;sqrt(&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;),
+    max_simulations&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;,
+    evaluator&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;mcts&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;RandomRolloutEvaluator(n_rollouts&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;))
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h1 id=&#34;off-to-a-good-start&#34;&gt;Off to a good start&lt;/h1&gt;
+&lt;p&gt;I wrapped Andoma in an OpenSpiel bot interface (see below). It took a bit of
+learning about chess notation to map &lt;a href=&#34;https://pypi.org/project/chess/&#34;&gt;pychess&lt;/a&gt;&amp;rsquo;s
+moves to the valid moves presented by OpenSpiel&amp;rsquo;s chess implementation. See the
+&lt;a href=&#34;#notation&#34;&gt;appendix&lt;/a&gt; for the notation used in this post. You can
+see the full code from my
+&lt;a href=&#34;https://github.com/uozuAho/open_spiel_playground/blob/fc8903bb71a237150bf6742a24a513ab7b1f02ff/chess/bot_vs_bot.py#L22&#34;&gt;bot_vs_bot.py script&lt;/a&gt;.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-py&#34; data-lang=&#34;py&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;AndomaBot&lt;/span&gt;(pyspiel&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Bot):
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; __init__(self, search_depth&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;):
+    pyspiel&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Bot&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;__init__(self)
+    self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;search_depth &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; search_depth
+
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;step&lt;/span&gt;(self, state: pyspiel&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;State) &lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt; int:
+    board &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; chess&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Board(str(state))
+    move &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; movegeneration&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;next_move(self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;search_depth, board, debug&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;False)
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;_pychess_to_spiel_move(move, state)
+
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;_pychess_to_spiel_move&lt;/span&gt;(self, move: chess&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Move, state: pyspiel&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;State):
+    &lt;span style=&#34;color:#75715e&#34;&gt;# This is necessary, as openspiel&amp;#39;s chess move notation sometimes differs&lt;/span&gt;
+    &lt;span style=&#34;color:#75715e&#34;&gt;# from pychess&amp;#39;s. Details omitted for brevity.&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With that thin wrapper, I had the MCTS and Andoma bots fighting! My MCTS bot was
+winning every game, even when Andoma&amp;rsquo;s search depth was set to 3 (slow!), and
+MCTS only doing 2 full game simulations per move. After the few seconds of
+elation at being an instant master game AI programmer, I figured I&amp;rsquo;d made a
+mistake somewhere.&lt;/p&gt;
+&lt;h1 id=&#34;oops&#34;&gt;Oops&lt;/h1&gt;
+&lt;p&gt;Here was my problem:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-py&#34; data-lang=&#34;py&#34;&gt;player_label &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; [&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;mcts&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;andoma&amp;#39;&lt;/span&gt;]
+winner &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; player_label[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;] &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; winner_idx &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt; player_label[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;]
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Derp. Happens to the best of us.&lt;/p&gt;
+&lt;p&gt;With that fixed, I found that Andoma was winning every game, even when its
+search depth was set to 1, and MCTS was doing 10 full game simulations, each
+with 10 rollouts per search node. Each game was taking about a minute to run at
+these settings, so I gave up there. This result makes more sense. Even though
+MCTS is simulating many games, the simulated moves are random, which is hardly
+an effective strategy for playing chess. Andoma encodes a lot of knowledge about
+chess, thus is able to make moves that are much better than random moves!&lt;/p&gt;
+&lt;p&gt;Even when playing against a random bot, MCTS didn&amp;rsquo;t win all its games. It had a
+decent win rate once the number of simulations and rollouts were &amp;gt; 6, but these
+games were taking close to a minute to run. I won&amp;rsquo;t be entering my chess bot in
+any speed chess competitions soon. For comparison, Andoma wins every game
+against a random opponent, even at a search depth of 1, which takes at most a
+few seconds to run.&lt;/p&gt;
+&lt;h1 id=&#34;an-experiment-mcts-with-andoma-rollout&#34;&gt;An experiment: MCTS with Andoma rollout&lt;/h1&gt;
+&lt;p&gt;Rather than simulating games by making random moves, what about using Andoma&amp;rsquo;s
+move evaluation to greedily pick the &amp;lsquo;best&amp;rsquo; move at each game state? This was
+easy to try, as the OpenSpiel MCTS implementation allows for easy swapping of
+&amp;lsquo;evaluator&amp;rsquo; implementations (one being the neural network used by AlphaGo). I
+plugged in this evaluator:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-py&#34; data-lang=&#34;py&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;AndomaValuesRolloutEvaluator&lt;/span&gt;:
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;evaluate&lt;/span&gt;(self, state):
+    &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&amp;#34;&amp;#34; &amp;#39;Rolls out&amp;#39; a complete game, returning the outcome.
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;        There&amp;#39;s no need for multiple rollouts, since Andoma&amp;#39;s
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;        move choice is deterministic.
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    &amp;#34;&amp;#34;&amp;#34;&lt;/span&gt;
+    working_state &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; state&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;clone()
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;not&lt;/span&gt; working_state&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;is_terminal():
+      action &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;_best_action(working_state)
+      working_state&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;apply_action(action)
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; np&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;array(working_state&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;returns())
+
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;_best_action&lt;/span&gt;(self, state: pyspiel&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;State) &lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt; int:
+    board &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; chess&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Board(str(state))
+    &lt;span style=&#34;color:#75715e&#34;&gt;# return the &amp;#39;best&amp;#39; move decided by Andoma&amp;#39;s move ordering&lt;/span&gt;
+    move &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; get_ordered_moves(board)[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;]
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;_pychess_to_spiel_move(move, state)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Coupled with this evaluator, MCTS was able to beat a random bot more often.
+However, its performance (execution time) was pretty hopeless. A quick look at
+the profiler results (&lt;code&gt;python -m cProfile -s time my_slow_program.py&lt;/code&gt; FTW!)
+showed that the translation of moves between OpenSpiel and pychess was taking up
+a lot of time. I decided that this was a good place to stop - my main interest
+was in creating a bot that could play chess with zero knowledge (outside of the
+game rules), and this experiment was just for curiosity&amp;rsquo;s sake.&lt;/p&gt;
+&lt;h1 id=&#34;what-next&#34;&gt;What next?&lt;/h1&gt;
+&lt;p&gt;I&amp;rsquo;ve just finished part one of &lt;a href=&#34;https://www.goodreads.com/book/show/739791.Reinforcement_Learning&#34;&gt;Reinforcement Learning: An Introduction&lt;/a&gt;,
+which is all about &amp;lsquo;tabular&amp;rsquo; methods. These are algorithms that learn by storing
+all observed states and estimating each state&amp;rsquo;s value through many playthroughs
+of the game. These methods are impractical for chess, which apparently has more
+possible game states than there are atoms in the universe!&lt;/p&gt;
+&lt;p&gt;Part two of the book covers approximation strategies, which are essentially
+mandatory for anything but trivially small AI problems like tic-tac-toe. My plan
+is to read this, then come back with a vengeance.&lt;/p&gt;
+&lt;h1 id=&#34;notation&#34;&gt;Appendix: chess notation&lt;/h1&gt;
+&lt;p&gt;I had to learn a bunch of chess notation to be able to build these bots. Here&amp;rsquo;s
+what I learned.&lt;/p&gt;
+&lt;h2 id=&#34;chess-pieces&#34;&gt;Chess pieces&lt;/h2&gt;
+&lt;p&gt;The notation systems here use the following characters to denote chess pieces:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;k = king&lt;/li&gt;
+&lt;li&gt;q = queen&lt;/li&gt;
+&lt;li&gt;r = rook&lt;/li&gt;
+&lt;li&gt;n = knight&lt;/li&gt;
+&lt;li&gt;b = bishop&lt;/li&gt;
+&lt;li&gt;p = pawn&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Lowercase letters are black pieces, uppercase are white.&lt;/p&gt;
+&lt;h2 id=&#34;forsyth-edwards-notation-fen&#34;&gt;Forsyth-Edwards Notation (FEN)&lt;/h2&gt;
+&lt;p&gt;FEN describes the current state of a chess game with a line of characters.
+There&amp;rsquo;s plenty of descriptions of FEN on the internet. If you want more details,
+&lt;a href=&#34;https://www.chess.com/terms/fen-chess&#34;&gt;here&amp;rsquo;s one&lt;/a&gt;. Here&amp;rsquo;s my crash course.&lt;/p&gt;
+&lt;p&gt;A FEN string looks like this:&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;rnbqk1nr/p1ppppbp/1p4p1/8/2P5/2Q5/PP1PPPPP/RNB1KBNR b KQkq - 0 1&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;The first chunk of characters describes the position of the chess pieces. The
+above string translates to:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;r n b q k . n r
+p . p p p p b p
+. p . . . . p .
+. . . . . . . .
+. . P . . . . .
+. . Q . . . . .
+P P . P P P P P
+R N B . K B N R
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The characters after the piece positions:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;b&lt;/code&gt;: it is currently black&amp;rsquo;s turn to move (w for white&amp;rsquo;s move)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;KQkq&lt;/code&gt;: castling rights&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-&lt;/code&gt;: &amp;ldquo;En passant targets&amp;rdquo;. I don&amp;rsquo;t really know what this means, but it didn&amp;rsquo;t
+get in the way of making my chess bots.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;0&lt;/code&gt;: halfmove clock: number of moves since a pawn move or a capture. Can call
+the game a draw if this clock reaches 100&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;1&lt;/code&gt;: fullmove counter: increments by one after each black move&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;rnbqk1nr/p1ppppbp/1p4p1/8/2P5/2Q5/PP1PPPPP/RNB1KBNR b KQkq - &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+───────────┬───────────   ────────────┬──────────── ▲ ──┬─ ▲ ▲ ▲
+           │                          │             │   │  │ │ └─fullmove counter
+           │                          │             │   │  │ │
+           │                          │             │   │  │ └───halfmove clock
+           │                          │             │   │  │
+           │                          │             │   │  └─────en passant targets
+           │                          │             │   │
+           │                          │             │   └────────castling rights, white, black
+           │                          │             │
+           │                          │             └────────────black&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;&amp;#39;&lt;/span&gt;s move
+           │                          │
+           │                          └──────────────────────────white pieces are uppercase
+           │
+           └─────────────────────────────────────────────────────black pieces are lowercase
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;move-notation&#34;&gt;Move notation&lt;/h2&gt;
+&lt;p&gt;FEN only describes the current game state, not moves that occur within the game.
+There are multiple notations, but &lt;a href=&#34;https://en.wikipedia.org/wiki/Algebraic_notation_(chess)&#34;&gt;algebraic notation&lt;/a&gt;
+seems to be pretty common.&lt;/p&gt;
+&lt;h3 id=&#34;rank--file&#34;&gt;Rank &amp;amp; file&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;rank = row&lt;/li&gt;
+&lt;li&gt;file = column&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;rank
+   |
+   v
+
+   &lt;span style=&#34;color:#ae81ff&#34;&gt;8&lt;/span&gt;   r n b q k . n r
+   &lt;span style=&#34;color:#ae81ff&#34;&gt;7&lt;/span&gt;   p . p p p p b p
+   &lt;span style=&#34;color:#ae81ff&#34;&gt;6&lt;/span&gt;   . p . . . . p .
+   &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt;   . . . . . . . .
+   &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt;   . . P . . . . .
+   &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;   . . Q . . . . .
+   &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;   P P . P P P P P
+   &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;   R N B . K B N R
+
+       a b c d e f g h   &amp;lt;-- file
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;moves&#34;&gt;Moves&lt;/h3&gt;
+&lt;p&gt;Moves are denoted by the letter specifying the piece, and the board position it
+moves to. Pawn moves don&amp;rsquo;t use a letter specifier. For example:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;Nf3&lt;/code&gt;: white knight to &lt;code&gt;f3&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;a3&lt;/code&gt;:  (in the board above): white pawn to &lt;code&gt;a3&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Note that without knowledge of the current game state, there is ambiguity in
+this move notation: for example, &amp;lsquo;a3&amp;rsquo; could mean different moves, depending on
+the current game state.&lt;/p&gt;
+&lt;h1 id=&#34;references&#34;&gt;References&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://healeycodes.com/building-my-own-chess-engine/&#34;&gt;Andrew Healey: Building My Own Chess Engine&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Python chess implementation: &lt;a href=&#34;https://pypi.org/project/chess/&#34;&gt;chess&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.chess.com/terms/fen-chess&#34;&gt;Forsyth-Edwards Notation (FEN)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/deepmind/open_spiel&#34;&gt;OpenSpiel&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;My &lt;a href=&#34;https://github.com/uozuAho/open_spiel_playground&#34;&gt;OpenSpiel playground&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;My &lt;a href=&#34;https://github.com/uozuAho/open_spiel_playground/blob/fc8903bb71a237150bf6742a24a513ab7b1f02ff/chess/bot_vs_bot.py#L22&#34;&gt;chess bot battle ground&lt;/a&gt;,
+at the time of writing this post.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://en.wikipedia.org/wiki/Monte_Carlo_tree_search&#34;&gt;Monte Carlo Tree Search&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.goodreads.com/book/show/739791.Reinforcement_Learning&#34;&gt;Reinforcement Learning: An Introduction&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
     <item>
       <title>A new mouse trap - the tub</title>
       <link>https://iamwoz.com/blog/20210829_mouse2/</link>

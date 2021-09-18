@@ -16,11 +16,13 @@
 # - goto site settings -> domain management -> branch subdomains, do the thing
 # - wait a while, while DNS updates (?)
 # final steps
+# - check with original authors if using any content
 # - read in feedly
 # - run lighthouse
 # - merge to main
 # - publish (run this script)
 # - push
+# - check percy
 
 rm -rf public
 hugo

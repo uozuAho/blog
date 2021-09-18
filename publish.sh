@@ -22,6 +22,7 @@
 # - merge to main
 # - publish (run this script)
 # - push
+# - check percy
 
 rm -rf public
 hugo

@@ -186,6 +186,7 @@ I've implemented the whole game. I'll use:
 - nothing distributed - no DB or message queues. This removes a lot of the
   complexity DDD was intended for, but makes my life easy
 
+
 ## Baby steps
 Here's my initial aggregate:
 
@@ -216,8 +217,18 @@ public record PandemicGame
 }
 ```
 
-After a few hours of coding simple events, I've now come to an interesting point:
-how to handle when a player does their last action?
+After a few hours of coding simple events, I've now come to an interesting
+point: how to handle when a player does their last action? To make things
+easier, I won't consider all the rules as shown in the flowchart above. Here's
+a simplified version:
+
+<figure>
+  <img src="/blog/20210924_learning_ddd/pandemic_epidemic_flow_simple.png"
+  alt=""
+  width="250"
+  loading="lazy" />
+  <figcaption>A simplified 'end of player turn' flow</figcaption>
+</figure>
 
 
 # References

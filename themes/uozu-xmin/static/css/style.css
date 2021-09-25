@@ -64,6 +64,12 @@ hr {
     margin-top: 2em;
     margin-bottom: 2em;
   }
+  code {
+    background-color: rgb(202, 202, 202);
+    padding: 0.3em;
+    border-radius: .2em;
+  }
+  pre code { background: none; }
 }
 @media (prefers-color-scheme: dark) {
   pre {
@@ -72,8 +78,13 @@ hr {
     margin-top: 2em;
     margin-bottom: 2em;
   }
+  code {
+    background-color: rgb(43, 43, 43);
+    padding: 0.3em;
+    border-radius: .2em;
+  }
+  pre code { background: none; }
 }
-pre code { background: none; }
 
 /* misc elements */
 img, iframe, video {

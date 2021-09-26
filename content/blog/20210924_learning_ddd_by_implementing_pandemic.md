@@ -46,7 +46,7 @@ implemented. For example, in Pandemic, if you pick up an 'epidemic' card, a
 chain reaction of events can occur, based on certain conditions:
 
 <figure>
-  <img src="/blog/20210924_learning_ddd/pandemic_epidemic_flow.png"
+  <img src="/blog/20210924_learning_ddd/end_turn_with_epidemic_flow.png"
   alt=""
   width="773"
   loading="lazy" />
@@ -223,12 +223,54 @@ easier, I won't consider all the rules as shown in the flowchart above. Here's
 a simplified version:
 
 <figure>
-  <img src="/blog/20210924_learning_ddd/pandemic_epidemic_flow_simple.png"
+  <img src="/blog/20210924_learning_ddd/end_turn_flow_simple.png"
   alt=""
   width="250"
   loading="lazy" />
   <figcaption>A simplified 'end of player turn' flow</figcaption>
 </figure>
+
+I used [event storming](https://en.wikipedia.org/wiki/Event_storming) to determine
+commands and events involved. For now, there's only one aggregate (the game), so
+I've omitted it from the image. Commands with no human player next to them are
+issued by the 'game'.
+
+<figure>
+  <img src="/blog/20210924_learning_ddd/end_turn_flow_simple_event_storm.png"
+  alt=""
+  width="492"
+  loading="lazy" />
+  <figcaption>Event storming a simple 'end of player turn' flow</figcaption>
+</figure>
+
+## Attempt 1: aggregate owns complex flows
+For now, I'll put all the logic into the aggregate. This means the aggregate
+will be responsible for issuing 'game' commands like infect city. This is what
+Armadora's command handlers do. If it bloats the aggregate, I'll consider moving
+the code to a process manager.
+
+Here's what my current `DriveOrFerryPlayer` command looks like:
+
+```cs
+public static IEnumerable<IEvent> DriveOrFerryPlayer(List<IEvent> log, Role role, string city)
+{
+    if (!Board.IsCity(city)) throw new InvalidActionException($"Invalid city '{city}'");
+
+    var state = FromEvents(log);
+    var player = state.PlayerByRole(role);
+    if (!Board.IsAdjacent(player.Location, city))
+    {
+        throw new InvalidActionException(
+            $"Invalid drive/ferry to non-adjacent city: {player.Location} to {city}");
+    }
+
+    yield return new PlayerMoved(role, city);
+}
+```
+
+I started off trying to make all actions non-destructive, preserving immutability
+everywhere. It's turning out to be a pain though! C# records make it easy, however
+as soon as you add collections to records
 
 
 # References

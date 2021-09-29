@@ -8,10 +8,7 @@ tags:
 ---
 
 # todo
-- how to handle when player does last action?
-  - command handler?
-  - event handler?
-  - something else?
+- add ability to set up game in near-complete states
 - try to get a game running to completion (section: let's have a go)
   - player moves back and forth, die by infect/cubes
 - clean up this post
@@ -85,12 +82,13 @@ Saga is an overloaded term. In this [MSDN article](https://docs.microsoft.com/en
 they prefer the term 'process manager' when talking about DDD concepts, to
 distinguish the original meaning of an alternative to distributed transactions.
 
-Side note:
-**todo** can I make side notes appear differently??
-One of my doomed attempts to implement pandemic is actually a
-[fork of the above project](https://github.com/uozuAho/pandemic). I was trying
-to get it to play headless (without a human operator), but kept running into
-coupling with the UI that was hard to untangle.
+
+**todo: fix this for dark**
+> Side note:
+> One of my doomed attempts to implement pandemic is actually a
+> [fork of the above project](https://github.com/uozuAho/pandemic). I was trying
+> to get it to play headless (without a human operator), but kept running into
+> coupling with the UI that was hard to untangle.
 
 
 # Q & A
@@ -268,10 +266,120 @@ public static IEnumerable<IEvent> DriveOrFerryPlayer(List<IEvent> log, Role role
 }
 ```
 
-I started off trying to make all actions non-destructive, preserving immutability
-everywhere. It's turning out to be a pain though! C# records make it easy, however
-as soon as you add collections to records
+...many hours later....
 
+```cs
+public static IEnumerable<IEvent> DriveOrFerryPlayer(List<IEvent> log, Role role, string city)
+{
+    if (!Board.IsCity(city)) throw new InvalidActionException($"Invalid city '{city}'");
+
+    var state = FromEvents(log);
+    var player = state.PlayerByRole(role);
+
+    if (player.ActionsRemaining == 0)
+        throw new GameRuleViolatedException($"Action not allowed: Player {role} has no actions remaining");
+
+    if (!Board.IsAdjacent(player.Location, city))
+    {
+        throw new InvalidActionException(
+            $"Invalid drive/ferry to non-adjacent city: {player.Location} to {city}");
+    }
+
+    yield return new PlayerMoved(role, city);
+
+    if (player.ActionsRemaining == 1)
+    {
+        // todo: pick up cards from player draw pile here
+        yield return new PlayerCardPickedUp(role, new PlayerCard("Atlanta"));
+        yield return new PlayerCardPickedUp(role, new PlayerCard("Atlanta"));
+        foreach (var @event in InfectCity(log))
+        {
+            yield return @event;
+        }
+        foreach (var @event in InfectCity(log))
+        {
+            yield return @event;
+        }
+    }
+}
+
+public static IEnumerable<IEvent> InfectCity(List<IEvent> log)
+{
+    var state = FromEvents(log);
+    var infectionCard = state.InfectionDrawPile.Last();
+    yield return new InfectionCardDrawn(infectionCard.City);
+    yield return new CubeAddedToCity(infectionCard.City);
+}
+```
+
+It's not as bad as I thought it would be! The `PandemicGame` aggregate is
+getting large (200 lines so far), but all the code seems to belong to it. I
+could split out the event and command handlers, but I won't for now. Let's keep
+going!
+
+I'm not sure if event sourcing is worth the trouble. I'm projecting the event
+log for most commands, and I can't think of a single useful use of the event log
+for anything else. There's one projection I care about - the game state. I think
+I'll add the ability for the command handlers to take a game state as well as an
+event log. Hopefully there's not too much overhead, then perhaps the event log
+will be useful to have in the future. Being able to create the game aggregate in
+an invalid state is a hazard, but for my purposes is very handy for testing.
+Perhaps only test code should be calling the aggregate constructor?
+
+Hmm it's too hard - I can't set up an invalid game and have a valid event log.
+I'm going to have to remove event sourcing completely! I think it's for the best....
+
+
+... many hours later ....
+
+Here's a work in progress, while moving away from event sourcing:
+
+```cs
+public (PandemicGame, ICollection<IEvent>) DriveOrFerryPlayer(Role role, string city)
+{
+    if (!Board.IsCity(city)) throw new InvalidActionException($"Invalid city '{city}'");
+
+    var player = PlayerByRole(role);
+
+    if (player.ActionsRemaining == 0)
+        throw new GameRuleViolatedException($"Action not allowed: Player {role} has no actions remaining");
+
+    if (!Board.IsAdjacent(player.Location, city))
+    {
+        throw new InvalidActionException(
+            $"Invalid drive/ferry to non-adjacent city: {player.Location} to {city}");
+    }
+
+    var (currentState, events) = ApplyEvents(new PlayerMoved(role, city));
+
+    // todo: extract to method
+    if (player.ActionsRemaining == 1)
+    {
+        // todo: pick up cards from player draw pile here
+        var (asdf, newEvents) = currentState.ApplyEvents(
+            new PlayerCardPickedUp(role, new PlayerCard("Atlanta")),
+            new PlayerCardPickedUp(role, new PlayerCard("Atlanta")));
+
+        currentState = asdf;
+        foreach (var @event in newEvents)
+        {
+            events.Add(@event);
+        }
+
+        currentState = InfectCity(currentState, events);
+        currentState = InfectCity(currentState, events);
+    }
+
+    return (currentState, events);
+}
+```
+
+I've hit a bit of a challenge:
+- lots of side effects hanging off DriveOrFerryPlayer
+- without event sourcing, state has the be updated as I go (does it?)
+- I need to be able to pass around 'current state' to various methods, which
+  is me use a mix of 'this' and 'current state'. It's looking yuck
+- I'll keep refactoring, let's see how I go...
 
 # References
 - [Pandemic](https://en.wikipedia.org/wiki/Pandemic_%28board_game%29)

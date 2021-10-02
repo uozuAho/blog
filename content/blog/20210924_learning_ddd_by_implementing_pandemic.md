@@ -8,9 +8,6 @@ tags:
 ---
 
 # todo
-- add ability to set up game in near-complete states
-- try to get a game running to completion (section: let's have a go)
-  - player moves back and forth, die by infect/cubes
 - clean up this post
 - publish as part 1?
 
@@ -376,10 +373,55 @@ public (PandemicGame, ICollection<IEvent>) DriveOrFerryPlayer(Role role, string 
 
 I've hit a bit of a challenge:
 - lots of side effects hanging off DriveOrFerryPlayer
-- without event sourcing, state has the be updated as I go (does it?)
+- without event sourcing, state has to be updated as I go
 - I need to be able to pass around 'current state' to various methods, which
   is me use a mix of 'this' and 'current state'. It's looking yuck
-- I'll keep refactoring, let's see how I go...
+
+This is what I settled on for now:
+
+```cs
+public (PandemicGame, ICollection<IEvent>) DriveOrFerryPlayer(Role role, string city)
+{
+    if (!Board.IsCity(city)) throw new InvalidActionException($"Invalid city '{city}'");
+
+    var player = PlayerByRole(role);
+
+    if (player.ActionsRemaining == 0)
+        throw new GameRuleViolatedException($"Action not allowed: Player {role} has no actions remaining");
+
+    if (!Board.IsAdjacent(player.Location, city))
+    {
+        throw new InvalidActionException(
+            $"Invalid drive/ferry to non-adjacent city: {player.Location} to {city}");
+    }
+
+    var (currentState, events) = ApplyEvents(new PlayerMoved(role, city));
+
+    if (player.ActionsRemaining == 1)
+        currentState = DoStuffAfterActions(currentState, events);
+
+    return (currentState, events);
+}
+
+private static PandemicGame DoStuffAfterActions(PandemicGame currentState, ICollection<IEvent> events)
+{
+    currentState = PickUpCard(currentState, events);
+    currentState = PickUpCard(currentState, events);
+
+    currentState = InfectCity(currentState, events);
+    currentState = InfectCity(currentState, events);
+
+    return currentState;
+}
+```
+
+It's working for me. It's not as pretty as I'd hoped.
+- in a state now where i think I can keep adding game rules, ddd done for now,
+  publish?
+- alternative: add list of events to aggregate
+- good thing that ddd encouraged: breaking complex game rules into sequence of
+  small events. Kept most rule handlers small.
+- todo: compare to my other impl.
 
 # References
 - [Pandemic](https://en.wikipedia.org/wiki/Pandemic_%28board_game%29)

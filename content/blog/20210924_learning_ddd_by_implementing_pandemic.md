@@ -8,18 +8,13 @@ tags:
 ---
 
 # todo
-- clean up this post
-- publish as part 1?
-- add somewhere: biggest help from DDD was breaking game rules into small bits -
-  events
-- compare my DDD description with other known sources
-  - armadora
-  - MYOB general dev docs
-- collapsible code blocks?
+- up to Q&A section. move contents of that somewhere or delete
 - make sure all refs are included at the end
 - table of contents?
 - 'skip to the details' somewhere in the intro
 - compare to my other pandemic impl
+- note to add somewhere in the intro. This post is about the technical details
+  of implementing some DDD concepts in C#
 
 I've tried a number of times to implement the board game
 [Pandemic](https://en.wikipedia.org/wiki/Pandemic_%28board_game%29), so that I
@@ -361,67 +356,66 @@ purposes is very handy for testing. I wonder if there's a way to disable the
 usage of dangerous constructors in production code? I'll put that on the 'to do
 later' pile.
 
-... many hours later ....
-
-Here's a work in progress, while moving away from event sourcing:
+As per my current understanding of DDD, my `PandemicGame` class is the
+aggregate. It contains the entire game state, as a graph of entities and value
+objects. I have made it immutable, since this will come in handy when building
+AI agents that will need to explore a tree of game states, potentially keeping
+track of many individual game states at a time. This goes against the DDD
+literature I have read so far, which states that aggregates and entities can
+mutate their own state via commands. I don't see a downside to keeping
+everything immutable at this stage. Here's the data in the aggregate:
 
 ```cs
-public (PandemicGame, ICollection<IEvent>) DriveOrFerryPlayer(Role role, string city)
+public record PandemicGame
 {
-    if (!Board.IsCity(city)) throw new InvalidActionException($"Invalid city '{city}'");
-
-    var player = PlayerByRole(role);
-
-    if (player.ActionsRemaining == 0)
-        throw new GameRuleViolatedException($"Action not allowed: Player {role} has no actions remaining");
-
-    if (!Board.IsAdjacent(player.Location, city))
-    {
-        throw new InvalidActionException(
-            $"Invalid drive/ferry to non-adjacent city: {player.Location} to {city}");
-    }
-
-    var (currentState, events) = ApplyEvents(new PlayerMoved(role, city));
-
-    // todo: extract to method
-    if (player.ActionsRemaining == 1)
-    {
-        // todo: pick up cards from player draw pile here
-        var (asdf, newEvents) = currentState.ApplyEvents(
-            new PlayerCardPickedUp(role, new PlayerCard("Atlanta")),
-            new PlayerCardPickedUp(role, new PlayerCard("Atlanta")));
-
-        currentState = asdf;
-        foreach (var @event in newEvents)
-        {
-            events.Add(@event);
-        }
-
-        currentState = InfectCity(currentState, events);
-        currentState = InfectCity(currentState, events);
-    }
-
-    return (currentState, events);
-}
+    public bool IsOver { get; init; };
+    public Difficulty Difficulty { get; init; }
+    public int InfectionRate { get; init; }
+    public int OutbreakCounter { get; init; }
+    public int CurrentPlayerIdx { get; init; }
+    public ImmutableList<Player> Players { get; init; }
+    public ImmutableList<City> Cities { get; init; }
+    public ImmutableList<InfectionCard> InfectionDrawPile { get; init; }
+    public ImmutableList<InfectionCard> InfectionDiscardPile { get; init; }
+    public ImmutableDictionary<Colour, int> Cubes { get; init; } =
+        Enum.GetValues<Colour>().ToImmutableDictionary(c => c, _ => 24);
 ```
 
-I've hit a bit of a challenge:
-- lots of side effects hanging off DriveOrFerryPlayer
-- without event sourcing, state has to be updated as I go
-- I need to be able to pass around 'current state' to various methods, which
-  is me use a mix of 'this' and 'current state'. It's looking yuck
+There are many command and event handlers on the aggregate, but they are all
+following an emerging pattern:
 
-This is what I settled on for now:
+```cs
+// Command handlers are public methods on the aggregate. They take parameters
+// relevant to the command, and return a new game aggregate and a collection of
+// events that occurred as a result of the command.
+public (PandemicGame, ICollection<IEvent>) Command(arg1, arg2, ...) {}
+
+// Event handlers are private static methods (pure functions) that apply a
+// single event to the given aggregate, returning a resultant aggregate.
+private static PandemicGame HandleEvent(PandemicGame game, IEvent @event) {}
+
+// 'Internal command handlers' are convenient ways to break down larger
+// commands, that involve many events and conditional logic.
+private static PandemicGame InternalCommand(
+    PandemicGame currentState,
+    ICollection<IEvent> events) {}
+```
+
+Let's see it in action. This is the current state of my `DriveOrFerryPlayer`
+command handler, which needs to perform a number of actions when the player has
+performed the last action for their turn:
 
 ```cs
 public (PandemicGame, ICollection<IEvent>) DriveOrFerryPlayer(Role role, string city)
 {
-    if (!Board.IsCity(city)) throw new InvalidActionException($"Invalid city '{city}'");
+    if (!Board.IsCity(city))
+        throw new InvalidActionException($"Invalid city '{city}'");
 
     var player = PlayerByRole(role);
 
     if (player.ActionsRemaining == 0)
-        throw new GameRuleViolatedException($"Action not allowed: Player {role} has no actions remaining");
+        throw new GameRuleViolatedException(
+            $"Action not allowed: Player {role} has no actions remaining");
 
     if (!Board.IsAdjacent(player.Location, city))
     {
@@ -431,13 +425,15 @@ public (PandemicGame, ICollection<IEvent>) DriveOrFerryPlayer(Role role, string 
 
     var (currentState, events) = ApplyEvents(new PlayerMoved(role, city));
 
-    if (player.ActionsRemaining == 1)
+    if (currentState.CurrentPlayer.ActionsRemaining == 0)
         currentState = DoStuffAfterActions(currentState, events);
 
     return (currentState, events);
 }
 
-private static PandemicGame DoStuffAfterActions(PandemicGame currentState, ICollection<IEvent> events)
+private static PandemicGame DoStuffAfterActions(
+    PandemicGame currentState,
+    ICollection<IEvent> events)
 {
     currentState = PickUpCard(currentState, events);
     currentState = PickUpCard(currentState, events);
@@ -449,13 +445,25 @@ private static PandemicGame DoStuffAfterActions(PandemicGame currentState, IColl
 }
 ```
 
-It's working for me. It's not as pretty as I'd hoped.
-- in a state now where i think I can keep adding game rules, ddd done for now,
-  publish?
-- alternative: add list of events to aggregate
-- good thing that ddd encouraged: breaking complex game rules into sequence of
-  small events. Kept most rule handlers small.
-- todo: compare to my other impl.
+I think `DriveOrFerryPlayer` is going to continue to grow as I add more game
+logic. I'm a little worried about that. I _could_ move it to a process manager,
+but that would just result it a complicated process manager. Additionally, I
+think the purpose of a process manager is to orchestrate effects across multiple
+aggregates, which I don't have.
+
+I don't really like the difference in method signatures between the public and
+private command handlers. I like that the public handlers from a consumer point
+of view: you issue a command, and receive an updated aggregate and associated
+events. The private command handlers make handling multiple intermediate states
+easier though, such as the check for the player's final action in
+`DriveOrFerryPlayer`. Additionally, the private command handlers make it easier
+to append multiple events to the same list, instead of having to unpack the
+events returned by the public handlers.
+
+Anyway, I'm at a point where I think I can continue to incrementally add game
+rules until I have a full game implementation. The biggest benefit DDD has
+provided is a way of breaking down the game rules into fine grained events that
+are easy to reason about and implement.
 
 # Q & A
 **todo** figure out where to put this
@@ -525,7 +533,7 @@ command handlers though. Shouldn't this all be in the aggregate?
 # Further reading
 - The original DDD book ('The Blue Book') by Eric Evans: [Domain-Driven Design](https://www.goodreads.com/book/show/179133.Domain_Driven_Design)
     - Comes highly recommended as the authoritative source for DDD, however has
-      a reputation for being too long and boring.
+      a reputation for being overly verbose and boring.
 - [Implementing Domain Driven Design - Vaughn Vernon](https://www.amazon.com/Implementing-Domain-Driven-Design-Vaughn-Vernon/dp/0321834577)
     - Apparently a shorter and more practical book than the original
 - play with boardgame.io, eg. chess: https://github.com/boardgameio/boardgame.io/tree/main/examples/react-web/src/chess

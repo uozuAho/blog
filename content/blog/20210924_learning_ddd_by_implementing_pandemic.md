@@ -1,5 +1,5 @@
 ---
-title: "Learning DDD by making a board game"
+title: "Learning DDD by making Pandemic"
 date: 2021-09-24T16:40:58+10:00
 draft: true
 summary: "Learning the lower-level details of domain-drive design, through implementing the Pandemic board game"
@@ -8,44 +8,54 @@ tags:
 ---
 
 # todo
-- up to Q&A section. move contents of that somewhere or delete
+- proof read
 - make sure all refs are included at the end
 - table of contents?
-- 'skip to the details' somewhere in the intro
-- compare to my other pandemic impl
-- note to add somewhere in the intro. This post is about the technical details
-  of implementing some DDD concepts in C#
+  - clickable/linkable headings?
 
-I've tried a number of times to implement the board game
+I have tried a number of times to implement the board game
 [Pandemic](https://en.wikipedia.org/wiki/Pandemic_%28board_game%29), so that I
-can set AI upon it. I've failed each time, due to the complexity of the game
-rules causing my code to turn into a complex ball of mud. Recently I've been
-inspired to try again, after having the idea that domain-driven design (DDD) may
-help me deal with the complexity.
+can set AI upon it. Each attempt was a failure, due to the complexity of the
+game rules causing my code to turn into a complex ball of mud. Recently I have
+been inspired to try again, after having the idea that domain-driven design
+(DDD) may help me deal with the complexity.
 
-I've known of domain-driven design (DDD) for years, but had never looked closely
-into it. I had a very basic understanding of some DDD concepts, such as breaking
-complex systems into 'bounded contexts', and using 'anti corruption layers' to
-keep your domain model clean, but that was about it. It was only after starting
-work on this post that I realised that DDD also has many low-level concepts that
-can be applied even within small applications, such as board games!
+I have known of domain-driven design (DDD) for years, but had never looked
+closely into it. I had a very basic understanding of some DDD concepts, such as
+breaking complex systems into 'bounded contexts', and using 'anti corruption
+layers' to keep your domain model clean, but that was about it. It was only
+after starting work on this post that I realised that DDD covers a huge
+landscape of software development, including many low-level concepts that can be
+applied even within small applications, such as board games!
 
-This post will focus on these low-level 'tactical' aspects of DDD. Note that
-there is much more to DDD than just low level details - see the references at
-the end of this post. Another disclaimer - I haven't read the authoritative
-source on DDD - the ['Blue book'](https://www.goodreads.com/book/show/179133.Domain_Driven_Design)
-by Eric Evans. I've heard it's long and boring, and it's nearly 20 years old.
-Most of the information in this post has come from various online sources, which
-I'll link throughout and at the end of the post.
+In this post I will focus on these low-level 'tactical' aspects of DDD, and
+implementing them in C#. Note that these low level details are only a small part
+of DDD as originally described by Eric Evans in his now famous the
+['Blue book'](https://www.goodreads.com/book/show/179133.Domain_Driven_Design).
+See the references and further reading section at the end of this post for more
+resources on DDD.
+
+Also, I haven't read Eric Evans's book. It has a reputation for being long and
+boring, and I was keen to get started. Most of the information in this post has
+come from various online sources, which are linked throughout and at the end of
+this post.
 
 
 # It's been done
 A quick search revealed that someone else had already tried DDD on another board
 game. See [DDD in action: Armadora - The board game](https://dev.to/thomasferro/ddd-in-action-armadora-the-board-game-2o07).
 This was just the example I needed to see how the concepts could be applied for
-someone new to DDD. However the simplicity of the Armadora game left me
-wondering how more complex games like pandemic would be implemented. For
-example, in Pandemic, if you pick up an 'epidemic' card, a chain reaction of
+someone new to DDD. However, the simplicity of the Armadora game left me
+wondering how more complex games like pandemic would be implemented.
+
+I also found what looks to be a [complete implementation of Pandemic](https://github.com/alexzherdev/pandemic),
+using React & Redux. You can play it online [here](https://epidemic.netlify.app/play).
+I don't think DDD was an influence on this implementation, however it was useful
+to have as another reference.
+
+
+# Applying DDD tactics to Pandemic
+For example, in Pandemic, if you pick up an 'epidemic' card, a chain reaction of
 events can occur, based on certain conditions:
 
 <figure>
@@ -60,116 +70,49 @@ The flowchart above does not even show all the game rules: there are checks for
 game end, outbreaks can occur when cities are infected, event cards may be
 played, and more!
 
-I also found what looks to be a [complete implementation of Pandemic](https://github.com/alexzherdev/pandemic),
-using React & Redux. You can play it online [here](https://epidemic.netlify.app/play).
-I don't think DDD was an influence on the game itself, however it was useful to
-have as another reference.
+## how to handle events that trigger other events?
+Eg. when the current player does their final action, there are a number of
+things that happen next: they pick up cards, and infection cards are revealed.
+How to model/implement this in an elegant way?
 
+In [[202109232032_armadora_ddd_board_game]], commands can return multiple
+events. These are placed in order on the event log. That's it! Because it uses
+event sourcing, the placing of events on the log is what updates the game state.
+The `Game` aggregate has a 'replay history' function that builds the current
+game state by materializing/folding the event log. In this implementation,
+events do not emit more events. Only commands return events. Commands can call
+other commands, eg. see [pass turn](https://github.com/ThomasFerro/armadora/blob/84db3e24a57aaccad72953ae3ab484f410663bec/server/game/command/pass_turn.go#L23)
+This does appear to embed game logic into the command handlers though.
 
-# Tactical DDD crash course
-Before I go any further, I'll introduce some DDD terms that I'll be using for
-the rest of the post.
+I'm still not happy with this answer. In [[202109232032_armadora_ddd_board_game]],
+commands can emit multiple events and call other commands. This appears to embed game logic in
+command handlers though. Shouldn't this all be in the aggregate?
 
-## Domain
-The domain is the problem to be solved, and its surrounding context. In my case,
-the domain is the Pandemic board game and its rule book. The people working in
-the domain should have a shared understanding of the domain model. It should be
-described in non-technical, jargon-free language that everyone can understand.
-This 'ubiquitous language' (another DDD term) should be used when discussing
-the domain model. Since I'm the only one working in the domain, the Pandemic
-rule book will be my domain expert, and I will use language within the rules
-when naming the software objects I create to build the game.
+- Should command handlers/services only do the plumbing between aggregates
+  and event stores etc.? I feel like the answer is yes.
+    - [this answer](https://softwareengineering.stackexchange.com/questions/368358/can-an-aggregate-only-ever-consume-commands-and-produce-events)
+      indicates that sagas/process managers are the missing piece here. They
+      consume the current state, and decide what happens next, including
+      issuing more commands. See [[process manager/saga | 202109241515_process_manager_saga]]
 
-## Domain event
-A domain event can be any event of interest within the domain. An event is a
-result of some action within the domain. For example, in Pandemic, when a player
-moves from one city to another, this can be described as a 'player moved' event.
-The event contains information about what occurred, eg. which player moved, and
-which cities they moved from and to.
+## when exactly should events be sent?
+- when aggregate changes need to be committed. This is not a concern of an
+  aggregate. Examples:
+    - [wikipedia: DDD](https://en.wikipedia.org/wiki/Domain-driven_design)
+      says that aggregates are responsible for mutating themselves and
+      returning consequent events, and command handlers are responsible for
+      persisting/ publishing those changes
+    - [[202109222152_dont_publish_domain_events_return_them]]
+- should commands modify aggregates, or should emitted events modify
+  aggregates? Seems to depend
+    - event sourcing requires all state changes are done via events
+        - see [[202109222152_dont_publish_domain_events_return_them]]
+    - wikipedia says aggregates are responsible for mutating themselves (see
+      above)
+    - same with both: changes to aggregates and publishing of events must be
+      done atomically
 
-## Event storming
-Typically, event storming is a session where domain, product, and technical
-experts come together to explore and model a domain, starting by brainstorming
-events that can occur within the domain.
-
-In my case, these will be little 'pen & paper' sessions where I map out a
-sequence of game events and subsequent side effects.
-
-- [Wikipedia: Event storming](https://en.wikipedia.org/wiki/Event_storming)
-
-## Value objects and entities
-A value object is an object that is identified by its attributes. If two value
-objects have the same attributes, then they are considered equal. For example,
-two value objects both representing the same 2D coordinate (1, 2) are considered
-to be the same object.
-
-Entities, on the other hand, are identified by some unique identifier. Two
-entities with all attributes equal apart from their unique identifier are still
-considered to be separate entities. For example, two people with the name 'Jane
-Doe' are still two individual people.
-
-- [Enterprise Craftsmanship: Entity vs Value Object: the ultimate list of differences](https://enterprisecraftsmanship.com/posts/entity-vs-value-object-the-ultimate-list-of-differences/)
-- [Enterprise Craftsmanship: C# 9 Records as DDD Value Objects](https://enterprisecraftsmanship.com/posts/csharp-records-value-objects/)
-    - spoiler: C# records _may_ be a good fit for some value objects, but not in
-      all cases. Same story for structs.
-
-## Aggregate
-An aggregate is a collection of entities and/or value objects that can be
-treated as an individual unit. An example could be an online shopping cart,
-which may contain multiple products.
-
-More importantly, an aggregate forms a 'consistency boundary'. The aggregate
-ensures that it remains internally consistent. For example, if your domain
-contains a rule that a + b = c, then a, b, and c should be within the same
-aggregate. The aggregate is responsible for making sure that whenever a or b are
-modified, c is updated.
-
-Aggregates process commands, which potentially modify their state. Domain events
-can be emitted as a result of these commands. The rest of the domain can listen
-for these events and respond to them accordingly, keeping the domain consistent
-with as aggregates change.
-
-- [Vaughn Vernon: modeling a single aggregate (pdf)](https://www.dddcommunity.org/wp-content/uploads/files/pdf_articles/Vernon_2011_1.pdf)
-
-## Event sourcing
-Not necessarily a part of DDD, however it can be a good fit. The idea is that
-application state is stored in an append-only log of events. If the state of the
-application at a point in time is needed, it can be built from the log of
-events.
-
-## Sagas and process managers
-**todo**: needs work
-
-Redux sagas appear to run in a similar way to process managers. They listen for
-particular events, and when received, proceed through a defined process that
-may trigger side effects and emit more events.
-- eg. [saga: movedToCity](https://github.com/alexzherdev/pandemic/blob/364a516d9b9455283a4c3c59bc7cd829b27ff7ce/src/sagas/actionSagas.js#L29)
-    - listens for the `ANIMATION_MOVE_COMPLETE` action (event)
-    - discards a player card if a direct or charter flight action was used
-    - waits for animation of the above action to complete
-    - removes disease cubes if the current player is the medic and the disease
-      has been cured
-    - emits a 'move complete' action
-
-Side note:
-Saga is an overloaded term. In this [MSDN article](https://docs.microsoft.com/en-us/previous-versions/msp-n-p/jj591569(v=pandp.10)?redirectedfrom=MSDN),
-they prefer the term 'process manager' when talking about DDD concepts, to
-distinguish the original meaning of an alternative to distributed transactions.
-
-- for complex processes, process managers can be used to coordinate the event
-  routing and issuing of consequent commands. Process managers can also be
-  called sagas, however it's an overloaded term. See
-  https://docs.microsoft.com/en-us/previous-versions/msp-n-p/jj591569(v=pandp.10)
-
-
-Interestingly, someone's
-already made the game using react & redux:
-[pandemic](https://github.com/alexzherdev/pandemic). The complex processes are
-handled by [redux-saga](https://redux-saga.js.org/)s. I don't think this game is
-following DDD, but is a useful reference. It's also well done! Have a play!
-
-
-# Applying DDD tactics to Pandemic
+## Let's just start
 OK, I've read enough, now it's time to implement this thing (again)! Some
 initial decisions:
 
@@ -460,60 +403,115 @@ easier though, such as the check for the player's final action in
 to append multiple events to the same list, instead of having to unpack the
 events returned by the public handlers.
 
+
+
+
+# Conclusion
 Anyway, I'm at a point where I think I can continue to incrementally add game
 rules until I have a full game implementation. The biggest benefit DDD has
 provided is a way of breaking down the game rules into fine grained events that
 are easy to reason about and implement.
 
-# Q & A
-**todo** figure out where to put this
 
-## how to handle events that trigger other events?
-Eg. when the current player does their final action, there are a number of
-things that happen next: they pick up cards, and infection cards are revealed.
-How to model/implement this in an elegant way?
+# Appendix: DDD concepts used in this post
+## Domain
+The domain is the problem to be solved, and its surrounding context. In my case,
+the domain is the Pandemic board game and its rule book. The people working in
+the domain should have a shared understanding of the domain model. It should be
+described in non-technical, jargon-free language that everyone can understand.
+This 'ubiquitous language' (another DDD term) should be used when discussing
+the domain model. Since I'm the only one working in the domain, the Pandemic
+rule book will be my domain expert, and I will use language within the rules
+when naming the software objects I create to build the game.
 
-In [[202109232032_armadora_ddd_board_game]], commands can return multiple
-events. These are placed in order on the event log. That's it! Because it uses
-event sourcing, the placing of events on the log is what updates the game state.
-The `Game` aggregate has a 'replay history' function that builds the current
-game state by materializing/folding the event log. In this implementation,
-events do not emit more events. Only commands return events. Commands can call
-other commands, eg. see [pass turn](https://github.com/ThomasFerro/armadora/blob/84db3e24a57aaccad72953ae3ab484f410663bec/server/game/command/pass_turn.go#L23)
-This does appear to embed game logic into the command handlers though.
+## Domain event
+A domain event can be any event of interest within the domain. An event is a
+result of some action within the domain. For example, in Pandemic, when a player
+moves from one city to another, this can be described as a 'player moved' event.
+The event contains information about what occurred, eg. which player moved, and
+which cities they moved from and to.
 
-If the event sourcing approach above is inefficient, it should be easy to extend
-the above to keep a persistent 'current' game aggregate that gets mutated with
-each processed event.
+## Event storming
+Typically, event storming is a session where domain, product, and technical
+experts come together to explore and model a domain, starting by brainstorming
+events that can occur within the domain.
 
-I'm still not happy with this answer. In [[202109232032_armadora_ddd_board_game]],
-commands can emit multiple events and call other commands. This appears to embed game logic in
-command handlers though. Shouldn't this all be in the aggregate?
+In my case, these will be little 'pen & paper' sessions where I map out a
+sequence of game events and subsequent side effects.
 
-- Should command handlers/services only do the plumbing between aggregates
-  and event stores etc.? I feel like the answer is yes.
-    - [this answer](https://softwareengineering.stackexchange.com/questions/368358/can-an-aggregate-only-ever-consume-commands-and-produce-events)
-      indicates that sagas/process managers are the missing piece here. They
-      consume the current state, and decide what happens next, including
-      issuing more commands. See [[process manager/saga | 202109241515_process_manager_saga]]
+- [Wikipedia: Event storming](https://en.wikipedia.org/wiki/Event_storming)
+
+## Value objects and entities
+A value object is an object that is identified by its attributes. If two value
+objects have the same attributes, then they are considered equal. For example,
+two value objects both representing the same 2D coordinate (1, 2) are considered
+to be the same object.
+
+Entities, on the other hand, are identified by some unique identifier. Two
+entities with all attributes equal apart from their unique identifier are still
+considered to be separate entities. For example, two people with the name 'Jane
+Doe' are still two individual people.
+
+- [Enterprise Craftsmanship: Entity vs Value Object: the ultimate list of differences](https://enterprisecraftsmanship.com/posts/entity-vs-value-object-the-ultimate-list-of-differences/)
+- [Enterprise Craftsmanship: C# 9 Records as DDD Value Objects](https://enterprisecraftsmanship.com/posts/csharp-records-value-objects/)
+    - spoiler: C# records _may_ be a good fit for some value objects, but not in
+      all cases. Same story for structs.
+
+## Aggregate
+An aggregate is a collection of entities and/or value objects that can be
+treated as an individual unit. An example could be an online shopping cart,
+which may contain multiple products.
+
+More importantly, an aggregate forms a 'consistency boundary'. The aggregate
+ensures that it remains internally consistent. For example, if your domain
+contains a rule that a + b = c, then a, b, and c should be within the same
+aggregate. The aggregate is responsible for making sure that whenever a or b are
+modified, c is updated.
+
+Aggregates process commands, which potentially modify their state. Domain events
+can be emitted as a result of these commands. The rest of the domain can listen
+for these events and respond to them accordingly, keeping the domain consistent
+with as aggregates change.
+
+- [Vaughn Vernon: modeling a single aggregate (pdf)](https://www.dddcommunity.org/wp-content/uploads/files/pdf_articles/Vernon_2011_1.pdf)
+
+## Event sourcing
+Not necessarily a part of DDD, however it can be a good fit. The idea is that
+application state is stored in an append-only log of events. If the state of the
+application at a point in time is needed, it can be built from the log of
+events.
+
+## Sagas and process managers
+**todo**: needs work
+
+Redux sagas appear to run in a similar way to process managers. They listen for
+particular events, and when received, proceed through a defined process that
+may trigger side effects and emit more events.
+- eg. [saga: movedToCity](https://github.com/alexzherdev/pandemic/blob/364a516d9b9455283a4c3c59bc7cd829b27ff7ce/src/sagas/actionSagas.js#L29)
+    - listens for the `ANIMATION_MOVE_COMPLETE` action (event)
+    - discards a player card if a direct or charter flight action was used
+    - waits for animation of the above action to complete
+    - removes disease cubes if the current player is the medic and the disease
+      has been cured
+    - emits a 'move complete' action
+
+Side note:
+Saga is an overloaded term. In this [MSDN article](https://docs.microsoft.com/en-us/previous-versions/msp-n-p/jj591569(v=pandp.10)?redirectedfrom=MSDN),
+they prefer the term 'process manager' when talking about DDD concepts, to
+distinguish the original meaning of an alternative to distributed transactions.
+
+- for complex processes, process managers can be used to coordinate the event
+  routing and issuing of consequent commands. Process managers can also be
+  called sagas, however it's an overloaded term. See
+  https://docs.microsoft.com/en-us/previous-versions/msp-n-p/jj591569(v=pandp.10)
 
 
-## when exactly should events be sent?
-- when aggregate changes need to be committed. This is not a concern of an
-  aggregate. Examples:
-    - [wikipedia: DDD](https://en.wikipedia.org/wiki/Domain-driven_design)
-      says that aggregates are responsible for mutating themselves and
-      returning consequent events, and command handlers are responsible for
-      persisting/ publishing those changes
-    - [[202109222152_dont_publish_domain_events_return_them]]
-- should commands modify aggregates, or should emitted events modify
-  aggregates? Seems to depend
-    - event sourcing requires all state changes are done via events
-        - see [[202109222152_dont_publish_domain_events_return_them]]
-    - wikipedia says aggregates are responsible for mutating themselves (see
-      above)
-    - same with both: changes to aggregates and publishing of events must be
-      done atomically
+Interestingly, someone's
+already made the game using react & redux:
+[pandemic](https://github.com/alexzherdev/pandemic). The complex processes are
+handled by [redux-saga](https://redux-saga.js.org/)s. I don't think this game is
+following DDD, but is a useful reference. It's also well done! Have a play!
+
 
 # References
 - [Pandemic](https://en.wikipedia.org/wiki/Pandemic_%28board_game%29)

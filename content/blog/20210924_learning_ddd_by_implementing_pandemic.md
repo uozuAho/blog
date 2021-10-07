@@ -8,7 +8,28 @@ tags:
 ---
 
 # todo
-- proof read sweep 1: up to 'When exactly should events be sent?'
+- proof read sweep 1: up to 'moving away from event sourcing'
+- add near the start: skip to 'lets just start' if you want
+- does this need to go anywhere?:
+  - When exactly should events be sent?
+    - when aggregate changes need to be committed. This is not a concern of an
+      aggregate. Examples:
+        - [wikipedia: DDD](https://en.wikipedia.org/wiki/Domain-driven_design)
+          says that aggregates are responsible for mutating themselves and
+          returning consequent events, and command handlers are responsible for
+          persisting/ publishing those changes
+        - [[202109222152_dont_publish_domain_events_return_them]]
+    - should commands modify aggregates, or should emitted events modify
+      aggregates? Seems to depend
+        - event sourcing requires all state changes are done via events
+            - see [[202109222152_dont_publish_domain_events_return_them]]
+        - wikipedia says aggregates are responsible for mutating themselves (see
+          above)
+        - same with both: changes to aggregates and publishing of events must be
+          done atomically
+- add links to ddd concepts appendix
+- center images
+- does navigating to/from header links work nicely?
 - domain event: only events domain experts care about?
   - what if there are events that are useful to manage the software?
 - make sure all refs are included at the end
@@ -106,7 +127,7 @@ consistent state asynchronously, by the publishing of domain events. So in
 theory, an endless sequence of domain events could be emitted as multiple
 aggregates react to events sent by other aggregates. Presumably this is an
 undesirable condition to find your software in.
-[Armadora](https://dev.to/thomasferro/ddd-in-action-armadora-the-board-game-2o07),
+[Armadora](https://dev.to/thomasferro/ddd-in-action-armadora-the-board-game-2o07)
 uses a single aggregate to represent the current state of the game, thus
 removing the complication of keeping multiple aggregates in sync. Additionally,
 events do not trigger any other events. Commands may emit multiple events, and
@@ -114,76 +135,55 @@ I found one example of a [command calling another command](https://github.com/Th
 This is what I will do for now.
 
 
-## When exactly should events be sent?
-- when aggregate changes need to be committed. This is not a concern of an
-  aggregate. Examples:
-    - [wikipedia: DDD](https://en.wikipedia.org/wiki/Domain-driven_design)
-      says that aggregates are responsible for mutating themselves and
-      returning consequent events, and command handlers are responsible for
-      persisting/ publishing those changes
-    - [[202109222152_dont_publish_domain_events_return_them]]
-- should commands modify aggregates, or should emitted events modify
-  aggregates? Seems to depend
-    - event sourcing requires all state changes are done via events
-        - see [[202109222152_dont_publish_domain_events_return_them]]
-    - wikipedia says aggregates are responsible for mutating themselves (see
-      above)
-    - same with both: changes to aggregates and publishing of events must be
-      done atomically
-
 ## Let's just start
-OK, I've read enough, now it's time to implement this thing (again)! Some
-initial decisions:
+OK, I think I have got enough to start. I'll figure out the rest as I go. To
+start, I will use:
 
-- I'll use one aggregate to represent the current state of the game
-- I'll use event sourcing, mainly as I've never used it before, and it appears
-  to remove some of the hassle of state management, and keep the code more
-  functional (as in functional programming).
-- C#. I'm most familiar with C#, and I'd like to get more experience with some
-  of its newer functional capabilities (mainly records and pattern matching).
+- one aggregate to represent the current state of the game
+- immutable everything, including aggregates and entities. This does not follow
+  DDD, but will be useful for AI algorithms that will need to search and keep
+  track of many game states.
+- event sourcing, mainly as I've never used it before, and it appears to remove
+  some of the hassle of state management, and keep the code more functional (as
+  in functional programming)
+- C#, as I'm most familiar with it, and I would like to get more experience with
+  some of its newer functional capabilities (mainly records and pattern
+  matching)
 
-OK, I think I've got enough to start. My goal for now is to implement enough
-game rules to be able to play a game to completion. I'll pick the simplest rules
-to start with. Once that's done, I can start adding rules incrementally, until
-I've implemented the whole game.
+My goal for now is to implement enough game rules to be able to play a game to
+completion. I will pick the simplest rules to start with. Once that's done, I
+can start adding rules incrementally, until the whole game is implemented.
 
-As discussed earlier, I'm not sure where all the complexity of the Pandemic game
-rules should go. My current understanding is that if I am using a single
-aggregate to represent the game state, then it will be responsible for keeping
-itself internally consistent. To me, that means implementing all the rules
-within the aggregate. I am a little worried about creating the same ball of mud
-as I have before, but I think the process of breaking down the rules into
-discrete commands and events will help keep the corresponding code manageable.
-If the aggregate is getting too large, one idea is to move some of the complex
-game processes to process managers.
-
-**todo: fix this for dark**
-> Side note:
-> One of my doomed attempts to implement pandemic is actually a
-> [fork of the above project](https://github.com/uozuAho/pandemic). I was trying
-> to get it to play headless (without a human operator), but kept running into
-> coupling with the UI that was hard to untangle.
+Since an aggregate is responsible for maintaining its own consistency, I think I
+need to implement all command handlers in the aggregate. I am a little worried
+about how big the aggregate is going to be, but I think the process of breaking
+down the rules into discrete commands and events will help keep the
+corresponding code manageable.
 
 
 ## Baby steps
 Here's my initial aggregate:
 
 ```cs
+// My one aggregate - the state of the game
 public record PandemicGame
 {
     public Difficulty Difficulty { get; init; }
 
-    // create a game state from an event log
+    // Create the game aggregate from an event log
     public static PandemicGame FromEvents(IEnumerable<IEvent> events) =>
         events.Aggregate(new PandemicGame(), Apply);
 
-    // commands yield events
+    // This is the 'set difficulty' command. Commands yield events.
+    // Since I am using event sourcing, there is no need to mutate the
+    // aggregate within the commands. The current state of the aggregate can
+    // be built on demand from the event log.
     public static IEnumerable<IEvent> SetDifficulty(List<IEvent> log, Difficulty difficulty)
     {
         yield return new DifficultySet(difficulty);
     }
 
-    // Game state is modified by events. Return a new object instead of mutating.
+    // 'Apply' an event to the aggregate. Returns an updated aggregate.
     public static PandemicGame Apply(PandemicGame pandemicGame, IEvent @event)
     {
         return @event switch
@@ -197,8 +197,9 @@ public record PandemicGame
 
 ## First complex process
 After a few hours of coding simple events, I've now come to an interesting
-point: how to handle when a player does their last action? Here's what my
-current `DriveOrFerryPlayer` command looks like:
+point: how to implement the sequence of events that occur when a player does
+their last action? Here's what my current `DriveOrFerryPlayer` command looks
+like:
 
 ```cs
 public static IEnumerable<IEvent> DriveOrFerryPlayer(List<IEvent> log, Role role, string city)
@@ -231,9 +232,10 @@ flowchart. Here's a simplified version:
   <figcaption>A simplified 'end of player turn' flow</figcaption>
 </figure>
 
-I did a 'mini event storming' to determine commands and events involved. For
-now, there's only one aggregate (the game), so I've omitted it from the image.
-Commands with no human player next to them are issued by the 'game'.
+I did a mini [event storming]({{< ref "#event_storming" >}}) to determine
+commands and events involved in the above flowchart. There's only one aggregate
+(the game), so I've omitted it from the image. Commands with no human player
+next to them are issued by the 'game'.
 
 <figure>
   <img src="/blog/20210924_learning_ddd/end_turn_flow_simple_event_storm.png"
@@ -244,12 +246,8 @@ Commands with no human player next to them are issued by the 'game'.
   Commands are blue, events are orange.</figcaption>
 </figure>
 
-As decided earlier, I'll put all the logic into the aggregate. This means the
-aggregate will be responsible for issuing commands like 'infect city'. This is
-what Armadora's command handlers do.
 
-Now, to deal with the events that occur after a player has completed their
-fourth action:
+Here's the `DriveOrFerryPlayer` command after adding the above events:
 
 ```cs
 public static IEnumerable<IEvent> DriveOrFerryPlayer(List<IEvent> log, Role role, string city)
@@ -270,6 +268,12 @@ public static IEnumerable<IEvent> DriveOrFerryPlayer(List<IEvent> log, Role role
 
     yield return new PlayerMoved(role, city);
 
+    // This looks a little weird - why isn't this block executed when the player
+    // has zero actions remaining? Because the `PlayerMoved` event emitted above
+    // does not affect the state of the aggregate built from the event log at
+    // the start of this method. We know that the player will have one less
+    // action after the `PlayerMoved` event is applied, thus this block needs to
+    // execute when the player initially had 1 action remaining.
     if (player.ActionsRemaining == 1)
     {
         // todo: pick up cards from player draw pile here
@@ -286,7 +290,7 @@ public static IEnumerable<IEvent> DriveOrFerryPlayer(List<IEvent> log, Role role
     }
 }
 
-public static IEnumerable<IEvent> InfectCity(List<IEvent> log)
+private static IEnumerable<IEvent> InfectCity(List<IEvent> log)
 {
     var state = FromEvents(log);
     var infectionCard = state.InfectionDrawPile.Last();
@@ -295,10 +299,11 @@ public static IEnumerable<IEvent> InfectCity(List<IEvent> log)
 }
 ```
 
-It's not as bad as I thought it would be! The `PandemicGame` aggregate is
-getting large (200 lines so far), but all the code seems to belong to it. I
-could split out the event and command handlers, but I won't for now. Let's keep
-going!
+It's not as bad as I thought it would be! I separated out the private
+`InfectCity` command for convenience. It's not a command a player can issue, but
+makes the `DriveOrFerryPlayer` code easier to understand from a domain
+perspective. The aggregate is getting large (200 lines so far), but all the code
+seems to belong to it.
 
 
 # Moving away from event sourcing
@@ -450,12 +455,12 @@ moves from one city to another, this can be described as a 'player moved' event.
 The event contains information about what occurred, eg. which player moved, and
 which cities they moved from and to.
 
-## Event storming
+## Event storming {#event_storming}
 Typically, event storming is a session where domain, product, and technical
 experts come together to explore and model a domain, starting by brainstorming
 events that can occur within the domain.
 
-In my case, these will be little 'pen & paper' sessions where I map out a
+In my case, these were little 'pen & paper' sessions where I mapped out a
 sequence of game events and subsequent side effects.
 
 - [Wikipedia: Event storming](https://en.wikipedia.org/wiki/Event_storming)

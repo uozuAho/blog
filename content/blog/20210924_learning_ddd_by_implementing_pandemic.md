@@ -7,56 +7,71 @@ tags:
 - DDD
 ---
 
-{{< toc >}}
-
 # todo
-- proof read
+- proof read sweep 1: up to 'When exactly should events be sent?'
+- domain event: only events domain experts care about?
+  - what if there are events that are useful to manage the software?
 - make sure all refs are included at the end
 
+Join me on my quest to learn some DDD while making a board game. This is my
+longest post yet, so I've included a table of contents for your convenience :)
+
+# Contents
+{{< toc >}}
+
+# Intro
 I have tried a number of times to implement the board game
 [Pandemic](https://en.wikipedia.org/wiki/Pandemic_%28board_game%29), so that I
 can set AI upon it. Each attempt was a failure, due to the complexity of the
 game rules causing my code to turn into a complex ball of mud. Recently I have
-been inspired to try again, after having the idea that domain-driven design
-(DDD) may help me deal with the complexity.
+been inspired to try again, after having the idea that [domain-driven design
+(DDD)](https://en.wikipedia.org/wiki/Domain-driven_design) may help me deal with
+the complexity.
 
-I have known of domain-driven design (DDD) for years, but had never looked
-closely into it. I had a very basic understanding of some DDD concepts, such as
-breaking complex systems into 'bounded contexts', and using 'anti corruption
-layers' to keep your domain model clean, but that was about it. It was only
-after starting work on this post that I realised that DDD covers a huge
-landscape of software development, including many low-level concepts that can be
-applied even within small applications, such as board games!
+I have known of domain-driven design for years, but had never looked closely
+into it. I had a very basic understanding of some DDD concepts, such as breaking
+complex systems into 'bounded contexts', and using 'anti corruption layers' to
+keep the domain model clean, but that was about it. It was only after starting
+work on this post that I realised that DDD covers a huge landscape of software
+development, including many low-level concepts that can be applied even within
+small applications, such as board games!
 
-In this post I will focus on these low-level 'tactical' aspects of DDD, and
-implementing them in C#. Note that these low level details are only a small part
-of DDD as originally described by Eric Evans in his now famous the
-['Blue book'](https://www.goodreads.com/book/show/179133.Domain_Driven_Design).
-See the references and further reading section at the end of this post for more
+In this post I will focus on some of these low-level 'tactical' aspects of DDD,
+and implementing them in C#. Note that these low level details are only a small
+part of DDD as originally described by Eric Evans in his now famous ['Blue
+book'](https://www.goodreads.com/book/show/179133.Domain_Driven_Design). See the
+references and further reading section at the end of this post for more
 resources on DDD.
 
-Also, I haven't read Eric Evans's book. It has a reputation for being long and
-boring, and I was keen to get started. Most of the information in this post has
-come from various online sources, which are linked throughout and at the end of
-this post.
+A disclaimer before I go on: I haven't read Eric Evans's book. It has a
+reputation for being long and boring, and I was keen to get started. Most of the
+information in this post has come from various online sources, which are linked
+throughout and at the end of this post.
 
 
 # It's been done
 A quick search revealed that someone else had already tried DDD on another board
-game. See [DDD in action: Armadora - The board game](https://dev.to/thomasferro/ddd-in-action-armadora-the-board-game-2o07).
-This was just the example I needed to see how the concepts could be applied for
+game. In [DDD in action: Armadora - The board
+game](https://dev.to/thomasferro/ddd-in-action-armadora-the-board-game-2o07),
+Thomas Ferro describes how he implemented a simple board game using DDD concepts
+and event sourcing. This post, accompanied by [Summary of a four days DDD
+training](https://dev.to/thomasferro/summary-of-a-four-days-ddd-training-5a3c)
+were just the crash course I needed to see how the concepts could be applied for
 someone new to DDD. However, the simplicity of the Armadora game left me
 wondering how more complex games like pandemic would be implemented.
 
-I also found what looks to be a [complete implementation of Pandemic](https://github.com/alexzherdev/pandemic),
-using React & Redux. You can play it online [here](https://epidemic.netlify.app/play).
-I don't think DDD was an influence on this implementation, however it was useful
-to have as another reference.
+I also found what looks to be a [complete implementation of
+Pandemic](https://github.com/alexzherdev/pandemic), using React & Redux. You can
+play it online [here](https://epidemic.netlify.app/play). Have a go, it's really
+well done! I don't think DDD was an influence on this implementation, however it
+was useful to have as another reference.
 
 
 # Applying DDD tactics to Pandemic
-For example, in Pandemic, if you pick up an 'epidemic' card, a chain reaction of
-events can occur, based on certain conditions:
+My stumbling point in the past has been the complex game rules of Pandemic.
+Certain player actions result in chain reactions of side effects. For example,
+in Pandemic, if you pick up an 'epidemic' card, a series of events can occur,
+based on certain conditions:
 
 <figure>
   <img src="/blog/20210924_learning_ddd/end_turn_with_epidemic_flow.png"
@@ -70,32 +85,36 @@ The flowchart above does not even show all the game rules: there are checks for
 game end, outbreaks can occur when cities are infected, event cards may be
 played, and more!
 
-## how to handle events that trigger other events?
-Eg. when the current player does their final action, there are a number of
-things that happen next: they pick up cards, and infection cards are revealed.
-How to model/implement this in an elegant way?
+One way DDD attempts to simplify complex domains is by breaking down complex
+processes such as the one above into sequences of 'domain events'. A domain
+event represents any change to the system. Events are emitted as a result of
+commands issued within the system. Using the above flowchart as an example,
+the player issues the 'do action' command. If it was the player's last action,
+then two 'card drawn' events could be emitted. If either of those cards were an
+epidemic card, then more epidemic events are emitted.
 
-In [[202109232032_armadora_ddd_board_game]], commands can return multiple
-events. These are placed in order on the event log. That's it! Because it uses
-event sourcing, the placing of events on the log is what updates the game state.
-The `Game` aggregate has a 'replay history' function that builds the current
-game state by materializing/folding the event log. In this implementation,
-events do not emit more events. Only commands return events. Commands can call
-other commands, eg. see [pass turn](https://github.com/ThomasFerro/armadora/blob/84db3e24a57aaccad72953ae3ab484f410663bec/server/game/command/pass_turn.go#L23)
-This does appear to embed game logic into the command handlers though.
 
-I'm still not happy with this answer. In [[202109232032_armadora_ddd_board_game]],
-commands can emit multiple events and call other commands. This appears to embed game logic in
-command handlers though. Shouldn't this all be in the aggregate?
+## How to handle events that trigger other events
+Breaking down the complex rules into small commands and events sounds like a
+good way to keep the underlying software parts small and manageable. However,
+I'm worried about managing and debugging the explosion of events that may occur.
+Are events supposed to trigger other events in DDD?
 
-- Should command handlers/services only do the plumbing between aggregates
-  and event stores etc.? I feel like the answer is yes.
-    - [this answer](https://softwareengineering.stackexchange.com/questions/368358/can-an-aggregate-only-ever-consume-commands-and-produce-events)
-      indicates that sagas/process managers are the missing piece here. They
-      consume the current state, and decide what happens next, including
-      issuing more commands. See [[process manager/saga | 202109241515_process_manager_saga]]
+From what I've read so far, a domain model in DDD is made up of 'aggregates',
+which are always internally consistent. Multiple aggregates are brought into a
+consistent state asynchronously, by the publishing of domain events. So in
+theory, an endless sequence of domain events could be emitted as multiple
+aggregates react to events sent by other aggregates. Presumably this is an
+undesirable condition to find your software in.
+[Armadora](https://dev.to/thomasferro/ddd-in-action-armadora-the-board-game-2o07),
+uses a single aggregate to represent the current state of the game, thus
+removing the complication of keeping multiple aggregates in sync. Additionally,
+events do not trigger any other events. Commands may emit multiple events, and
+I found one example of a [command calling another command](https://github.com/ThomasFerro/armadora/blob/84db3e24a57aaccad72953ae3ab484f410663bec/server/game/command/pass_turn.go#L38).
+This is what I will do for now.
 
-## when exactly should events be sent?
+
+## When exactly should events be sent?
 - when aggregate changes need to be committed. This is not a concern of an
   aggregate. Examples:
     - [wikipedia: DDD](https://en.wikipedia.org/wiki/Domain-driven_design)

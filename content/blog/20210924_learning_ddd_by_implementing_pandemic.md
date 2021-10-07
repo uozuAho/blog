@@ -7,11 +7,11 @@ tags:
 - DDD
 ---
 
+{{< toc >}}
+
 # todo
 - proof read
 - make sure all refs are included at the end
-- table of contents?
-  - clickable/linkable headings?
 
 I have tried a number of times to implement the board game
 [Pandemic](https://en.wikipedia.org/wiki/Pandemic_%28board_game%29), so that I

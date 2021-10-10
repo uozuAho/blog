@@ -5,52 +5,41 @@ draft: true
 summary: "Learning the lower-level details of domain-drive design, through implementing the Pandemic board game"
 tags:
 - DDD
+- C#
 ---
 
 # todo
-- proof read sweep 1: up to 'moving away from event sourcing'
-- add near the start: skip to 'lets just start' if you want
-- does this need to go anywhere?:
-  - When exactly should events be sent?
-    - when aggregate changes need to be committed. This is not a concern of an
-      aggregate. Examples:
-        - [wikipedia: DDD](https://en.wikipedia.org/wiki/Domain-driven_design)
-          says that aggregates are responsible for mutating themselves and
-          returning consequent events, and command handlers are responsible for
-          persisting/ publishing those changes
-        - [[202109222152_dont_publish_domain_events_return_them]]
-    - should commands modify aggregates, or should emitted events modify
-      aggregates? Seems to depend
-        - event sourcing requires all state changes are done via events
-            - see [[202109222152_dont_publish_domain_events_return_them]]
-        - wikipedia says aggregates are responsible for mutating themselves (see
-          above)
-        - same with both: changes to aggregates and publishing of events must be
-          done atomically
-- add links to ddd concepts appendix
 - center images
+- fix background colour in inline quotes
 - does navigating to/from header links work nicely?
 - domain event: only events domain experts care about?
   - what if there are events that are useful to manage the software?
 - make sure all refs are included at the end
+- easy navigation between headings?
+- 'back to top' button?
 
 Join me on my quest to learn some DDD while making a board game. This is my
 longest post yet, so I've included a table of contents for your convenience :)
 
+If you want to skip straight to the action, see [Let's just start]({{< ref
+"#lets_start" >}})
+
 # Contents
 {{< toc >}}
 
+
+-------------------------------------------------------------------
 # Intro
 I have tried a number of times to implement the board game
 [Pandemic](https://en.wikipedia.org/wiki/Pandemic_%28board_game%29), so that I
-can set AI upon it. Each attempt was a failure, due to the complexity of the
-game rules causing my code to turn into a complex ball of mud. Recently I have
-been inspired to try again, after having the idea that [domain-driven design
+could set AI upon it. Each attempt was a failure, due to the complexity of the
+game rules causing my code to turn into a complex ball of mud. Recently I was
+inspired to try again, after having the idea that [domain-driven design
 (DDD)](https://en.wikipedia.org/wiki/Domain-driven_design) may help me deal with
 the complexity.
 
-I have known of domain-driven design for years, but had never looked closely
-into it. I had a very basic understanding of some DDD concepts, such as breaking
+I had known of domain-driven design for years, but had never looked closely into
+it. I had a very basic understanding of some DDD concepts, such as breaking
 complex systems into 'bounded contexts', and using 'anti corruption layers' to
 keep the domain model clean, but that was about it. It was only after starting
 work on this post that I realised that DDD covers a huge landscape of software
@@ -85,14 +74,14 @@ I also found what looks to be a [complete implementation of
 Pandemic](https://github.com/alexzherdev/pandemic), using React & Redux. You can
 play it online [here](https://epidemic.netlify.app/play). Have a go, it's really
 well done! I don't think DDD was an influence on this implementation, however it
-was useful to have as another reference.
+was useful to have as a reference.
 
 
 # Applying DDD tactics to Pandemic
 My stumbling point in the past has been the complex game rules of Pandemic.
 Certain player actions result in chain reactions of side effects. For example,
-in Pandemic, if you pick up an 'epidemic' card, a series of events can occur,
-based on certain conditions:
+if you pick up an 'epidemic' card, a series of events can occur, based on
+certain conditions:
 
 <figure>
   <img src="/blog/20210924_learning_ddd/end_turn_with_epidemic_flow.png"
@@ -107,12 +96,13 @@ game end, outbreaks can occur when cities are infected, event cards may be
 played, and more!
 
 One way DDD attempts to simplify complex domains is by breaking down complex
-processes such as the one above into sequences of 'domain events'. A domain
-event represents any change to the system. Events are emitted as a result of
-commands issued within the system. Using the above flowchart as an example,
-the player issues the 'do action' command. If it was the player's last action,
-then two 'card drawn' events could be emitted. If either of those cards were an
-epidemic card, then more epidemic events are emitted.
+processes such as the one above into sequences of [domain events]({{< ref
+"#domain_event" >}}). A domain event represents any change to the system. Events
+are emitted as a result of commands issued within the system. Using the above
+flowchart as an example, the player issues the 'do action' command. If it was
+the player's last action, then two 'card drawn' events could be emitted. If
+either of those cards were an epidemic card, then more epidemic events are
+emitted.
 
 
 ## How to handle events that trigger other events
@@ -121,7 +111,8 @@ good way to keep the underlying software parts small and manageable. However,
 I'm worried about managing and debugging the explosion of events that may occur.
 Are events supposed to trigger other events in DDD?
 
-From what I've read so far, a domain model in DDD is made up of 'aggregates',
+From what I've read so far, a domain model in DDD is made up of [aggregates]({{< ref
+"#aggregate" >}}),
 which are always internally consistent. Multiple aggregates are brought into a
 consistent state asynchronously, by the publishing of domain events. So in
 theory, an endless sequence of domain events could be emitted as multiple
@@ -135,17 +126,17 @@ I found one example of a [command calling another command](https://github.com/Th
 This is what I will do for now.
 
 
-## Let's just start
+## Let's just start {#lets_start}
 OK, I think I have got enough to start. I'll figure out the rest as I go. To
 start, I will use:
 
 - one aggregate to represent the current state of the game
-- immutable everything, including aggregates and entities. This does not follow
-  DDD, but will be useful for AI algorithms that will need to search and keep
-  track of many game states.
-- event sourcing, mainly as I've never used it before, and it appears to remove
-  some of the hassle of state management, and keep the code more functional (as
-  in functional programming)
+- immutable data, including aggregates and entities. This does not follow DDD,
+  but will be useful for AI algorithms that will need to search and keep track
+  of many game states.
+- [event sourcing]({{< ref "#event_sourcing" >}}), mainly as I've never used it
+  before, and it appears to remove some of the hassle of state management, and
+  keep the code more functional (as in functional programming)
 - C#, as I'm most familiar with it, and I would like to get more experience with
   some of its newer functional capabilities (mainly records and pattern
   matching)
@@ -175,16 +166,19 @@ public record PandemicGame
         events.Aggregate(new PandemicGame(), Apply);
 
     // This is the 'set difficulty' command. Commands yield events.
-    // Since I am using event sourcing, there is no need to mutate the
-    // aggregate within the commands. The current state of the aggregate can
-    // be built on demand from the event log.
-    public static IEnumerable<IEvent> SetDifficulty(List<IEvent> log, Difficulty difficulty)
+    // Since I am using event sourcing, there is no need to mutate
+    // the aggregate within the commands. The current state of the
+    // aggregate can be built on demand from the event log.
+    public static IEnumerable<IEvent> SetDifficulty(
+        List<IEvent> log, Difficulty difficulty)
     {
         yield return new DifficultySet(difficulty);
     }
 
-    // 'Apply' an event to the aggregate. Returns an updated aggregate.
-    public static PandemicGame Apply(PandemicGame pandemicGame, IEvent @event)
+    // Modify the aggregate with an event. Returns an updated copy
+    // of the current aggregate.
+    public static PandemicGame Apply(
+        PandemicGame pandemicGame, IEvent @event)
     {
         return @event switch
         {
@@ -196,10 +190,9 @@ public record PandemicGame
 ```
 
 ## First complex process
-After a few hours of coding simple events, I've now come to an interesting
-point: how to implement the sequence of events that occur when a player does
-their last action? Here's what my current `DriveOrFerryPlayer` command looks
-like:
+After a few hours of coding simple events, I have reached an interesting point:
+I need to implement the sequence of events that occur when a player does their
+last action. Here's what my current `DriveOrFerryPlayer` command looks like:
 
 ```cs
 public static IEnumerable<IEvent> DriveOrFerryPlayer(List<IEvent> log, Role role, string city)
@@ -250,15 +243,18 @@ next to them are issued by the 'game'.
 Here's the `DriveOrFerryPlayer` command after adding the above events:
 
 ```cs
-public static IEnumerable<IEvent> DriveOrFerryPlayer(List<IEvent> log, Role role, string city)
+public static IEnumerable<IEvent> DriveOrFerryPlayer(
+    List<IEvent> log, Role role, string city)
 {
-    if (!Board.IsCity(city)) throw new InvalidActionException($"Invalid city '{city}'");
+    if (!Board.IsCity(city))
+        throw new InvalidActionException($"Invalid city '{city}'");
 
     var state = FromEvents(log);
     var player = state.PlayerByRole(role);
 
     if (player.ActionsRemaining == 0)
-        throw new GameRuleViolatedException($"Action not allowed: Player {role} has no actions remaining");
+        throw new GameRuleViolatedException(
+            $"Action not allowed: Player {role} has no actions remaining");
 
     if (!Board.IsAdjacent(player.Location, city))
     {
@@ -268,12 +264,14 @@ public static IEnumerable<IEvent> DriveOrFerryPlayer(List<IEvent> log, Role role
 
     yield return new PlayerMoved(role, city);
 
-    // This looks a little weird - why isn't this block executed when the player
-    // has zero actions remaining? Because the `PlayerMoved` event emitted above
-    // does not affect the state of the aggregate built from the event log at
-    // the start of this method. We know that the player will have one less
-    // action after the `PlayerMoved` event is applied, thus this block needs to
-    // execute when the player initially had 1 action remaining.
+    // This looks a little weird - why isn't this block executed
+    // when the player has zero actions remaining? Because the
+    // `PlayerMoved` event emitted above does not affect the state
+    // of the aggregate built from the event log at the start of
+    // this method. We know that the player will have one less
+    // action after the `PlayerMoved` event is applied, thus this
+    // block needs to execute when the player initially had 1
+    // action remaining.
     if (player.ActionsRemaining == 1)
     {
         // todo: pick up cards from player draw pile here
@@ -307,49 +305,25 @@ seems to belong to it.
 
 
 # Moving away from event sourcing
-The event sourcing approach is making testing difficult. I want to be able to
-set up a near-end game state to be able to assert game ending scenarios. With my
-current implementation, the only way to create a game aggregate is from an event
-log. Although this ensures aggregate is in a valid state, it makes setting up
-these test scenarios laborious, and I will need to constantly tweak the test
-setup as I add more game rules, to ensure that the events leading to the
-game-ending state are valid.
+I have decided to stop using event sourcing, mainly because it is making testing
+difficult. I want to be able to set up a near-end game state to be able to
+assert game ending scenarios. With my current implementation, the only way to
+create a game aggregate is from an event log. Although this ensures the
+aggregate is in a valid state, it makes setting up these test scenarios
+laborious, and I will need to constantly tweak the test setup as I add more game
+rules, to ensure that the events leading to the game-ending state are valid.
 
-I have decided to stop using event sourcing, and instead pass the current game
-state to command handlers. Having an event log is useful for debugging purposes,
-so I will keep emitting events for all modifications of the game state. Being
-able to create the game aggregate in an invalid state is a hazard, but for my
-purposes is very handy for testing. I wonder if there's a way to disable the
-usage of dangerous constructors in production code? I'll put that on the 'to do
-later' pile.
+Instead of rebuilding the game aggregate from the event log, I will make the
+commands instance methods of the aggregate. This way, commands immediately have
+access to the current game state. Having an event log is useful for debugging
+purposes, so I will keep emitting events for all modifications of the game
+state. Being able to create the game aggregate in an invalid state is a hazard,
+but for my purposes is very handy for testing. I wonder if there's a way to
+disable the usage of dangerous constructors in production code? I'll put that on
+the 'to do later' pile.
 
-As per my current understanding of DDD, my `PandemicGame` class is the
-aggregate. It contains the entire game state, as a graph of entities and value
-objects. I have made it immutable, since this will come in handy when building
-AI agents that will need to explore a tree of game states, potentially keeping
-track of many individual game states at a time. This goes against the DDD
-literature I have read so far, which states that aggregates and entities can
-mutate their own state via commands. I don't see a downside to keeping
-everything immutable at this stage. Here's the data in the aggregate:
-
-```cs
-public record PandemicGame
-{
-    public bool IsOver { get; init; };
-    public Difficulty Difficulty { get; init; }
-    public int InfectionRate { get; init; }
-    public int OutbreakCounter { get; init; }
-    public int CurrentPlayerIdx { get; init; }
-    public ImmutableList<Player> Players { get; init; }
-    public ImmutableList<City> Cities { get; init; }
-    public ImmutableList<InfectionCard> InfectionDrawPile { get; init; }
-    public ImmutableList<InfectionCard> InfectionDiscardPile { get; init; }
-    public ImmutableDictionary<Colour, int> Cubes { get; init; } =
-        Enum.GetValues<Colour>().ToImmutableDictionary(c => c, _ => 24);
-```
-
-There are many command and event handlers on the aggregate, but they are all
-following an emerging pattern:
+Here's what I have come up with. There are many command and event handlers on
+the aggregate, but they are all following an emerging pattern:
 
 ```cs
 // Command handlers are public methods on the aggregate. They take parameters
@@ -412,43 +386,66 @@ private static PandemicGame DoStuffAfterActions(
 }
 ```
 
-I think `DriveOrFerryPlayer` is going to continue to grow as I add more game
-logic. I'm a little worried about that. I _could_ move it to a process manager,
-but that would just result it a complicated process manager. Additionally, I
-think the purpose of a process manager is to orchestrate effects across multiple
-aggregates, which I don't have.
+`DriveOrFerryPlayer` is going to continue to grow as I add more game logic. I'm
+a little worried about that. There are more DDD concepts that I may be able to
+use here: 'sagas' or 'process managers', and 'services'. I don't know if these
+are appropriate, as I believe they are intended to coordinate behaviour between
+aggregates. Since this post is getting rather long, I'll leave this for later.
 
-I don't really like the difference in method signatures between the public and
-private command handlers. I like that the public handlers from a consumer point
-of view: you issue a command, and receive an updated aggregate and associated
-events. The private command handlers make handling multiple intermediate states
-easier though, such as the check for the player's final action in
-`DriveOrFerryPlayer`. Additionally, the private command handlers make it easier
-to append multiple events to the same list, instead of having to unpack the
-events returned by the public handlers.
+I also don't really like the difference in method signatures between the public
+and private command handlers.
+
+> Side note: I'm glad I chose to use records with immutable collections for my
+> data types. Immutable collection methods return updated copies of the
+> collections, as does the `with` expression for C# records. This makes it very
+> easy to create new states based on events. For example:
+>
+> ```cs
+> private static PandemicGame ApplyPlayerCardDiscarded(
+>   PandemicGame game,
+>   PlayerCardDiscarded discarded)
+> {
+>     var discardedCard = game
+>       .CurrentPlayer
+>       .Hand
+>       .Single(c => c.City == discarded.City);
+>
+>     return game with
+>     {
+>         Players = game
+>           .Players
+>           .Replace(game.CurrentPlayer, game.CurrentPlayer with
+>           {
+>               Hand = game
+>                 .CurrentPlayer
+>                 .Hand
+>                 .Remove(discardedCard)
+>           })
+>     };
+> }
+> ```
 
 
+# Wrapping up this post
+Despite the above concerns, I am confident that I can incrementally add game
+rules until I have a full game implementation. The biggest benefit I have got
+from DDD so far is a way of breaking down the game rules into fine grained
+commands and events that are easy to reason about and implement.
 
 
-# Conclusion
-Anyway, I'm at a point where I think I can continue to incrementally add game
-rules until I have a full game implementation. The biggest benefit DDD has
-provided is a way of breaking down the game rules into fine grained events that
-are easy to reason about and implement.
-
-
+-------------------------------------------------------------------
 # Appendix: DDD concepts used in this post
 ## Domain
 The domain is the problem to be solved, and its surrounding context. In my case,
-the domain is the Pandemic board game and its rule book. The people working in
-the domain should have a shared understanding of the domain model. It should be
-described in non-technical, jargon-free language that everyone can understand.
-This 'ubiquitous language' (another DDD term) should be used when discussing
-the domain model. Since I'm the only one working in the domain, the Pandemic
-rule book will be my domain expert, and I will use language within the rules
-when naming the software objects I create to build the game.
+the domain is the Pandemic board game. The people working in the domain should
+have a shared understanding of the domain model. It should be described in
+non-technical, jargon-free language that everyone can understand. This
+'ubiquitous language' (another DDD term) should be used when discussing the
+domain model. Since I'm the only one working in the domain, the Pandemic rule
+book will be my domain expert, and I will use language within the rules when
+naming the software objects I create to build the game.
 
-## Domain event
+## Domain event {#domain_event}
 A domain event can be any event of interest within the domain. An event is a
 result of some action within the domain. For example, in Pandemic, when a player
 moves from one city to another, this can be described as a 'player moved' event.
@@ -465,7 +462,7 @@ sequence of game events and subsequent side effects.
 
 - [Wikipedia: Event storming](https://en.wikipedia.org/wiki/Event_storming)
 
-## Value objects and entities
+## Value objects and entities {#values_and_entities}
 A value object is an object that is identified by its attributes. If two value
 objects have the same attributes, then they are considered equal. For example,
 two value objects both representing the same 2D coordinate (1, 2) are considered
@@ -481,7 +478,7 @@ Doe' are still two individual people.
     - spoiler: C# records _may_ be a good fit for some value objects, but not in
       all cases. Same story for structs.
 
-## Aggregate
+## Aggregate {#aggregate}
 An aggregate is a collection of entities and/or value objects that can be
 treated as an individual unit. An example could be an online shopping cart,
 which may contain multiple products.
@@ -499,44 +496,14 @@ with as aggregates change.
 
 - [Vaughn Vernon: modeling a single aggregate (pdf)](https://www.dddcommunity.org/wp-content/uploads/files/pdf_articles/Vernon_2011_1.pdf)
 
-## Event sourcing
+## Event sourcing {#event_sourcing}
 Not necessarily a part of DDD, however it can be a good fit. The idea is that
 application state is stored in an append-only log of events. If the state of the
 application at a point in time is needed, it can be built from the log of
 events.
 
-## Sagas and process managers
-**todo**: needs work
 
-Redux sagas appear to run in a similar way to process managers. They listen for
-particular events, and when received, proceed through a defined process that
-may trigger side effects and emit more events.
-- eg. [saga: movedToCity](https://github.com/alexzherdev/pandemic/blob/364a516d9b9455283a4c3c59bc7cd829b27ff7ce/src/sagas/actionSagas.js#L29)
-    - listens for the `ANIMATION_MOVE_COMPLETE` action (event)
-    - discards a player card if a direct or charter flight action was used
-    - waits for animation of the above action to complete
-    - removes disease cubes if the current player is the medic and the disease
-      has been cured
-    - emits a 'move complete' action
-
-Side note:
-Saga is an overloaded term. In this [MSDN article](https://docs.microsoft.com/en-us/previous-versions/msp-n-p/jj591569(v=pandp.10)?redirectedfrom=MSDN),
-they prefer the term 'process manager' when talking about DDD concepts, to
-distinguish the original meaning of an alternative to distributed transactions.
-
-- for complex processes, process managers can be used to coordinate the event
-  routing and issuing of consequent commands. Process managers can also be
-  called sagas, however it's an overloaded term. See
-  https://docs.microsoft.com/en-us/previous-versions/msp-n-p/jj591569(v=pandp.10)
-
-
-Interestingly, someone's
-already made the game using react & redux:
-[pandemic](https://github.com/alexzherdev/pandemic). The complex processes are
-handled by [redux-saga](https://redux-saga.js.org/)s. I don't think this game is
-following DDD, but is a useful reference. It's also well done! Have a play!
-
-
+-------------------------------------------------------------------
 # References
 - [Pandemic](https://en.wikipedia.org/wiki/Pandemic_%28board_game%29)
 - [Pandemic rules](https://www.ultraboardgames.com/pandemic/game-rules.php)

@@ -90,6 +90,11 @@ hr {
 img, iframe, video {
   max-width: 100%;
 }
+figure {
+  text-align: center;
+  margin-top: 3em;
+  margin-bottom: 3em;
+}
 figcaption {
   text-align: center;
   font-weight: bold;

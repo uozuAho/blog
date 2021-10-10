@@ -9,7 +9,6 @@ tags:
 ---
 
 # todo
-- center images
 - fix background colour in inline quotes
 - does navigating to/from header links work nicely?
 - domain event: only events domain experts care about?
@@ -17,6 +16,7 @@ tags:
 - make sure all refs are included at the end
 - easy navigation between headings?
 - 'back to top' button?
+- visually compare to master: https://docs.percy.io/docs/baseline-picking-logic
 
 Join me on my quest to learn some DDD while making a board game. This is my
 longest post yet, so I've included a table of contents for your convenience :)

@@ -9,7 +9,6 @@ tags:
 ---
 
 # todo
-- fix background colour in inline quotes
 - does navigating to/from header links work nicely?
 - domain event: only events domain experts care about?
   - what if there are events that are useful to manage the software?

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>DDD on woz</title>
+    <link>https://iamwoz.com/tags/ddd/</link>
+    <description>Recent content in DDD on woz</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-GB</language>
+    <lastBuildDate>Fri, 24 Sep 2021 16:40:58 +1000</lastBuildDate><atom:link href="https://iamwoz.com/tags/ddd/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Learning DDD by making Pandemic</title>
+      <link>https://iamwoz.com/blog/20210924_learning_ddd_by_implementing_pandemic/</link>
+      <pubDate>Fri, 24 Sep 2021 16:40:58 +1000</pubDate>
+      
+      <guid>https://iamwoz.com/blog/20210924_learning_ddd_by_implementing_pandemic/</guid>
+      <description>Learning the lower-level details of domain-drive design, through implementing the Pandemic board game</description>
+    </item>
+    
+  </channel>
+</rss>

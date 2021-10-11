@@ -2,10 +2,22 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://iamwoz.com/tags/ai/</loc>
-    <lastmod>2021-09-16T21:57:19+10:00</lastmod>
-  </url><url>
     <loc>https://iamwoz.com/blog/</loc>
+    <lastmod>2021-09-24T16:40:58+10:00</lastmod>
+  </url><url>
+    <loc>https://iamwoz.com/tags/c#/</loc>
+    <lastmod>2021-09-24T16:40:58+10:00</lastmod>
+  </url><url>
+    <loc>https://iamwoz.com/tags/ddd/</loc>
+    <lastmod>2021-09-24T16:40:58+10:00</lastmod>
+  </url><url>
+    <loc>https://iamwoz.com/blog/20210924_learning_ddd_by_implementing_pandemic/</loc>
+    <lastmod>2021-09-24T16:40:58+10:00</lastmod>
+  </url><url>
+    <loc>https://iamwoz.com/</loc>
+    <lastmod>2021-09-24T16:40:58+10:00</lastmod>
+  </url><url>
+    <loc>https://iamwoz.com/tags/ai/</loc>
     <lastmod>2021-09-16T21:57:19+10:00</lastmod>
   </url><url>
     <loc>https://iamwoz.com/tags/chess/</loc>
@@ -15,9 +27,6 @@
     <lastmod>2021-09-16T21:57:19+10:00</lastmod>
   </url><url>
     <loc>https://iamwoz.com/tags/python/</loc>
-    <lastmod>2021-09-16T21:57:19+10:00</lastmod>
-  </url><url>
-    <loc>https://iamwoz.com/</loc>
     <lastmod>2021-09-16T21:57:19+10:00</lastmod>
   </url><url>
     <loc>https://iamwoz.com/blog/20210829_mouse2/</loc>

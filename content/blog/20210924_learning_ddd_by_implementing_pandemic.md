@@ -9,12 +9,7 @@ tags:
 ---
 
 # todo
-- does navigating to/from header links work nicely?
-- domain event: only events domain experts care about?
-  - what if there are events that are useful to manage the software?
-- make sure all refs are included at the end
 - easy navigation between headings?
-- 'back to top' button?
 - visually compare to master: https://docs.percy.io/docs/baseline-picking-logic
 
 Join me on my quest to learn some DDD while making a board game. This is my
@@ -28,7 +23,7 @@ If you want to skip straight to the action, see [Let's just start]({{< ref
 
 
 -------------------------------------------------------------------
-# Intro
+# Introduction
 I have tried a number of times to implement the board game
 [Pandemic](https://en.wikipedia.org/wiki/Pandemic_%28board_game%29), so that I
 could set AI upon it. Each attempt was a failure, due to the complexity of the
@@ -49,7 +44,7 @@ In this post I will focus on some of these low-level 'tactical' aspects of DDD,
 and implementing them in C#. Note that these low level details are only a small
 part of DDD as originally described by Eric Evans in his now famous ['Blue
 book'](https://www.goodreads.com/book/show/179133.Domain_Driven_Design). See the
-references and further reading section at the end of this post for more
+[references and further reading]({{< ref "#references" >}}) section at the end of this post for more
 resources on DDD.
 
 A disclaimer before I go on: I haven't read Eric Evans's book. It has a
@@ -189,7 +184,7 @@ public record PandemicGame
 ```
 
 ## First complex process
-After a few hours of coding simple events, I have reached an interesting point:
+After a few hours of coding simple events, I have reached an interesting point.
 I need to implement the sequence of events that occur when a player does their
 last action. Here's what my current `DriveOrFerryPlayer` command looks like:
 
@@ -263,14 +258,6 @@ public static IEnumerable<IEvent> DriveOrFerryPlayer(
 
     yield return new PlayerMoved(role, city);
 
-    // This looks a little weird - why isn't this block executed
-    // when the player has zero actions remaining? Because the
-    // `PlayerMoved` event emitted above does not affect the state
-    // of the aggregate built from the event log at the start of
-    // this method. We know that the player will have one less
-    // action after the `PlayerMoved` event is applied, thus this
-    // block needs to execute when the player initially had 1
-    // action remaining.
     if (player.ActionsRemaining == 1)
     {
         // todo: pick up cards from player draw pile here
@@ -461,26 +448,10 @@ sequence of game events and subsequent side effects.
 
 - [Wikipedia: Event storming](https://en.wikipedia.org/wiki/Event_storming)
 
-## Value objects and entities {#values_and_entities}
-A value object is an object that is identified by its attributes. If two value
-objects have the same attributes, then they are considered equal. For example,
-two value objects both representing the same 2D coordinate (1, 2) are considered
-to be the same object.
-
-Entities, on the other hand, are identified by some unique identifier. Two
-entities with all attributes equal apart from their unique identifier are still
-considered to be separate entities. For example, two people with the name 'Jane
-Doe' are still two individual people.
-
-- [Enterprise Craftsmanship: Entity vs Value Object: the ultimate list of differences](https://enterprisecraftsmanship.com/posts/entity-vs-value-object-the-ultimate-list-of-differences/)
-- [Enterprise Craftsmanship: C# 9 Records as DDD Value Objects](https://enterprisecraftsmanship.com/posts/csharp-records-value-objects/)
-    - spoiler: C# records _may_ be a good fit for some value objects, but not in
-      all cases. Same story for structs.
-
 ## Aggregate {#aggregate}
-An aggregate is a collection of entities and/or value objects that can be
-treated as an individual unit. An example could be an online shopping cart,
-which may contain multiple products.
+An aggregate is a collection of objects that can be treated as an individual
+unit. An example could be an online shopping cart, which may contain multiple
+products.
 
 More importantly, an aggregate forms a 'consistency boundary'. The aggregate
 ensures that it remains internally consistent. For example, if your domain
@@ -503,34 +474,34 @@ events.
 
 
 -------------------------------------------------------------------
-# References
+# References {#references}
 - [Pandemic](https://en.wikipedia.org/wiki/Pandemic_%28board_game%29)
 - [Pandemic rules](https://www.ultraboardgames.com/pandemic/game-rules.php)
+- [Wikipedia: DDD](https://en.wikipedia.org/wiki/Domain-driven_design)
 - [DDD in action: Armadora - The board game](https://dev.to/thomasferro/ddd-in-action-armadora-the-board-game-2o07).
     - [Armadora code](https://github.com/ThomasFerro/armadora)
-- [Wikipedia: DDD](https://en.wikipedia.org/wiki/Domain-driven_design)
-- [Thomas Fero: summary of a four days ddd training](https://dev.to/thomasferro/summary-of-a-four-days-ddd-training-5a3c)
+- [Thomas Fero: Summary of a four days ddd training](https://dev.to/thomasferro/summary-of-a-four-days-ddd-training-5a3c)
+- [Epidemic](https://epidemic.netlify.app/play)
+    - an online Pandemic clone, built with React & Redux
+    - [Epidemic source code](https://github.com/alexzherdev/pandemic)
+- [Wikipedia: Event storming](https://en.wikipedia.org/wiki/Event_storming)
 - domain events
     - [MSDN: Domain events: design and implementation](https://docs.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/domain-events-design-implementation)
-- entities, value objects
-    - [Enterprise Craftsmanship: Entity vs Value Object: the ultimate list of differences](https://enterprisecraftsmanship.com/posts/entity-vs-value-object-the-ultimate-list-of-differences/)
-    - [Enterprise Craftsmanship: C# 9 Records as DDD Value Objects](https://enterprisecraftsmanship.com/posts/csharp-records-value-objects/)
 - aggregates
     - [Vaughn Vernon: modeling a single aggregate (pdf)](https://www.dddcommunity.org/wp-content/uploads/files/pdf_articles/Vernon_2011_1.pdf)
 
-# Further reading
-- The original DDD book ('The Blue Book') by Eric Evans: [Domain-Driven Design](https://www.goodreads.com/book/show/179133.Domain_Driven_Design)
+# Further reading / work
+Some resources that I haven't investigated much / at all:
+
+- The original DDD book ('The Blue Book') by Eric Evans: [Domain-Driven
+  Design](https://www.goodreads.com/book/show/179133.Domain_Driven_Design)
     - Comes highly recommended as the authoritative source for DDD, however has
       a reputation for being overly verbose and boring.
-- [Implementing Domain Driven Design - Vaughn Vernon](https://www.amazon.com/Implementing-Domain-Driven-Design-Vaughn-Vernon/dp/0321834577)
+- [Implementing Domain Driven Design - Vaughn
+  Vernon](https://www.amazon.com/Implementing-Domain-Driven-Design-Vaughn-Vernon/dp/0321834577)
     - Apparently a shorter and more practical book than the original
-- play with boardgame.io, eg. chess: https://github.com/boardgameio/boardgame.io/tree/main/examples/react-web/src/chess
-    - to answer/explore
-        - user provides `G`: this is the 'game' aggregate?
-        - user defines commands, which can emit events (DDD wording)
-        - events are processed after commands
-        - what is `ctx`, from a DDD POV?
-        - how do events get processed? can they trigger more events?
-    - answered
-        - 'moves' are commands issued by players (DDD commands)
-        - events are emitted by moves, and placed in a queue for processing: https://boardgame.io/documentation/#/events
+- [boardgame.io](https://boardgame.io/)
+    - a turn-based game framework where users provide their game object &
+      commands, which could be considered a DDD aggregate & commands.
+    - the framework provides a `ctx` object which contains extra data about the
+      game. It gets updated via events emitted by commands, much like in DDD.

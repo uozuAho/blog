@@ -464,7 +464,7 @@ can be emitted as a result of these commands. The rest of the domain can listen
 for these events and respond to them accordingly, keeping the domain consistent
 with as aggregates change.
 
-- [Vaughn Vernon: modeling a single aggregate (pdf)](https://www.dddcommunity.org/wp-content/uploads/files/pdf_articles/Vernon_2011_1.pdf)
+- [Vaughn Vernon: modelling a single aggregate (pdf)](https://www.dddcommunity.org/wp-content/uploads/files/pdf_articles/Vernon_2011_1.pdf)
 
 ## Event sourcing {#event_sourcing}
 Not necessarily a part of DDD, however it can be a good fit. The idea is that
@@ -480,7 +480,7 @@ events.
 - [Wikipedia: DDD](https://en.wikipedia.org/wiki/Domain-driven_design)
 - [DDD in action: Armadora - The board game](https://dev.to/thomasferro/ddd-in-action-armadora-the-board-game-2o07).
     - [Armadora code](https://github.com/ThomasFerro/armadora)
-- [Thomas Fero: Summary of a four days ddd training](https://dev.to/thomasferro/summary-of-a-four-days-ddd-training-5a3c)
+- [Thomas Fero: Summary of a four days DDD training](https://dev.to/thomasferro/summary-of-a-four-days-ddd-training-5a3c)
 - [Epidemic](https://epidemic.netlify.app/play)
     - an online Pandemic clone, built with React & Redux
     - [Epidemic source code](https://github.com/alexzherdev/pandemic)
@@ -488,7 +488,7 @@ events.
 - domain events
     - [MSDN: Domain events: design and implementation](https://docs.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/domain-events-design-implementation)
 - aggregates
-    - [Vaughn Vernon: modeling a single aggregate (pdf)](https://www.dddcommunity.org/wp-content/uploads/files/pdf_articles/Vernon_2011_1.pdf)
+    - [Vaughn Vernon: modelling a single aggregate (pdf)](https://www.dddcommunity.org/wp-content/uploads/files/pdf_articles/Vernon_2011_1.pdf)
 
 # Further reading / work
 Some resources that I haven't investigated much / at all:

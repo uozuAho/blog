@@ -1,16 +1,12 @@
 ---
 title: "Learning DDD by making Pandemic"
 date: 2021-09-24T16:40:58+10:00
-draft: true
+draft: false
 summary: "Learning the lower-level details of domain-drive design, through implementing the Pandemic board game"
 tags:
 - DDD
 - C#
 ---
-
-# todo
-- easy navigation between headings?
-- visually compare to master: https://docs.percy.io/docs/baseline-picking-logic
 
 Join me on my quest to learn some DDD while making a board game. This is my
 longest post yet, so I've included a table of contents for your convenience :)
@@ -66,7 +62,7 @@ wondering how more complex games like pandemic would be implemented.
 
 I also found what looks to be a [complete implementation of
 Pandemic](https://github.com/alexzherdev/pandemic), using React & Redux. You can
-play it online [here](https://epidemic.netlify.app/play). Have a go, it's really
+[play it online here](https://epidemic.netlify.app/play). Have a go, it's really
 well done! I don't think DDD was an influence on this implementation, however it
 was useful to have as a reference.
 

@@ -29,8 +29,12 @@ git push
 
 
 # todo
-- light syntax highlighting for light mode
 - percy: how to compare branch vs main?
+- display tags
+  - in post
+  - in post list
+  - page of all tags?
+- light syntax highlighting for light mode
 - how to find links to my posts?
 - any SEO I should be doing?
 - site/blog info missing on feedly

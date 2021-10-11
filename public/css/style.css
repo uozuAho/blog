@@ -64,6 +64,12 @@ hr {
     margin-top: 2em;
     margin-bottom: 2em;
   }
+  code {
+    background-color: rgb(202, 202, 202);
+    padding: 0.3em;
+    border-radius: .2em;
+  }
+  pre code { background: none; }
 }
 @media (prefers-color-scheme: dark) {
   pre {
@@ -72,12 +78,22 @@ hr {
     margin-top: 2em;
     margin-bottom: 2em;
   }
+  code {
+    background-color: rgb(43, 43, 43);
+    padding: 0.3em;
+    border-radius: .2em;
+  }
+  pre code { background: none; }
 }
-pre code { background: none; }
 
 /* misc elements */
 img, iframe, video {
   max-width: 100%;
+}
+figure {
+  text-align: center;
+  margin-top: 3em;
+  margin-bottom: 3em;
 }
 figcaption {
   text-align: center;
@@ -85,10 +101,18 @@ figcaption {
   font-size: small;
 }
 main { hyphens: auto; }
-blockquote {
-  background: #f9f9f9;
-  border-left: 5px solid #ccc;
-  padding: 3px 1em 3px;
+
+@media (prefers-color-scheme: light) {
+  blockquote {
+    background: #cfceca;
+    padding: 3px 1em 3px;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  blockquote {
+    background: #444444;
+    padding: 3px 1em 3px;
+  }
 }
 
 table {

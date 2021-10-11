@@ -7,7 +7,490 @@
     <atom:icon>https://iamwoz.com/favicon.ico</atom:icon>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-GB</language>
-    <lastBuildDate>Thu, 16 Sep 2021 21:57:19 +1000</lastBuildDate><atom:link href="https://iamwoz.com/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 24 Sep 2021 16:40:58 +1000</lastBuildDate><atom:link href="https://iamwoz.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Learning DDD by making Pandemic</title>
+      <link>https://iamwoz.com/blog/20210924_learning_ddd_by_implementing_pandemic/</link>
+      <pubDate>Fri, 24 Sep 2021 16:40:58 +1000</pubDate>
+      
+      <guid>https://iamwoz.com/blog/20210924_learning_ddd_by_implementing_pandemic/</guid>
+      <description>&lt;p&gt;Join me on my quest to learn some DDD while making a board game. This is my
+longest post yet, so I&amp;rsquo;ve included a table of contents for your convenience :)&lt;/p&gt;
+&lt;p&gt;If you want to skip straight to the action, see &lt;a href=&#34;#lets_start&#34;&gt;Let&amp;rsquo;s just start&lt;/a&gt;&lt;/p&gt;
+&lt;h1 id=&#34;contents&#34;&gt;Contents&lt;/h1&gt;
+&lt;nav id=&#34;TableOfContents&#34;&gt;
+  &lt;ul&gt;
+    &lt;li&gt;&lt;a href=&#34;#contents&#34;&gt;Contents&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&#34;#introduction&#34;&gt;Introduction&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&#34;#its-been-done&#34;&gt;It&amp;rsquo;s been done&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&#34;#applying-ddd-tactics-to-pandemic&#34;&gt;Applying DDD tactics to Pandemic&lt;/a&gt;
+      &lt;ul&gt;
+        &lt;li&gt;&lt;a href=&#34;#how-to-handle-events-that-trigger-other-events&#34;&gt;How to handle events that trigger other events&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&#34;#lets_start&#34;&gt;Let&amp;rsquo;s just start&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&#34;#baby-steps&#34;&gt;Baby steps&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&#34;#first-complex-process&#34;&gt;First complex process&lt;/a&gt;&lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/li&gt;
+    &lt;li&gt;&lt;a href=&#34;#moving-away-from-event-sourcing&#34;&gt;Moving away from event sourcing&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&#34;#wrapping-up-this-post&#34;&gt;Wrapping up this post&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&#34;#appendix-ddd-concepts-used-in-this-post&#34;&gt;Appendix: DDD concepts used in this post&lt;/a&gt;
+      &lt;ul&gt;
+        &lt;li&gt;&lt;a href=&#34;#domain&#34;&gt;Domain&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&#34;#domain_event&#34;&gt;Domain event&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&#34;#event_storming&#34;&gt;Event storming&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&#34;#aggregate&#34;&gt;Aggregate&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&#34;#event_sourcing&#34;&gt;Event sourcing&lt;/a&gt;&lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/li&gt;
+    &lt;li&gt;&lt;a href=&#34;#references&#34;&gt;References&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&#34;#further-reading--work&#34;&gt;Further reading / work&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/nav&gt;
+
+&lt;hr&gt;
+&lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;
+&lt;p&gt;I have tried a number of times to implement the board game
+&lt;a href=&#34;https://en.wikipedia.org/wiki/Pandemic_%28board_game%29&#34;&gt;Pandemic&lt;/a&gt;, so that I
+could set AI upon it. Each attempt was a failure, due to the complexity of the
+game rules causing my code to turn into a complex ball of mud. Recently I was
+inspired to try again, after having the idea that &lt;a href=&#34;https://en.wikipedia.org/wiki/Domain-driven_design&#34;&gt;domain-driven design
+(DDD)&lt;/a&gt; may help me deal with
+the complexity.&lt;/p&gt;
+&lt;p&gt;I had known of domain-driven design for years, but had never looked closely into
+it. I had a very basic understanding of some DDD concepts, such as breaking
+complex systems into &amp;lsquo;bounded contexts&amp;rsquo;, and using &amp;lsquo;anti corruption layers&amp;rsquo; to
+keep the domain model clean, but that was about it. It was only after starting
+work on this post that I realised that DDD covers a huge landscape of software
+development, including many low-level concepts that can be applied even within
+small applications, such as board games!&lt;/p&gt;
+&lt;p&gt;In this post I will focus on some of these low-level &amp;lsquo;tactical&amp;rsquo; aspects of DDD,
+and implementing them in C#. Note that these low level details are only a small
+part of DDD as originally described by Eric Evans in his now famous &lt;a href=&#34;https://www.goodreads.com/book/show/179133.Domain_Driven_Design&#34;&gt;&amp;lsquo;Blue
+book&amp;rsquo;&lt;/a&gt;. See the
+&lt;a href=&#34;#references&#34;&gt;references and further reading&lt;/a&gt; section at the end of this post for more
+resources on DDD.&lt;/p&gt;
+&lt;p&gt;A disclaimer before I go on: I haven&amp;rsquo;t read Eric Evans&amp;rsquo;s book. It has a
+reputation for being long and boring, and I was keen to get started. Most of the
+information in this post has come from various online sources, which are linked
+throughout and at the end of this post.&lt;/p&gt;
+&lt;h1 id=&#34;its-been-done&#34;&gt;It&amp;rsquo;s been done&lt;/h1&gt;
+&lt;p&gt;A quick search revealed that someone else had already tried DDD on another board
+game. In &lt;a href=&#34;https://dev.to/thomasferro/ddd-in-action-armadora-the-board-game-2o07&#34;&gt;DDD in action: Armadora - The board
+game&lt;/a&gt;,
+Thomas Ferro describes how he implemented a simple board game using DDD concepts
+and event sourcing. This post, accompanied by &lt;a href=&#34;https://dev.to/thomasferro/summary-of-a-four-days-ddd-training-5a3c&#34;&gt;Summary of a four days DDD
+training&lt;/a&gt;
+were just the crash course I needed to see how the concepts could be applied for
+someone new to DDD. However, the simplicity of the Armadora game left me
+wondering how more complex games like pandemic would be implemented.&lt;/p&gt;
+&lt;p&gt;I also found what looks to be a &lt;a href=&#34;https://github.com/alexzherdev/pandemic&#34;&gt;complete implementation of
+Pandemic&lt;/a&gt;, using React &amp;amp; Redux. You can
+&lt;a href=&#34;https://epidemic.netlify.app/play&#34;&gt;play it online here&lt;/a&gt;. Have a go, it&amp;rsquo;s really
+well done! I don&amp;rsquo;t think DDD was an influence on this implementation, however it
+was useful to have as a reference.&lt;/p&gt;
+&lt;h1 id=&#34;applying-ddd-tactics-to-pandemic&#34;&gt;Applying DDD tactics to Pandemic&lt;/h1&gt;
+&lt;p&gt;My stumbling point in the past has been the complex game rules of Pandemic.
+Certain player actions result in chain reactions of side effects. For example,
+if you pick up an &amp;lsquo;epidemic&amp;rsquo; card, a series of events can occur, based on
+certain conditions:&lt;/p&gt;
+&lt;figure&gt;
+  &lt;img src=&#34;https://iamwoz.com/blog/20210924_learning_ddd/end_turn_with_epidemic_flow.png&#34;
+  alt=&#34;&#34;
+  width=&#34;773&#34;
+  loading=&#34;lazy&#34; /&gt;
+  &lt;figcaption&gt;Some game rules at the end of a player&#39;s turn&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;p&gt;The flowchart above does not even show all the game rules: there are checks for
+game end, outbreaks can occur when cities are infected, event cards may be
+played, and more!&lt;/p&gt;
+&lt;p&gt;One way DDD attempts to simplify complex domains is by breaking down complex
+processes such as the one above into sequences of &lt;a href=&#34;#domain_event&#34;&gt;domain events&lt;/a&gt;. A domain event represents any change to the system. Events
+are emitted as a result of commands issued within the system. Using the above
+flowchart as an example, the player issues the &amp;lsquo;do action&amp;rsquo; command. If it was
+the player&amp;rsquo;s last action, then two &amp;lsquo;card drawn&amp;rsquo; events could be emitted. If
+either of those cards were an epidemic card, then more epidemic events are
+emitted.&lt;/p&gt;
+&lt;h2 id=&#34;how-to-handle-events-that-trigger-other-events&#34;&gt;How to handle events that trigger other events&lt;/h2&gt;
+&lt;p&gt;Breaking down the complex rules into small commands and events sounds like a
+good way to keep the underlying software parts small and manageable. However,
+I&amp;rsquo;m worried about managing and debugging the explosion of events that may occur.
+Are events supposed to trigger other events in DDD?&lt;/p&gt;
+&lt;p&gt;From what I&amp;rsquo;ve read so far, a domain model in DDD is made up of &lt;a href=&#34;#aggregate&#34;&gt;aggregates&lt;/a&gt;,
+which are always internally consistent. Multiple aggregates are brought into a
+consistent state asynchronously, by the publishing of domain events. So in
+theory, an endless sequence of domain events could be emitted as multiple
+aggregates react to events sent by other aggregates. Presumably this is an
+undesirable condition to find your software in.
+&lt;a href=&#34;https://dev.to/thomasferro/ddd-in-action-armadora-the-board-game-2o07&#34;&gt;Armadora&lt;/a&gt;
+uses a single aggregate to represent the current state of the game, thus
+removing the complication of keeping multiple aggregates in sync. Additionally,
+events do not trigger any other events. Commands may emit multiple events, and
+I found one example of a &lt;a href=&#34;https://github.com/ThomasFerro/armadora/blob/84db3e24a57aaccad72953ae3ab484f410663bec/server/game/command/pass_turn.go#L38&#34;&gt;command calling another command&lt;/a&gt;.
+This is what I will do for now.&lt;/p&gt;
+&lt;h2 id=&#34;lets_start&#34;&gt;Let&amp;rsquo;s just start&lt;/h2&gt;
+&lt;p&gt;OK, I think I have got enough to start. I&amp;rsquo;ll figure out the rest as I go. To
+start, I will use:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;one aggregate to represent the current state of the game&lt;/li&gt;
+&lt;li&gt;immutable data, including aggregates and entities. This does not follow DDD,
+but will be useful for AI algorithms that will need to search and keep track
+of many game states.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#event_sourcing&#34;&gt;event sourcing&lt;/a&gt;, mainly as I&amp;rsquo;ve never used it
+before, and it appears to remove some of the hassle of state management, and
+keep the code more functional (as in functional programming)&lt;/li&gt;
+&lt;li&gt;C#, as I&amp;rsquo;m most familiar with it, and I would like to get more experience with
+some of its newer functional capabilities (mainly records and pattern
+matching)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;My goal for now is to implement enough game rules to be able to play a game to
+completion. I will pick the simplest rules to start with. Once that&amp;rsquo;s done, I
+can start adding rules incrementally, until the whole game is implemented.&lt;/p&gt;
+&lt;p&gt;Since an aggregate is responsible for maintaining its own consistency, I think I
+need to implement all command handlers in the aggregate. I am a little worried
+about how big the aggregate is going to be, but I think the process of breaking
+down the rules into discrete commands and events will help keep the
+corresponding code manageable.&lt;/p&gt;
+&lt;h2 id=&#34;baby-steps&#34;&gt;Baby steps&lt;/h2&gt;
+&lt;p&gt;Here&amp;rsquo;s my initial aggregate:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cs&#34; data-lang=&#34;cs&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// My one aggregate - the state of the game
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; record PandemicGame
+{
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; Difficulty Difficulty { &lt;span style=&#34;color:#66d9ef&#34;&gt;get&lt;/span&gt;; init; }
+
+    &lt;span style=&#34;color:#75715e&#34;&gt;// Create the game aggregate from an event log
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; PandemicGame FromEvents(IEnumerable&amp;lt;IEvent&amp;gt; events) =&amp;gt;
+        events.Aggregate(&lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; PandemicGame(), Apply);
+
+    &lt;span style=&#34;color:#75715e&#34;&gt;// This is the &amp;#39;set difficulty&amp;#39; command. Commands yield events.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;// Since I am using event sourcing, there is no need to mutate
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;// the aggregate within the commands. The current state of the
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;// aggregate can be built on demand from the event log.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; IEnumerable&amp;lt;IEvent&amp;gt; SetDifficulty(
+        List&amp;lt;IEvent&amp;gt; log, Difficulty difficulty)
+    {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;yield&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; DifficultySet(difficulty);
+    }
+
+    &lt;span style=&#34;color:#75715e&#34;&gt;// Modify the aggregate with an event. Returns an updated copy
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;// of the current aggregate.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; PandemicGame Apply(
+        PandemicGame pandemicGame, IEvent @event)
+    {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; @event &lt;span style=&#34;color:#66d9ef&#34;&gt;switch&lt;/span&gt;
+        {
+            DifficultySet d =&amp;gt; pandemicGame with {Difficulty = d.Difficulty},
+            _ =&amp;gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;throw&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; ArgumentOutOfRangeException(nameof(@event), @event, &lt;span style=&#34;color:#66d9ef&#34;&gt;null&lt;/span&gt;)
+        };
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;first-complex-process&#34;&gt;First complex process&lt;/h2&gt;
+&lt;p&gt;After a few hours of coding simple events, I have reached an interesting point.
+I need to implement the sequence of events that occur when a player does their
+last action. Here&amp;rsquo;s what my current &lt;code&gt;DriveOrFerryPlayer&lt;/code&gt; command looks like:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cs&#34; data-lang=&#34;cs&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; IEnumerable&amp;lt;IEvent&amp;gt; DriveOrFerryPlayer(List&amp;lt;IEvent&amp;gt; log, Role role, &lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt; city)
+{
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (!Board.IsCity(city)) &lt;span style=&#34;color:#66d9ef&#34;&gt;throw&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; InvalidActionException(&lt;span style=&#34;color:#e6db74&#34;&gt;$&amp;#34;Invalid city &amp;#39;{city}&amp;#39;&amp;#34;&lt;/span&gt;);
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; state = FromEvents(log);
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; player = state.PlayerByRole(role);
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (!Board.IsAdjacent(player.Location, city))
+    {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;throw&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; InvalidActionException(
+            &lt;span style=&#34;color:#e6db74&#34;&gt;$&amp;#34;Invalid drive/ferry to non-adjacent city: {player.Location} to {city}&amp;#34;&lt;/span&gt;);
+    }
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;yield&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; PlayerMoved(role, city);
+
+    &lt;span style=&#34;color:#75715e&#34;&gt;// todo: handle when this was the player&amp;#39;s last action
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;To make things easier, I won&amp;rsquo;t consider all the rules as shown in the earlier
+flowchart. Here&amp;rsquo;s a simplified version:&lt;/p&gt;
+&lt;figure&gt;
+  &lt;img src=&#34;https://iamwoz.com/blog/20210924_learning_ddd/end_turn_flow_simple.png&#34;
+  alt=&#34;&#34;
+  width=&#34;250&#34;
+  loading=&#34;lazy&#34; /&gt;
+  &lt;figcaption&gt;A simplified &#39;end of player turn&#39; flow&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;p&gt;I did a mini &lt;a href=&#34;#event_storming&#34;&gt;event storming&lt;/a&gt; to determine
+commands and events involved in the above flowchart. There&amp;rsquo;s only one aggregate
+(the game), so I&amp;rsquo;ve omitted it from the image. Commands with no human player
+next to them are issued by the &amp;lsquo;game&amp;rsquo;.&lt;/p&gt;
+&lt;figure&gt;
+  &lt;img src=&#34;https://iamwoz.com/blog/20210924_learning_ddd/end_turn_flow_simple_event_storm.png&#34;
+  alt=&#34;&#34;
+  width=&#34;492&#34;
+  loading=&#34;lazy&#34; /&gt;
+  &lt;figcaption&gt;Event storming a simple &#39;end of player turn&#39; flow.
+  Commands are blue, events are orange.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;p&gt;Here&amp;rsquo;s the &lt;code&gt;DriveOrFerryPlayer&lt;/code&gt; command after adding the above events:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cs&#34; data-lang=&#34;cs&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; IEnumerable&amp;lt;IEvent&amp;gt; DriveOrFerryPlayer(
+    List&amp;lt;IEvent&amp;gt; log, Role role, &lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt; city)
+{
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (!Board.IsCity(city))
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;throw&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; InvalidActionException(&lt;span style=&#34;color:#e6db74&#34;&gt;$&amp;#34;Invalid city &amp;#39;{city}&amp;#39;&amp;#34;&lt;/span&gt;);
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; state = FromEvents(log);
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; player = state.PlayerByRole(role);
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (player.ActionsRemaining == &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;)
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;throw&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; GameRuleViolatedException(
+            &lt;span style=&#34;color:#e6db74&#34;&gt;$&amp;#34;Action not allowed: Player {role} has no actions remaining&amp;#34;&lt;/span&gt;);
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (!Board.IsAdjacent(player.Location, city))
+    {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;throw&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; InvalidActionException(
+            &lt;span style=&#34;color:#e6db74&#34;&gt;$&amp;#34;Invalid drive/ferry to non-adjacent city: {player.Location} to {city}&amp;#34;&lt;/span&gt;);
+    }
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;yield&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; PlayerMoved(role, city);
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (player.ActionsRemaining == &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;)
+    {
+        &lt;span style=&#34;color:#75715e&#34;&gt;// todo: pick up cards from player draw pile here
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;yield&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; PlayerCardPickedUp(role, &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; PlayerCard(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Atlanta&amp;#34;&lt;/span&gt;));
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;yield&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; PlayerCardPickedUp(role, &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; PlayerCard(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Atlanta&amp;#34;&lt;/span&gt;));
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;foreach&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; @event &lt;span style=&#34;color:#66d9ef&#34;&gt;in&lt;/span&gt; InfectCity(log))
+        {
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;yield&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; @event;
+        }
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;foreach&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; @event &lt;span style=&#34;color:#66d9ef&#34;&gt;in&lt;/span&gt; InfectCity(log))
+        {
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;yield&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; @event;
+        }
+    }
+}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; IEnumerable&amp;lt;IEvent&amp;gt; InfectCity(List&amp;lt;IEvent&amp;gt; log)
+{
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; state = FromEvents(log);
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; infectionCard = state.InfectionDrawPile.Last();
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;yield&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; InfectionCardDrawn(infectionCard.City);
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;yield&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; CubeAddedToCity(infectionCard.City);
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;It&amp;rsquo;s not as bad as I thought it would be! I separated out the private
+&lt;code&gt;InfectCity&lt;/code&gt; command for convenience. It&amp;rsquo;s not a command a player can issue, but
+makes the &lt;code&gt;DriveOrFerryPlayer&lt;/code&gt; code easier to understand from a domain
+perspective. The aggregate is getting large (200 lines so far), but all the code
+seems to belong to it.&lt;/p&gt;
+&lt;h1 id=&#34;moving-away-from-event-sourcing&#34;&gt;Moving away from event sourcing&lt;/h1&gt;
+&lt;p&gt;I have decided to stop using event sourcing, mainly because it is making testing
+difficult. I want to be able to set up a near-end game state to be able to
+assert game ending scenarios. With my current implementation, the only way to
+create a game aggregate is from an event log. Although this ensures the
+aggregate is in a valid state, it makes setting up these test scenarios
+laborious, and I will need to constantly tweak the test setup as I add more game
+rules, to ensure that the events leading to the game-ending state are valid.&lt;/p&gt;
+&lt;p&gt;Instead of rebuilding the game aggregate from the event log, I will make the
+commands instance methods of the aggregate. This way, commands immediately have
+access to the current game state. Having an event log is useful for debugging
+purposes, so I will keep emitting events for all modifications of the game
+state. Being able to create the game aggregate in an invalid state is a hazard,
+but for my purposes is very handy for testing. I wonder if there&amp;rsquo;s a way to
+disable the usage of dangerous constructors in production code? I&amp;rsquo;ll put that on
+the &amp;lsquo;to do later&amp;rsquo; pile.&lt;/p&gt;
+&lt;p&gt;Here&amp;rsquo;s what I have come up with. There are many command and event handlers on
+the aggregate, but they are all following an emerging pattern:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cs&#34; data-lang=&#34;cs&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// Command handlers are public methods on the aggregate. They take parameters
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// relevant to the command, and return a new game aggregate and a collection of
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// events that occurred as a result of the command.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; (PandemicGame, ICollection&amp;lt;IEvent&amp;gt;) Command(arg1, arg2, ...) {}
+
+&lt;span style=&#34;color:#75715e&#34;&gt;// Event handlers are private static methods (pure functions) that apply a
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// single event to the given aggregate, returning a resultant aggregate.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; PandemicGame HandleEvent(PandemicGame game, IEvent @event) {}
+
+&lt;span style=&#34;color:#75715e&#34;&gt;// &amp;#39;Internal command handlers&amp;#39; are convenient ways to break down larger
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// commands, that involve many events and conditional logic.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; PandemicGame InternalCommand(
+    PandemicGame currentState,
+    ICollection&amp;lt;IEvent&amp;gt; events) {}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Let&amp;rsquo;s see it in action. This is the current state of my &lt;code&gt;DriveOrFerryPlayer&lt;/code&gt;
+command handler, which needs to perform a number of actions when the player has
+performed the last action for their turn:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cs&#34; data-lang=&#34;cs&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; (PandemicGame, ICollection&amp;lt;IEvent&amp;gt;) DriveOrFerryPlayer(Role role, &lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt; city)
+{
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (!Board.IsCity(city))
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;throw&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; InvalidActionException(&lt;span style=&#34;color:#e6db74&#34;&gt;$&amp;#34;Invalid city &amp;#39;{city}&amp;#39;&amp;#34;&lt;/span&gt;);
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; player = PlayerByRole(role);
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (player.ActionsRemaining == &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;)
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;throw&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; GameRuleViolatedException(
+            &lt;span style=&#34;color:#e6db74&#34;&gt;$&amp;#34;Action not allowed: Player {role} has no actions remaining&amp;#34;&lt;/span&gt;);
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (!Board.IsAdjacent(player.Location, city))
+    {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;throw&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; InvalidActionException(
+            &lt;span style=&#34;color:#e6db74&#34;&gt;$&amp;#34;Invalid drive/ferry to non-adjacent city: {player.Location} to {city}&amp;#34;&lt;/span&gt;);
+    }
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; (currentState, events) = ApplyEvents(&lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; PlayerMoved(role, city));
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (currentState.CurrentPlayer.ActionsRemaining == &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;)
+        currentState = DoStuffAfterActions(currentState, events);
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; (currentState, events);
+}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; PandemicGame DoStuffAfterActions(
+    PandemicGame currentState,
+    ICollection&amp;lt;IEvent&amp;gt; events)
+{
+    currentState = PickUpCard(currentState, events);
+    currentState = PickUpCard(currentState, events);
+
+    currentState = InfectCity(currentState, events);
+    currentState = InfectCity(currentState, events);
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; currentState;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;code&gt;DriveOrFerryPlayer&lt;/code&gt; is going to continue to grow as I add more game logic. I&amp;rsquo;m
+a little worried about that. There are more DDD concepts that I may be able to
+use here: &amp;lsquo;sagas&amp;rsquo; or &amp;lsquo;process managers&amp;rsquo;, and &amp;lsquo;services&amp;rsquo;. I don&amp;rsquo;t know if these
+are appropriate, as I believe they are intended to coordinate behaviour between
+aggregates. Since this post is getting rather long, I&amp;rsquo;ll leave this for later.&lt;/p&gt;
+&lt;p&gt;I also don&amp;rsquo;t really like the difference in method signatures between the public
+and private command handlers.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Side note: I&amp;rsquo;m glad I chose to use records with immutable collections for my
+data types. Immutable collection methods return updated copies of the
+collections, as does the &lt;code&gt;with&lt;/code&gt; expression for C# records. This makes it very
+easy to create new states based on events. For example:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cs&#34; data-lang=&#34;cs&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; PandemicGame ApplyPlayerCardDiscarded(
+  PandemicGame game,
+  PlayerCardDiscarded discarded)
+{
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; discardedCard = game
+      .CurrentPlayer
+      .Hand
+      .Single(c =&amp;gt; c.City == discarded.City);
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; game with
+    {
+        Players = game
+          .Players
+          .Replace(game.CurrentPlayer, game.CurrentPlayer with
+          {
+              Hand = game
+                .CurrentPlayer
+                .Hand
+                .Remove(discardedCard)
+          })
+    };
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/blockquote&gt;
+&lt;h1 id=&#34;wrapping-up-this-post&#34;&gt;Wrapping up this post&lt;/h1&gt;
+&lt;p&gt;Despite the above concerns, I am confident that I can incrementally add game
+rules until I have a full game implementation. The biggest benefit I have got
+from DDD so far is a way of breaking down the game rules into fine grained
+commands and events that are easy to reason about and implement.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h1 id=&#34;appendix-ddd-concepts-used-in-this-post&#34;&gt;Appendix: DDD concepts used in this post&lt;/h1&gt;
+&lt;h2 id=&#34;domain&#34;&gt;Domain&lt;/h2&gt;
+&lt;p&gt;The domain is the problem to be solved, and its surrounding context. In my case,
+the domain is the Pandemic board game. The people working in the domain should
+have a shared understanding of the domain model. It should be described in
+non-technical, jargon-free language that everyone can understand. This
+&amp;lsquo;ubiquitous language&amp;rsquo; (another DDD term) should be used when discussing the
+domain model. Since I&amp;rsquo;m the only one working in the domain, the Pandemic rule
+book will be my domain expert, and I will use language within the rules when
+naming the software objects I create to build the game.&lt;/p&gt;
+&lt;h2 id=&#34;domain_event&#34;&gt;Domain event&lt;/h2&gt;
+&lt;p&gt;A domain event can be any event of interest within the domain. An event is a
+result of some action within the domain. For example, in Pandemic, when a player
+moves from one city to another, this can be described as a &amp;lsquo;player moved&amp;rsquo; event.
+The event contains information about what occurred, eg. which player moved, and
+which cities they moved from and to.&lt;/p&gt;
+&lt;h2 id=&#34;event_storming&#34;&gt;Event storming&lt;/h2&gt;
+&lt;p&gt;Typically, event storming is a session where domain, product, and technical
+experts come together to explore and model a domain, starting by brainstorming
+events that can occur within the domain.&lt;/p&gt;
+&lt;p&gt;In my case, these were little &amp;lsquo;pen &amp;amp; paper&amp;rsquo; sessions where I mapped out a
+sequence of game events and subsequent side effects.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://en.wikipedia.org/wiki/Event_storming&#34;&gt;Wikipedia: Event storming&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;aggregate&#34;&gt;Aggregate&lt;/h2&gt;
+&lt;p&gt;An aggregate is a collection of objects that can be treated as an individual
+unit. An example could be an online shopping cart, which may contain multiple
+products.&lt;/p&gt;
+&lt;p&gt;More importantly, an aggregate forms a &amp;lsquo;consistency boundary&amp;rsquo;. The aggregate
+ensures that it remains internally consistent. For example, if your domain
+contains a rule that a + b = c, then a, b, and c should be within the same
+aggregate. The aggregate is responsible for making sure that whenever a or b are
+modified, c is updated.&lt;/p&gt;
+&lt;p&gt;Aggregates process commands, which potentially modify their state. Domain events
+can be emitted as a result of these commands. The rest of the domain can listen
+for these events and respond to them accordingly, keeping the domain consistent
+with as aggregates change.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.dddcommunity.org/wp-content/uploads/files/pdf_articles/Vernon_2011_1.pdf&#34;&gt;Vaughn Vernon: modelling a single aggregate (pdf)&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;event_sourcing&#34;&gt;Event sourcing&lt;/h2&gt;
+&lt;p&gt;Not necessarily a part of DDD, however it can be a good fit. The idea is that
+application state is stored in an append-only log of events. If the state of the
+application at a point in time is needed, it can be built from the log of
+events.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h1 id=&#34;references&#34;&gt;References&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://en.wikipedia.org/wiki/Pandemic_%28board_game%29&#34;&gt;Pandemic&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.ultraboardgames.com/pandemic/game-rules.php&#34;&gt;Pandemic rules&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://en.wikipedia.org/wiki/Domain-driven_design&#34;&gt;Wikipedia: DDD&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://dev.to/thomasferro/ddd-in-action-armadora-the-board-game-2o07&#34;&gt;DDD in action: Armadora - The board game&lt;/a&gt;.
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/ThomasFerro/armadora&#34;&gt;Armadora code&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://dev.to/thomasferro/summary-of-a-four-days-ddd-training-5a3c&#34;&gt;Thomas Fero: Summary of a four days DDD training&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://epidemic.netlify.app/play&#34;&gt;Epidemic&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;an online Pandemic clone, built with React &amp;amp; Redux&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/alexzherdev/pandemic&#34;&gt;Epidemic source code&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://en.wikipedia.org/wiki/Event_storming&#34;&gt;Wikipedia: Event storming&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;domain events
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://docs.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/domain-events-design-implementation&#34;&gt;MSDN: Domain events: design and implementation&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;aggregates
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.dddcommunity.org/wp-content/uploads/files/pdf_articles/Vernon_2011_1.pdf&#34;&gt;Vaughn Vernon: modelling a single aggregate (pdf)&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;further-reading--work&#34;&gt;Further reading / work&lt;/h1&gt;
+&lt;p&gt;Some resources that I haven&amp;rsquo;t investigated much / at all:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The original DDD book (&amp;lsquo;The Blue Book&amp;rsquo;) by Eric Evans: &lt;a href=&#34;https://www.goodreads.com/book/show/179133.Domain_Driven_Design&#34;&gt;Domain-Driven
+Design&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;Comes highly recommended as the authoritative source for DDD, however has
+a reputation for being overly verbose and boring.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.amazon.com/Implementing-Domain-Driven-Design-Vaughn-Vernon/dp/0321834577&#34;&gt;Implementing Domain Driven Design - Vaughn
+Vernon&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;Apparently a shorter and more practical book than the original&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://boardgame.io/&#34;&gt;boardgame.io&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;a turn-based game framework where users provide their game object &amp;amp;
+commands, which could be considered a DDD aggregate &amp;amp; commands.&lt;/li&gt;
+&lt;li&gt;the framework provides a &lt;code&gt;ctx&lt;/code&gt; object which contains extra data about the
+game. It gets updated via events emitted by commands, much like in DDD.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
     <item>
       <title>My first chess bot</title>
       <link>https://iamwoz.com/blog/20210916_my_first_chess_bot/</link>

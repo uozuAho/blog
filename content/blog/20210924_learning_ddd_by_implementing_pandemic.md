@@ -5,7 +5,7 @@ draft: false
 summary: "Learning the lower-level details of domain-drive design, through implementing the Pandemic board game"
 tags:
 - DDD
-- C#
+- csharp
 ---
 
 Join me on my quest to learn some DDD while making a board game. This is my

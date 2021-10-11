@@ -29,7 +29,7 @@ git push
 
 
 # todo
-- percy: how to compare branch vs main?
+- percy: how to compare branch vs main? done?
 - display tags
   - in post
   - in post list

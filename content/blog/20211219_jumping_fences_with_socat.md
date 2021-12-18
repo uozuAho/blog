@@ -1,7 +1,7 @@
 ---
 title: "Jumping fences with socat"
 date: 2021-12-19T07:50:17+11:00
-draft: true
+draft: false
 summary: "Accessing stuff using socat as a proxy, and re-learning docker (again)"
 tags:
 - docker

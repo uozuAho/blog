@@ -3,7 +3,25 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://iamwoz.com/blog/</loc>
-    <lastmod>2021-09-24T16:40:58+10:00</lastmod>
+    <lastmod>2021-12-19T07:50:17+11:00</lastmod>
+  </url><url>
+    <loc>https://iamwoz.com/tags/docker/</loc>
+    <lastmod>2021-12-19T07:50:17+11:00</lastmod>
+  </url><url>
+    <loc>https://iamwoz.com/blog/20211219_jumping_fences_with_socat/</loc>
+    <lastmod>2021-12-19T07:50:17+11:00</lastmod>
+  </url><url>
+    <loc>https://iamwoz.com/tags/kubernetes/</loc>
+    <lastmod>2021-12-19T07:50:17+11:00</lastmod>
+  </url><url>
+    <loc>https://iamwoz.com/tags/postgres/</loc>
+    <lastmod>2021-12-19T07:50:17+11:00</lastmod>
+  </url><url>
+    <loc>https://iamwoz.com/tags/unix/</loc>
+    <lastmod>2021-12-19T07:50:17+11:00</lastmod>
+  </url><url>
+    <loc>https://iamwoz.com/</loc>
+    <lastmod>2021-12-19T07:50:17+11:00</lastmod>
   </url><url>
     <loc>https://iamwoz.com/tags/csharp/</loc>
     <lastmod>2021-09-24T16:40:58+10:00</lastmod>
@@ -12,9 +30,6 @@
     <lastmod>2021-09-24T16:40:58+10:00</lastmod>
   </url><url>
     <loc>https://iamwoz.com/blog/20210924_learning_ddd_by_implementing_pandemic/</loc>
-    <lastmod>2021-09-24T16:40:58+10:00</lastmod>
-  </url><url>
-    <loc>https://iamwoz.com/</loc>
     <lastmod>2021-09-24T16:40:58+10:00</lastmod>
   </url><url>
     <loc>https://iamwoz.com/tags/ai/</loc>

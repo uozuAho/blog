@@ -3,7 +3,7 @@
 # local dev
 # - proof read
 # - test on other browsers
-# - test on mobile
+# - test on mobile (hugo server -D --bind 0.0.0.0)
 # - run lighthouse
 # branch deploy (netlify subdomain)
 # - set draft to false

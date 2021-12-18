@@ -7,7 +7,201 @@
     <atom:icon>https://iamwoz.com/favicon.ico</atom:icon>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-GB</language>
-    <lastBuildDate>Fri, 24 Sep 2021 16:40:58 +1000</lastBuildDate><atom:link href="https://iamwoz.com/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 19 Dec 2021 07:50:17 +1100</lastBuildDate><atom:link href="https://iamwoz.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Jumping fences with socat</title>
+      <link>https://iamwoz.com/blog/20211219_jumping_fences_with_socat/</link>
+      <pubDate>Sun, 19 Dec 2021 07:50:17 +1100</pubDate>
+      
+      <guid>https://iamwoz.com/blog/20211219_jumping_fences_with_socat/</guid>
+      <description>&lt;p&gt;There&amp;rsquo;s a kubernetes cluster I use often that runs software I&amp;rsquo;m responsible for.
+The databases for that software are also in the kubernetes cluster, and are only
+accessible to other resources in that cluster. This &lt;em&gt;can&lt;/em&gt; prevent silly mistakes
+like accidentally dropping a table, but also makes prototyping difficult.&lt;/p&gt;
+&lt;figure&gt;
+  &lt;img src=&#34;https://iamwoz.com/blog/20211219_jumping_fences_with_socat/initia_state.png&#34;
+  alt=&#34;Image of me not being able to access my app&#39;s database&#34;
+  width=&#34;645&#34;
+  loading=&#34;lazy&#34; /&gt;
+  &lt;figcaption&gt;Me, locked out from the juicy data&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;p&gt;It should be possible to use &lt;a href=&#34;https://linux.die.net/man/1/socat&#34;&gt;socat&lt;/a&gt; as a
+proxy to be able to connect to the database. &lt;code&gt;socat&lt;/code&gt; is a unix program that
+pipes data between a wide range of sinks &amp;amp; sources, eg. network sockets &amp;amp; files.&lt;/p&gt;
+&lt;figure&gt;
+  &lt;img src=&#34;https://iamwoz.com/blog/20211219_jumping_fences_with_socat/idea_state.png&#34;
+  alt=&#34;Image of me accessing my app&#39;s database via socat&#34;
+  width=&#34;669&#34;
+  loading=&#34;lazy&#34; /&gt;
+  &lt;figcaption&gt;My dream&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2 id=&#34;practicing-with-docker&#34;&gt;Practicing with docker&lt;/h2&gt;
+&lt;p&gt;I&amp;rsquo;ll use docker since it will roughly simulate what I think I need to do with
+kubernetes, and I don&amp;rsquo;t have to install postgres and/or &lt;code&gt;psql&lt;/code&gt; on my machine. I
+have to re-learn docker every time I use it, so I&amp;rsquo;ll document my steps this
+time.&lt;/p&gt;
+&lt;h3 id=&#34;goal-1-connect-psql-to-postgres&#34;&gt;Goal #1: connect psql to postgres&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;psql&lt;/code&gt; is a postgres CLI client. I&amp;rsquo;m using it as a quick way to verify that I
+can connect a postgres client to a postgres instance.&lt;/p&gt;
+&lt;figure&gt;
+  &lt;img src=&#34;https://iamwoz.com/blog/20211219_jumping_fences_with_socat/psql_to_pg.png&#34;
+  alt=&#34;psql in one container, connecting to postgres in another container&#34;
+  width=&#34;422&#34;
+  loading=&#34;lazy&#34; /&gt;
+  &lt;figcaption&gt;&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Run postgres&lt;/span&gt;
+docker run --rm --name pg -e POSTGRES_PASSWORD&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;pw -d postgres
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# There it is:&lt;/span&gt;
+docker ps
+&amp;gt; CONTAINER ID   IMAGE      COMMAND                  CREATED         STATUS         PORTS      NAMES
+&amp;gt; 6d2a5ad74c8e   postgres   &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;docker-entrypoint.s…&amp;#34;&lt;/span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt; seconds ago   Up &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt; seconds   5432/tcp   pg
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# OK. Can I connect to it with psql?&lt;/span&gt;
+docker run -it --rm postgres psql
+&amp;gt; psql: error: connection to server on socket &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/var/run/postgresql/.s.PGSQL.5432&amp;#34;&lt;/span&gt; failed: No such file or directory
+&amp;gt;       Is the server running locally and accepting connections on that socket?
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# No. Is there anything listening on port 5432?&lt;/span&gt;
+netstat -aon | grep &lt;span style=&#34;color:#ae81ff&#34;&gt;5432&lt;/span&gt;
+&amp;gt;
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# No. Why? Because I didn&amp;#39;t expose the port that postgres serves over when&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;# running the postgres container. Let&amp;#39;s do that. First, stop the currently&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;# running postgres container:&lt;/span&gt;
+docker stop pg
+&lt;span style=&#34;color:#75715e&#34;&gt;# Now run it again, exposing port 5432 to the host machine:&lt;/span&gt;
+docker run --rm --name pg -e POSTGRES_PASSWORD&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;pw -d -p 5432:5432 postgres
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# Now there&amp;#39;s stuff listening on port 5432:&lt;/span&gt;
+netstat -aon | grep &lt;span style=&#34;color:#ae81ff&#34;&gt;5432&lt;/span&gt;
+&amp;gt;  TCP    0.0.0.0:5432           0.0.0.0:0              LISTENING       &lt;span style=&#34;color:#ae81ff&#34;&gt;16448&lt;/span&gt;
+&amp;gt;  TCP    &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;::&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;:5432              &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;::&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;:0                 LISTENING       &lt;span style=&#34;color:#ae81ff&#34;&gt;16448&lt;/span&gt;
+&amp;gt;  TCP    &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;::1&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;:5432             &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;::&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;:0                 LISTENING       &lt;span style=&#34;color:#ae81ff&#34;&gt;18520&lt;/span&gt;
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# Try psql again:&lt;/span&gt;
+docker run -it --rm postgres psql
+&amp;gt; psql: error: connection to server on socket &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/var/run/postgresql/.s.PGSQL.5432&amp;#34;&lt;/span&gt; failed: No such file or directory
+&amp;gt;       Is the server running locally and accepting connections on that socket?
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# Still no. This is because I&amp;#39;m running the psql container in an isolated&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;# (network) environment, where there&amp;#39;s nothing listening on port 5432. I can&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;# use the special host address &amp;#39;host.docker.internal&amp;#39; which resolves to the IP&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;# of the host machine (see https://docs.docker.com/desktop/windows/networking/):&lt;/span&gt;
+docker run -it --rm postgres psql -h host.docker.internal -U postgres
+&amp;gt; Password &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; user postgres: &lt;span style=&#34;color:#75715e&#34;&gt;# enter the password &amp;#39;pw&amp;#39; defined above&lt;/span&gt;
+&amp;gt; psql &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;14.1 &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;Debian 14.1-1.pgdg110+1&lt;span style=&#34;color:#f92672&#34;&gt;))&lt;/span&gt;
+&amp;gt; Type &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;help&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; help.
+&amp;gt;
+&amp;gt; postgres&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#&lt;/span&gt;
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# Woo! I&amp;#39;m in!&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;goal-2-connect-psql-to-postgres-via-socat&#34;&gt;Goal #2: connect psql to postgres, via socat&lt;/h3&gt;
+&lt;figure&gt;
+  &lt;img src=&#34;https://iamwoz.com/blog/20211219_jumping_fences_with_socat/psql_to_socat_to_pg.png&#34;
+  alt=&#34;psql in one container, connecting to socat in another container, which
+  connects to postgres in a third container&#34;
+  width=&#34;646&#34;
+  loading=&#34;lazy&#34; /&gt;
+  &lt;figcaption&gt;&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;ul&gt;
+&lt;li&gt;run postgres on a non-default port (6543)&lt;/li&gt;
+&lt;li&gt;use socat to pipe traffic between the non-default and default postgres port
+(5432)&lt;/li&gt;
+&lt;li&gt;run psql as in goal #1, which will show that it is connecting to postgres via
+socat&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# stop the currently running postgres db&lt;/span&gt;
+docker stop pg
+&lt;span style=&#34;color:#75715e&#34;&gt;# Start it again, this time hosting on port 6543.&lt;/span&gt;
+docker run --rm --name pg -e POSTGRES_PASSWORD&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;pw -e PGPORT&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;6543&lt;/span&gt; -d -p 6543:6543 postgres
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# Check it is running, by connecting psql directly:&lt;/span&gt;
+docker run -it --rm postgres psql -h host.docker.internal -U postgres -p &lt;span style=&#34;color:#ae81ff&#34;&gt;6543&lt;/span&gt;
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# All good. Now, time for socat. The dockerhub page for socat has nearly the&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;# use case I want: &amp;#34;Publish a port on an existing container&amp;#34;. In my case, the&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;# port is already published (6543), but I want to &amp;#34;republish&amp;#34; it on a different&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;# port (5432).&lt;/span&gt;
+docker run -d --rm --name sc -p 5432:6543 alpine/socat &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    tcp-listen:6543,fork,reuseaddr tcp-connect:target:6543
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# I don&amp;#39;t really understand what all those options are doing, so I&amp;#39;ll just hope&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;# for the best :) Let&amp;#39;s try connecting psql. Note that psql uses the default&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;# port (5432) when you don&amp;#39;t tell it to do otherwise.&lt;/span&gt;
+docker run -it --rm postgres psql -h host.docker.internal -U postgres
+&amp;gt; psql: error: connection to server at &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;host.docker.internal&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;192.168.65.2&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;, port &lt;span style=&#34;color:#ae81ff&#34;&gt;5432&lt;/span&gt; failed: server closed the connection unexpectedly
+&amp;gt;         This probably means the server terminated abnormally
+&amp;gt;         before or &lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt; processing the request.
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# d&amp;#39;oh. Why?&lt;/span&gt;
+docker container logs sc
+&amp;gt; 2021/12/18 01:28:47 socat&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;8&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; E getaddrinfo&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;target&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;NULL&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;1,0,1,6&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;, &lt;span style=&#34;color:#f92672&#34;&gt;{})&lt;/span&gt;: Name does not resolve
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# &amp;#34;Does not resolve&amp;#34;. I think means it can&amp;#39;t find the host. Did I need to&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;# point socat to host.docker.internal?&lt;/span&gt;
+docker stop sc
+docker run -d --rm --name sc -p 5432:6543 alpine/socat &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    tcp-listen:6543,fork,reuseaddr tcp-connect:host.docker.internal:6543
+
+docker run -it --rm postgres psql -h host.docker.internal -U postgres
+&lt;span style=&#34;color:#75715e&#34;&gt;# Yep, I&amp;#39;m in!!&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;endgame&#34;&gt;Endgame&lt;/h2&gt;
+&lt;p&gt;Time to try connecting to the database in kubernetes. Here&amp;rsquo;s the goal state
+again:&lt;/p&gt;
+&lt;figure&gt;
+  &lt;img src=&#34;https://iamwoz.com/blog/20211219_jumping_fences_with_socat/idea_state_ports.png&#34;
+  alt=&#34;Me accessing my app&#39;s database via socat, with port numbers shown&#34;
+  width=&#34;683&#34;
+  loading=&#34;lazy&#34; /&gt;
+  &lt;figcaption&gt;My dream, with ports&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;p&gt;It&amp;rsquo;s basically the same as in goal #2, except:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;socat will be running in a pod in kubernetes&lt;/li&gt;
+&lt;li&gt;socat will essentially just be &amp;lsquo;forwarding&amp;rsquo; postgres&amp;rsquo;s default port&lt;/li&gt;
+&lt;li&gt;I&amp;rsquo;ll need to use &lt;code&gt;kubectl&lt;/code&gt; to forward a local port to the socat pod&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# This is the host address of where the database is running. This is stored&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;# in a secret location...&lt;/span&gt;
+DB_HOST&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;asdf
+NAMESPACE&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;my_apps_namespace
+SOCAT_POD_NAME&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;woz-db-proxy
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# Run socat in a pod in kubernetes&lt;/span&gt;
+kubectl run -n &lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;NAMESPACE&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt; --restart&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;Never --image&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;alpine/socat &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;SOCAT_POD_NAME&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt; -- &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    tcp-listen:5432,fork,reuseaddr &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    tcp-connect:&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;DB_HOST&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;:5432
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# Wait for the pod to be ready&lt;/span&gt;
+kubectl wait -n &lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;NAMESPACE&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt; --for&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;condition&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;Ready pod/&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;SOCAT_POD_NAME&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# Forward port 5432 to the pod&lt;/span&gt;
+kubectl port-forward -n &lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;NAMESPACE&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt; pod/&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;SOCAT_POD_NAME&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt; 5432:5432
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# The moment of truth ... will it connect?&lt;/span&gt;
+docker run -it --rm postgres psql -h host.docker.internal -U my_user -d my_db
+&amp;gt; Password &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; user postgres:
+&amp;gt; psql &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;14.1 &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;Debian 14.1-1.pgdg110+1&lt;span style=&#34;color:#f92672&#34;&gt;))&lt;/span&gt;
+&amp;gt; Type &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;help&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; help.
+&amp;gt;
+&amp;gt; postgres&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#&lt;/span&gt;
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# Woo #2! I&amp;#39;m in!&lt;/span&gt;
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# Delete the pod when I&amp;#39;m done&lt;/span&gt;
+kubectl delete -n &lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;NAMESPACE&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt; pod/&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;SOCAT_POD_NAME&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt; --grace-period &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; --wait&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;false
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Wahoo! Now I can now do all kinds of silly stuff, like accidentally inserting
+test data into production, dropping tables, and overwriting customer data. All
+the fun things in life.&lt;/p&gt;
+&lt;p&gt;I wonder if I could have just used &lt;code&gt;kubectl port-forward&lt;/code&gt; directly to the
+database? Too late, I&amp;rsquo;ve already learned a bunch of stuff, and now I&amp;rsquo;m tired.&lt;/p&gt;
+</description>
+    </item>
+    
     <item>
       <title>Learning DDD by making Pandemic</title>
       <link>https://iamwoz.com/blog/20210924_learning_ddd_by_implementing_pandemic/</link>

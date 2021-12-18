@@ -9,7 +9,7 @@
 # - set draft to false
 # - run this script
 # - push to branch
-# - goto github -> current branch
+# - goto https://github.com/uozuAho/blog -> current branch
 # - click on the netlify build badge - this shows the branch deployment
 # OPTIONAL: deploy to iamwoz.com subdomain
 # - goto https://app.netlify.com/, log in

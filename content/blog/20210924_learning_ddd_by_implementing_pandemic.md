@@ -62,7 +62,7 @@ wondering how more complex games like pandemic would be implemented.
 
 I also found what looks to be a [complete implementation of
 Pandemic](https://github.com/alexzherdev/pandemic), using React & Redux. You can
-[play it online here](https://epidemic.netlify.app/play). Have a go, it's really
+[play it online here](https://epidemic.netlify.app). Have a go, it's really
 well done! I don't think DDD was an influence on this implementation, however it
 was useful to have as a reference.
 
@@ -477,7 +477,7 @@ events.
 - [DDD in action: Armadora - The board game](https://dev.to/thomasferro/ddd-in-action-armadora-the-board-game-2o07).
     - [Armadora code](https://github.com/ThomasFerro/armadora)
 - [Thomas Fero: Summary of a four days DDD training](https://dev.to/thomasferro/summary-of-a-four-days-ddd-training-5a3c)
-- [Epidemic](https://epidemic.netlify.app/play)
+- [Epidemic](https://epidemic.netlify.app)
     - an online Pandemic clone, built with React & Redux
     - [Epidemic source code](https://github.com/alexzherdev/pandemic)
 - [Wikipedia: Event storming](https://en.wikipedia.org/wiki/Event_storming)

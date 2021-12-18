@@ -22,7 +22,7 @@
 # - merge to main
 # - publish (run this script)
 # - push
-# - check percy
+# - goto https://github.com/uozuAho/blog -> check percy
 
 rm -rf public
 hugo

@@ -279,7 +279,7 @@ someone new to DDD. However, the simplicity of the Armadora game left me
 wondering how more complex games like pandemic would be implemented.&lt;/p&gt;
 &lt;p&gt;I also found what looks to be a &lt;a href=&#34;https://github.com/alexzherdev/pandemic&#34;&gt;complete implementation of
 Pandemic&lt;/a&gt;, using React &amp;amp; Redux. You can
-&lt;a href=&#34;https://epidemic.netlify.app/play&#34;&gt;play it online here&lt;/a&gt;. Have a go, it&amp;rsquo;s really
+&lt;a href=&#34;https://epidemic.netlify.app&#34;&gt;play it online here&lt;/a&gt;. Have a go, it&amp;rsquo;s really
 well done! I don&amp;rsquo;t think DDD was an influence on this implementation, however it
 was useful to have as a reference.&lt;/p&gt;
 &lt;h1 id=&#34;applying-ddd-tactics-to-pandemic&#34;&gt;Applying DDD tactics to Pandemic&lt;/h1&gt;
@@ -639,7 +639,7 @@ events.&lt;/p&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://dev.to/thomasferro/summary-of-a-four-days-ddd-training-5a3c&#34;&gt;Thomas Fero: Summary of a four days DDD training&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://epidemic.netlify.app/play&#34;&gt;Epidemic&lt;/a&gt;
+&lt;li&gt;&lt;a href=&#34;https://epidemic.netlify.app&#34;&gt;Epidemic&lt;/a&gt;
 &lt;ul&gt;
 &lt;li&gt;an online Pandemic clone, built with React &amp;amp; Redux&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://github.com/alexzherdev/pandemic&#34;&gt;Epidemic source code&lt;/a&gt;&lt;/li&gt;

@@ -208,8 +208,9 @@ database? Too late, I&amp;rsquo;ve already learned a bunch of stuff, and now I&a
       <pubDate>Fri, 24 Sep 2021 16:40:58 +1000</pubDate>
       
       <guid>https://iamwoz.com/blog/20210924_learning_ddd_by_implementing_pandemic/</guid>
-      <description>&lt;p&gt;Join me on my quest to learn some DDD while making a board game. This is my
-longest post yet, so I&amp;rsquo;ve included a table of contents for your convenience :)&lt;/p&gt;
+      <description>&lt;p&gt;Join me on my quest to learn some domain-driven design (DDD) while making a
+board game. This is my longest post yet, so I&amp;rsquo;ve included a table of contents
+for your convenience :)&lt;/p&gt;
 &lt;p&gt;If you want to skip straight to the action, see &lt;a href=&#34;#lets_start&#34;&gt;Let&amp;rsquo;s just start&lt;/a&gt;&lt;/p&gt;
 &lt;h1 id=&#34;contents&#34;&gt;Contents&lt;/h1&gt;
 &lt;nav id=&#34;TableOfContents&#34;&gt;

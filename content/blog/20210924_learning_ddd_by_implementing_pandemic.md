@@ -8,8 +8,9 @@ tags:
 - csharp
 ---
 
-Join me on my quest to learn some DDD while making a board game. This is my
-longest post yet, so I've included a table of contents for your convenience :)
+Join me on my quest to learn some domain-driven design (DDD) while making a
+board game. This is my longest post yet, so I've included a table of contents
+for your convenience :)
 
 If you want to skip straight to the action, see [Let's just start]({{< ref
 "#lets_start" >}})

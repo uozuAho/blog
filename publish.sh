@@ -3,13 +3,13 @@
 # local dev
 # - proof read
 # - test on other browsers
-# - test on mobile
+# - test on mobile (hugo server -D --bind 0.0.0.0)
 # - run lighthouse
 # branch deploy (netlify subdomain)
 # - set draft to false
 # - run this script
 # - push to branch
-# - goto github -> current branch
+# - goto https://github.com/uozuAho/blog -> current branch
 # - click on the netlify build badge - this shows the branch deployment
 # OPTIONAL: deploy to iamwoz.com subdomain
 # - goto https://app.netlify.com/, log in

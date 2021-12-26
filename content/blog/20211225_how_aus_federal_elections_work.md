@@ -73,8 +73,7 @@ For more details:
 
 
 ### How your vote gets candidates elected
-[This 3 minute video](https://www.youtube.com/watch?v=9BqgiUarZDo) explains it
-better than I can. Here's my attempt, anyway:
+The short video below explains it better than I can. Here's my attempt, anyway:
 
 - candidates need a quota of votes to be elected
 - quota = (total number of valid votes / number of vacancies + 1) + 1
@@ -90,13 +89,9 @@ better than I can. Here's my attempt, anyway:
   required number of senators have been elected.
 
 <figure>
-  <img src="/blog/20211225_how_aus_federal_elections_work/senate_preference_flow.png"
-  alt=""
-  width="979"
-  loading="lazy" />
+  {{< youtube id="9BqgiUarZDo" title="How proportional voting works in the senate">}}
   <figcaption>
-    Stolen from <a href="https://www.youtube.com/watch?v=9BqgiUarZDo">this video</a>.
-    Seriously, just watch it.
+    A short video describing the above points, but better
   </figcaption>
 </figure>
 
@@ -117,21 +112,44 @@ better than I can. Here's my attempt, anyway:
 
 
 ## How to vote for lower house representatives {#reps}
-- [good short vid](https://www.youtube.com/watch?v=HaE6MigXYdY)
-- number candidates in order of preference
+Thankfully, this is simpler than the senate.
+
+### Casting your vote
+- you rank  candidates in order of preference
+- your vote counts towards a single candidate being elected to represent your
+  electorate
+
+<figure>
+  <img src="/blog/20211225_how_aus_federal_elections_work/lower_house_ballot.png"
+  alt=""
+  width="220"
+  loading="lazy" />
+  <figcaption>
+    An example house of reps ballot paper.
+    <a href="https://aec.gov.au/Voting/How_to_Vote/Voting_HOR.htm">Source: AEC</a>
+  </figcaption>
+</figure>
+
+### How your vote gets a candidate elected
 - to win, a candidate must get an absolute majority
     - eg. receives 51% of first preference vote
-- if no majority, candidate with lowest 1st preference is eliminated, and the
-  2nd preference from those votes flow into the remaining candidates
-- repeat until a candidate has the majority
+- if no candidate gets a majority of first preferences, the candidate with
+  lowest number of 1st preferences is eliminated, and the 2nd preference from
+  those votes flow into the remaining candidates
+- the above is repeated until one candidate reaches the majority
 
-## references
-Add some walls of text here, and commentary
-- [you can't waste your vote](http://www.chickennation.com/voting/)
-- [aec](https://aec.gov.au/learn/preferential-voting.htm)
+<figure>
+  {{< youtube id="HaE6MigXYdY" title="How preferential voting works in the lower house">}}
+  <figcaption>
+    Another good short video, describing counting of votes for the house of
+    representatives
+  </figcaption>
+</figure>
 
-image sources
+
+## Image sources
+I copied images from these sources:
+
 - https://www.jing.fm/iclip/u2q8r5o0u2o0i1o0_australia-clipart-parliament-house-parliament-house-canberra-clipart/
 - https://www.mappr.co/counties/australia/
 - https://atarnotes.com/voting-how-to/
-- and of course, https://excalidraw.com/ !

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>government on woz</title>
+    <link>https://iamwoz.com/tags/government/</link>
+    <description>Recent content in government on woz</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-GB</language>
+    <lastBuildDate>Sat, 25 Dec 2021 08:25:56 +1100</lastBuildDate><atom:link href="https://iamwoz.com/tags/government/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>How Australian federal elections work</title>
+      <link>https://iamwoz.com/blog/20211225_how_aus_federal_elections_work/</link>
+      <pubDate>Sat, 25 Dec 2021 08:25:56 +1100</pubDate>
+      
+      <guid>https://iamwoz.com/blog/20211225_how_aus_federal_elections_work/</guid>
+      <description>How to vote, what you&amp;rsquo;re voting for, and how your vote is counted</description>
+    </item>
+    
+  </channel>
+</rss>

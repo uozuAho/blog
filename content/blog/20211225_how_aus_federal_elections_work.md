@@ -1,7 +1,7 @@
 ---
 title: "How Australian federal elections work"
 date: 2021-12-25T08:25:56+11:00
-draft: true
+draft: false
 summary: "How to vote, what you're voting for, and how your vote is counted"
 tags:
 - government

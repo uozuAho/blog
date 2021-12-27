@@ -17,7 +17,7 @@ fully understood:
 There is a _lot_ of information on the internet about this. Too much. This post
 answers the above questions, in my preferred format of pictures and dot points.
 Please note that I got super bored reading the many walls of text about this, so
-there may be mistakes/innaccuracies in this post.
+there may be mistakes/inaccuracies in this post.
 
 I'll explain some context first, so if you're impatient:
 
@@ -100,9 +100,9 @@ The short video below explains it better than I can. Here's my attempt, anyway:
 - the above is slightly simplified. The amount your lower preferences contribute
   depends on which state/territory you're in.
 - if voting below the line, you must choose at least 12 candidates. However, aim
-  for more, since there's a chance your ballot can become 'exhausted' - ie. your
-  preferences don't count towards any winning candidates. Even if you dislike
-  some candidates/parties, you should still rank them in order of your
+  for more, since there's a chance your ballot can become 'exhausted' - i.e.
+  your preferences don't count towards any winning candidates. Even if you
+  dislike some candidates/parties, you should still rank them in order of your
   preference, since this will count towards your 'least disliked' candidates
   getting elected.
 

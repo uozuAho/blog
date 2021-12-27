@@ -7,7 +7,172 @@
     <atom:icon>https://iamwoz.com/favicon.ico</atom:icon>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-GB</language>
-    <lastBuildDate>Sun, 19 Dec 2021 07:50:17 +1100</lastBuildDate><atom:link href="https://iamwoz.com/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 25 Dec 2021 08:25:56 +1100</lastBuildDate><atom:link href="https://iamwoz.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>How Australian federal elections work</title>
+      <link>https://iamwoz.com/blog/20211225_how_aus_federal_elections_work/</link>
+      <pubDate>Sat, 25 Dec 2021 08:25:56 +1100</pubDate>
+      
+      <guid>https://iamwoz.com/blog/20211225_how_aus_federal_elections_work/</guid>
+      <description>&lt;p&gt;I am ashamed to admit that I have only just recently put the effort in to learn
+this. I have known &amp;ldquo;how to vote&amp;rdquo; since I was eligible to vote, but have never
+fully understood:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Who am I voting for? What do they do?&lt;/li&gt;
+&lt;li&gt;How does my vote lead to people getting elected?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;There is a &lt;em&gt;lot&lt;/em&gt; of information on the internet about this. Too much. This post
+answers the above questions, in my preferred format of pictures and dot points.
+Please note that I got super bored reading the many walls of text about this, so
+there may be mistakes/inaccuracies in this post.&lt;/p&gt;
+&lt;p&gt;I&amp;rsquo;ll explain some context first, so if you&amp;rsquo;re impatient:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;#senate&#34;&gt;How to vote for senators&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#reps&#34;&gt;How to vote for lower house representatives&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;some-context-what-is-the-federal-government&#34;&gt;Some context: What is the federal government?&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;there are 3 levels of government in Australia: federal, state, and local&lt;/li&gt;
+&lt;li&gt;the federal government creates &amp;amp; updates laws, and &amp;lsquo;conducts affairs&amp;rsquo; that
+affect the whole nation&lt;/li&gt;
+&lt;li&gt;we elect &amp;lsquo;members of parliament&amp;rsquo; (MPs) that form the federal government&lt;/li&gt;
+&lt;li&gt;the federal parliament is made up of 2 &amp;lsquo;houses&amp;rsquo;: the upper and lower house,
+also known as the senate and house of representatives, respectively&lt;/li&gt;
+&lt;/ul&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The 2 houses exist to keep each other &amp;lsquo;in check&amp;rsquo;. For example, before one
+house decides to wage war with China, the other house has a chance to step
+in and say &amp;ldquo;that&amp;rsquo;s probably not a good idea&amp;rdquo;. The representatives of each
+house are chosen in different ways, to ensure diversity of opinion.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;figure&gt;
+  &lt;img src=&#34;https://iamwoz.com/blog/20211225_how_aus_federal_elections_work/federal_parliament.png&#34;
+  alt=&#34;&#34;
+  width=&#34;1102&#34;
+  loading=&#34;lazy&#34; /&gt;
+  &lt;figcaption&gt;&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;p&gt;For more details:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://peo.gov.au/understand-our-parliament/how-parliament-works/three-levels-of-government/three-levels-of-government-governing-australia/&#34;&gt;PEO: 3 levels of government&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.parliament.nsw.gov.au/about/Pages/The-Roles-and-Responsibilities-of-Federal-State-a.aspx&#34;&gt;NSW parliament: Roles and Responsibilities of Federal, State and Local Governments&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://en.wikipedia.org/wiki/Bicameralism#Australia&#34;&gt;Wikipedia: Bicameralism in Australia (why are there 2 houses)&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;senate&#34;&gt;How to vote for senators (the big ballot paper)&lt;/h2&gt;
+&lt;h3 id=&#34;casting-your-vote&#34;&gt;Casting your vote&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;you vote for senators to represent your state/territory. Your vote will count
+towards 12 or 2 senators being elected, depending on whether you&amp;rsquo;re in a state
+or territory.&lt;/li&gt;
+&lt;li&gt;you rank candidates in order of preference. This can be done by voting either
+above or below the line. See the image below.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure&gt;
+  &lt;img src=&#34;https://iamwoz.com/blog/20211225_how_aus_federal_elections_work/senate_ballot.png&#34;
+  alt=&#34;&#34;
+  width=&#34;680&#34;
+  loading=&#34;lazy&#34; /&gt;
+  &lt;figcaption&gt;
+    The senate ballot paper. Voting above the line is equivalent to numbering
+    all boxes below the line (don&#39;t vote above and below the line! Pick one!)
+    &lt;a href=&#34;https://www.aph.gov.au/About_Parliament/Parliamentary_Departments/Parliamentary_Library/pubs/rp/rp1718/SenateVotingSystem&#34;&gt;source: APH&lt;/a&gt;&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h3 id=&#34;how-your-vote-gets-candidates-elected&#34;&gt;How your vote gets candidates elected&lt;/h3&gt;
+&lt;p&gt;The short video below explains it better than I can. Here&amp;rsquo;s my attempt, anyway:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;candidates need a quota of votes to be elected&lt;/li&gt;
+&lt;li&gt;quota = (total number of valid votes / number of vacancies + 1) + 1
+&lt;ul&gt;
+&lt;li&gt;for example: there are 1300 people in the state, and 12 senators to elect.
+This means a candidate needs (1300 / 12 + 1) + 1 = 101 votes to be elected.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;first preferences are counted first. If any candidate receives the required
+quota of first preferences, they are elected. Any &amp;lsquo;surplus&amp;rsquo; ballots that have
+the winning candidate as their first preference get their second preferences
+distributed to remaining candidates&lt;/li&gt;
+&lt;li&gt;if no remaining candidate reaches the quota based on first preferences, then
+second preferences are counted&lt;/li&gt;
+&lt;li&gt;the above process continues, using lower and lower preferences, until the
+required number of senators have been elected.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure&gt;
+  
+&lt;div style=&#34;position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;&#34;&gt;
+  &lt;iframe src=&#34;https://www.youtube.com/embed/9BqgiUarZDo&#34; style=&#34;position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;&#34; allowfullscreen title=&#34;How proportional voting works in the senate&#34;&gt;&lt;/iframe&gt;
+&lt;/div&gt;
+
+  &lt;figcaption&gt;
+    A short video describing the above points, but better
+  &lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h3 id=&#34;notes&#34;&gt;Notes&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;the above is slightly simplified. The amount your lower preferences contribute
+depends on which state/territory you&amp;rsquo;re in.&lt;/li&gt;
+&lt;li&gt;if voting below the line, you must choose at least 12 candidates. However, aim
+for more, since there&amp;rsquo;s a chance your ballot can become &amp;lsquo;exhausted&amp;rsquo; - i.e.
+your preferences don&amp;rsquo;t count towards any winning candidates. Even if you
+dislike some candidates/parties, you should still rank them in order of your
+preference, since this will count towards your &amp;lsquo;least disliked&amp;rsquo; candidates
+getting elected.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;sources&#34;&gt;Sources&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.ecanz.gov.au/electoral-systems/proportional&#34;&gt;ECANZ: Proportional Representation Voting Systems&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://peo.gov.au/understand-our-parliament/having-your-say/elections-and-voting/federal-elections/&#34;&gt;PEO: federal elections&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;reps&#34;&gt;How to vote for lower house representatives&lt;/h2&gt;
+&lt;p&gt;Thankfully, this is simpler than the senate.&lt;/p&gt;
+&lt;h3 id=&#34;casting-your-vote-1&#34;&gt;Casting your vote&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;you rank  candidates in order of preference&lt;/li&gt;
+&lt;li&gt;your vote counts towards a single candidate being elected to represent your
+electorate&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure&gt;
+  &lt;img src=&#34;https://iamwoz.com/blog/20211225_how_aus_federal_elections_work/lower_house_ballot.png&#34;
+  alt=&#34;&#34;
+  width=&#34;220&#34;
+  loading=&#34;lazy&#34; /&gt;
+  &lt;figcaption&gt;
+    An example house of reps ballot paper.
+    &lt;a href=&#34;https://aec.gov.au/Voting/How_to_Vote/Voting_HOR.htm&#34;&gt;Source: AEC&lt;/a&gt;
+  &lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h3 id=&#34;how-your-vote-gets-a-candidate-elected&#34;&gt;How your vote gets a candidate elected&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;to win, a candidate must get an absolute majority
+&lt;ul&gt;
+&lt;li&gt;eg. receives 51% of first preference vote&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;if no candidate gets a majority of first preferences, the candidate with
+lowest number of 1st preferences is eliminated, and the 2nd preference from
+those votes flow into the remaining candidates&lt;/li&gt;
+&lt;li&gt;the above is repeated until one candidate reaches the majority&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure&gt;
+  
+&lt;div style=&#34;position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;&#34;&gt;
+  &lt;iframe src=&#34;https://www.youtube.com/embed/HaE6MigXYdY&#34; style=&#34;position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;&#34; allowfullscreen title=&#34;How preferential voting works in the lower house&#34;&gt;&lt;/iframe&gt;
+&lt;/div&gt;
+
+  &lt;figcaption&gt;
+    Another good short video, describing counting of votes for the house of
+    representatives
+  &lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2 id=&#34;image-sources&#34;&gt;Image sources&lt;/h2&gt;
+&lt;p&gt;I copied images from these sources:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.jing.fm/iclip/u2q8r5o0u2o0i1o0_australia-clipart-parliament-house-parliament-house-canberra-clipart/&#34;&gt;https://www.jing.fm/iclip/u2q8r5o0u2o0i1o0_australia-clipart-parliament-house-parliament-house-canberra-clipart/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.mappr.co/counties/australia/&#34;&gt;https://www.mappr.co/counties/australia/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://atarnotes.com/voting-how-to/&#34;&gt;https://atarnotes.com/voting-how-to/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
     <item>
       <title>Jumping fences with socat</title>
       <link>https://iamwoz.com/blog/20211219_jumping_fences_with_socat/</link>

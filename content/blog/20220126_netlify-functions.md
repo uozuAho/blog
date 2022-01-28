@@ -6,17 +6,18 @@ summary: "A guide on how to add Netlify Functions to an existing Hugo site"
 tags:
 ---
 
-So far this site has just been static, pre-built pages. I now want to load and
-display information from other sites & services. I settled on using
-[Netlify Functions](https://www.netlify.com/products/functions/) to create
-endpoints that I could use to load data into this site's pages.
+So far this site has just been static, pre-built pages (built by
+[Hugo](https://gohugo.io/)). I now want to load and display information from
+other sites & services. I settled on using [Netlify
+Functions](https://www.netlify.com/products/functions/) to create endpoints that
+I could use to load data into this site's pages.
 
 This post's a tutorial for my future self and others :)
 
 ## todo
-- run through this tute. does it work?
 - edit/proof read
-- add this somewhere [how this site is built]({{< ref "20210424_how_this_site_is_built" >}})
+- move functions to /blog/blah
+- run through this tute. does it work?
 
 ## Options
 [Netlify Functions](https://www.netlify.com/products/functions/) allows you to
@@ -31,7 +32,7 @@ locked in anyway - no infrastructure code, scaling configuration, etc. It will
 be easy to move to a more powerful platform in the future, if I need to.
 
 
-## Steps
+## Let's do it
 These steps assume you've got a Hugo site up and running on Netlify. I've got
 some details about how to do  that in my first post - [how this site is
 built]({{< ref "20210424_how_this_site_is_built" >}}). That post doesn't really
@@ -65,7 +66,9 @@ export const handler: Handler = async (event, context) => {
 ```
 
 By default, functions are placed under `./netlify/functions` directory in your
-site. Once there, they can be called from within your page content:
+site. Once there, they can be called from within your page content. For example,
+let's replace some text with the response from the function when a button is
+pressed:
 
 ```html
 <p id="static_text">static text</p>
@@ -87,6 +90,8 @@ content and functions are updated whenever you change them.
 
 Here's the above code in action:
 
+--------------------------------
+
 <p id="some_id">static text</p>
 <button onclick="replaceText()">Replace static text</button>
 
@@ -99,16 +104,25 @@ Here's the above code in action:
   }
 </script>
 
+--------------------------------
+
 If you open your browser dev tools and click the button, you'll see the text
 is being loaded via a network call to the hello-world API!
 
 
 ## Deployment
-Deployment 'just works'. There's no need to provision any infrastructure - your
-functions are useable simply by deploying your site as usual!
+Deployment 'just works'. There's no need to build containers, publish artifacts,
+provision any infrastructure - your functions are useable as endpoints simply by
+deploying your site as usual!
+
+The 'hello world' endpoint used above is deployed here:
+https://iamwoz.com/.netlify/functions/hello-world
 
 
 ## Hiding secrets with environment variables
+The example above is trivial, and doesn't really need a web API - it could all
+be done with javascript within the page. Here's a more realistic use case.
+
 Say you want to use a 3rd party API that needs an API key. You could directly
 call the API from the frontend, but that would mean exposing your API key for
 all to see.
@@ -121,7 +135,8 @@ ntl env:set EXAMPLE_SECRET my-secret-value
 ```
 
 I'll create a separate API that loads and returns the secret, using `ntl
-functions:create`. I called the function `get-secret`. I modified the function:
+functions:create`. I called the function `get-secret`. I modified the function
+to this:
 
 ```ts
 import { Handler } from '@netlify/functions'
@@ -136,7 +151,8 @@ export const handler: Handler = async (event, context) => {
 }
 ```
 
-Same as before, but use the environment variable:
+Here's the same 'click a button to replace text' example as before, but using
+the environment variable:
 
 ```html
 <p id="secret_p">Shhh....</p>
@@ -165,6 +181,7 @@ Same as before, but use the environment variable:
 </script>
 
 
-## notes
-- lots of tutes here: https://functions.netlify.com/tutorials/
-  - submit this one?
+## Further reading
+I got most of the information for this post from [this Netlify
+tutorial](https://explorers.netlify.com/learn/up-and-running-with-serverless-functions/)
+There's plenty more tutorials here: https://functions.netlify.com/tutorials/

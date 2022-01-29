@@ -1,7 +1,7 @@
 ---
 title: "Adding dynamic content to a Hugo site with Netlify Functions"
 date: 2022-01-26T12:55:48+11:00
-draft: true
+draft: false
 summary: "A guide on how to add Netlify Functions to an existing Hugo site"
 tags:
 ---
@@ -14,10 +14,8 @@ I could use to load data into this site's pages.
 
 This post's a tutorial for my future self and others :)
 
-## todo
+## to do
 - edit/proof read
-- move functions to /blog/blah
-- run through this tute. does it work?
 
 ## Options
 [Netlify Functions](https://www.netlify.com/products/functions/) allows you to
@@ -48,7 +46,7 @@ ntl functions:create
 ```
 
 This creates a function in your site that you can call from your site pages.
-Here's the default typescript code that gets created:
+Here's the default TypeScript code that gets created:
 
 ```ts
 import { Handler } from '@netlify/functions'
@@ -115,13 +113,13 @@ Deployment 'just works'. There's no need to build containers, publish artifacts,
 provision any infrastructure - your functions are useable as endpoints simply by
 deploying your site as usual!
 
-The 'hello world' endpoint used above is deployed here:
+The 'hello world' endpoint used above is accessible here:
 https://iamwoz.com/.netlify/functions/hello-world
 
 
 ## Hiding secrets with environment variables
 The example above is trivial, and doesn't really need a web API - it could all
-be done with javascript within the page. Here's a more realistic use case.
+be done with JavaScript within the page. Here's a more realistic use case.
 
 Say you want to use a 3rd party API that needs an API key. You could directly
 call the API from the frontend, but that would mean exposing your API key for

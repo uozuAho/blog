@@ -11,10 +11,6 @@
 # - push to branch
 # - goto https://github.com/uozuAho/blog -> current branch
 # - click on the netlify build badge - this shows the branch deployment
-# OPTIONAL: deploy to iamwoz.com subdomain
-# - goto https://app.netlify.com/, log in
-# - goto site settings -> domain management -> branch subdomains, do the thing
-# - wait a while, while DNS updates (?)
 # final steps
 # - check with original authors if using any content
 # - read in feedly

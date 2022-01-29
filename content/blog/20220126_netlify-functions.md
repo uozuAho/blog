@@ -16,10 +16,6 @@ I could use to load data into this site's pages.
 
 This post's a tutorial for my future self and others :)
 
-## todo
-- delete domain events post
-
-
 
 ## Options
 [Netlify Functions](https://www.netlify.com/products/functions/) allows you to

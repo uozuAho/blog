@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+      <meta name="description" content="A guide on how to add Netlify Functions to an existing Hugo site"/>
+    
+    <title>Adding dynamic content to a Hugo site with Netlify Functions | woz</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">Home</a></li>
+      
+      <li><a href="/blog/">Blog</a></li>
+      
+      <li><a href="/index.xml">RSS</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+  <h1 class="page_title"><span class="title">Adding dynamic content to a Hugo site with Netlify Functions</span></h1>
+  <h2 class="date">2022-01-26</h2>
+</div>
+
+<main>
+<p>So far this site has just been static, pre-built pages (built by
+<a href="https://gohugo.io/">Hugo</a>). I now want to load and display information from
+other sites &amp; services. I settled on using <a href="https://www.netlify.com/products/functions/">Netlify
+Functions</a> to create endpoints that
+I could use to load data into this site&rsquo;s pages.</p>
+<p>This post&rsquo;s a tutorial for my future self and others :)</p>
+<h2 id="options">Options</h2>
+<p><a href="https://www.netlify.com/products/functions/">Netlify Functions</a> allows you to
+write web API endpoints just as easily as the rest of your static site content:
+Write a function in the netlify/functions directory, push it to GitHub, done!</p>
+<p>Being a little wary of &lsquo;vendor lock-in&rsquo;, I had a quick look to see if there were
+any services that would let me run containers as easily as Netlify functions.
+<a href="https://aws.amazon.com/fargate/">AWS Fargate</a> came close, but it still can&rsquo;t
+compete with the simplicity of Netlify functions. There&rsquo;s really not much being
+locked in anyway - no infrastructure code, scaling configuration, etc. It will
+be easy to move to a more powerful platform in the future, if I need to.</p>
+<h2 id="lets-do-it">Let&rsquo;s do it</h2>
+<p>These steps assume you&rsquo;ve got a Hugo site up and running on Netlify. I&rsquo;ve got
+some details about how to do  that in my first post - <a href="https://iamwoz.com/blog/20210424_how_this_site_is_built/">how this site is
+built</a>. That post doesn&rsquo;t really
+clearly tell you how the site is built, but it&rsquo;s a start :)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># install the netlify cli</span>
+npm i -g netlify-cli
+<span style="color:#75715e"># link your project to your netlify site</span>
+ntl link
+<span style="color:#75715e"># create an example function</span>
+ntl functions:create
+</code></pre></div><p>This creates a function in your site that you can call from your site pages.
+Here&rsquo;s the default TypeScript code that gets created:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ts" data-lang="ts"><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Handler</span> } <span style="color:#66d9ef">from</span> <span style="color:#e6db74">&#39;@netlify/functions&#39;</span>
+
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">handler</span>: <span style="color:#66d9ef">Handler</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">async</span> (<span style="color:#a6e22e">event</span>, <span style="color:#a6e22e">context</span>) <span style="color:#f92672">=&gt;</span> {
+  <span style="color:#66d9ef">const</span> { <span style="color:#a6e22e">name</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;stranger&#39;</span> } <span style="color:#f92672">=</span> <span style="color:#a6e22e">event</span>.<span style="color:#a6e22e">queryStringParameters</span>
+
+  <span style="color:#66d9ef">return</span> {
+    <span style="color:#a6e22e">statusCode</span>: <span style="color:#66d9ef">200</span>,
+    <span style="color:#a6e22e">body</span>: <span style="color:#66d9ef">JSON.stringify</span>({
+      <span style="color:#a6e22e">message</span><span style="color:#f92672">:</span> <span style="color:#e6db74">`Hello, </span><span style="color:#e6db74">${</span><span style="color:#a6e22e">name</span><span style="color:#e6db74">}</span><span style="color:#e6db74">!`</span>,
+    }),
+  }
+}
+</code></pre></div><p>By default, functions are placed under <code>./netlify/functions</code> directory in your
+site. Once there, they can be called from within your page content. For example,
+let&rsquo;s replace some text with the response from the function when a button is
+pressed:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-html" data-lang="html">&lt;<span style="color:#f92672">p</span> <span style="color:#a6e22e">id</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;static_text&#34;</span>&gt;static text&lt;/<span style="color:#f92672">p</span>&gt;
+&lt;<span style="color:#f92672">button</span> <span style="color:#a6e22e">onclick</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;replaceText()&#34;</span>&gt;Replace static text&lt;/<span style="color:#f92672">button</span>&gt;
+
+&lt;<span style="color:#f92672">script</span>&gt;
+  <span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">replaceText</span>() {
+    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">response</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">fetch</span>(<span style="color:#e6db74">&#39;/.netlify/functions/hello-world?name=stinky&#39;</span>)
+      .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">response</span> =&gt; <span style="color:#a6e22e">response</span>.<span style="color:#a6e22e">json</span>());
+
+    document.<span style="color:#a6e22e">getElementById</span>(<span style="color:#e6db74">&#39;static_text&#39;</span>).<span style="color:#a6e22e">innerText</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">response</span>.<span style="color:#a6e22e">message</span>;
+  }
+&lt;/<span style="color:#f92672">script</span>&gt;
+</code></pre></div><p>You can run the site locally with <code>ntl dev</code> (<code>ntl dev -c &quot;hugo server -D&quot;</code> to
+show draft content). The Netlify CLI detects Hugo and runs that too, so site
+content and functions are updated whenever you change them.</p>
+<p>Here&rsquo;s the above code in action:</p>
+<hr>
+<p id="some_id">static text</p>
+<button onclick="replaceText()">Replace static text</button>
+<script>
+  async function replaceText() {
+    const response = await fetch('/.netlify/functions/hello-world?name=stinky')
+      .then(response => response.json());
+
+    document.getElementById('some_id').innerText = response.message;
+  }
+</script>
+<hr>
+<p>If you open your browser dev tools and click the button, you&rsquo;ll see the text
+is being loaded via a network call to the hello-world API!</p>
+<h2 id="deployment">Deployment</h2>
+<p>Deployment &lsquo;just works&rsquo;. There&rsquo;s no need to build containers, publish artifacts,
+provision any infrastructure - your functions are useable as endpoints simply by
+deploying your site as usual!</p>
+<p>The &lsquo;hello world&rsquo; endpoint used above is accessible here:
+<a href="https://iamwoz.com/.netlify/functions/hello-world">https://iamwoz.com/.netlify/functions/hello-world</a></p>
+<h2 id="hiding-secrets-with-environment-variables">Hiding secrets with environment variables</h2>
+<p>The example above is trivial, and doesn&rsquo;t really need a web API - it could all
+be done with JavaScript within the page. Here&rsquo;s a more realistic use case.</p>
+<p>Say you want to use a 3rd party API that needs an API key. You could directly
+call the API from the frontend, but that would mean exposing your API key for
+all to see.</p>
+<p>A way around this is to create your own API that hides the 3rd party API key
+value. This can be done using Netlify&rsquo;s environment variables:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">ntl env:set EXAMPLE_SECRET my-secret-value
+</code></pre></div><p>I&rsquo;ll create a separate API that loads and returns the secret, using <code>ntl functions:create</code>. I called the function <code>get-secret</code>. I modified the function
+to this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ts" data-lang="ts"><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Handler</span> } <span style="color:#66d9ef">from</span> <span style="color:#e6db74">&#39;@netlify/functions&#39;</span>
+
+<span style="color:#66d9ef">export</span> <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">handler</span>: <span style="color:#66d9ef">Handler</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">async</span> (<span style="color:#a6e22e">event</span>, <span style="color:#a6e22e">context</span>) <span style="color:#f92672">=&gt;</span> {
+  <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">secret</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">process</span>.<span style="color:#a6e22e">env</span>.<span style="color:#a6e22e">EXAMPLE_SECRET</span>;
+
+  <span style="color:#66d9ef">return</span> {
+    <span style="color:#a6e22e">statusCode</span>: <span style="color:#66d9ef">200</span>,
+    <span style="color:#a6e22e">body</span><span style="color:#f92672">:</span> <span style="color:#e6db74">`my secret value is: </span><span style="color:#e6db74">${</span><span style="color:#a6e22e">secret</span><span style="color:#e6db74">}</span><span style="color:#e6db74">`</span>
+  }
+}
+</code></pre></div><p>Here&rsquo;s the same &lsquo;click a button to replace text&rsquo; example as before, but using
+the environment variable:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-html" data-lang="html">&lt;<span style="color:#f92672">p</span> <span style="color:#a6e22e">id</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;secret_p&#34;</span>&gt;Shhh....&lt;/<span style="color:#f92672">p</span>&gt;
+&lt;<span style="color:#f92672">button</span> <span style="color:#a6e22e">onclick</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;showSecretValue()&#34;</span>&gt;Show the secret!&lt;/<span style="color:#f92672">button</span>&gt;
+
+&lt;<span style="color:#f92672">script</span>&gt;
+  <span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">showSecretValue</span>() {
+    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">response</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">fetch</span>(<span style="color:#e6db74">&#39;/.netlify/functions/get-secret&#39;</span>)
+      .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">response</span> =&gt; <span style="color:#a6e22e">response</span>.<span style="color:#a6e22e">text</span>());
+
+    document.<span style="color:#a6e22e">getElementById</span>(<span style="color:#e6db74">&#39;secret_p&#39;</span>).<span style="color:#a6e22e">innerText</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">response</span>;
+  }
+&lt;/<span style="color:#f92672">script</span>&gt;
+</code></pre></div><p id="secret_p">Shhh....</p>
+<button onclick="showSecretValue()">Show the secret!</button>
+<script>
+  async function showSecretValue() {
+    const response = await fetch('/.netlify/functions/get-secret')
+      .then(response => response.text());
+
+    document.getElementById('secret_p').innerText = response;
+  }
+</script>
+<h2 id="further-reading">Further reading</h2>
+<p>I got most of the information for this post from <a href="https://explorers.netlify.com/learn/up-and-running-with-serverless-functions/">this Netlify
+tutorial</a>
+There&rsquo;s plenty more tutorials here: <a href="https://functions.netlify.com/tutorials/">https://functions.netlify.com/tutorials/</a></p>
+
+</main>
+
+  <footer>
+    <hr/>
+    <nav>
+      <ul class="menu">
+        
+        <li><a href="/">Home</a></li>
+        
+        <li><a href="/blog/">Blog</a></li>
+        
+        <li><a href="/index.xml">RSS</a></li>
+        
+      </ul>
+    </nav>
+  </footer>
+  </body>
+</html>
+

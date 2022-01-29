@@ -4,6 +4,8 @@ date: 2022-01-26T12:55:48+11:00
 draft: false
 summary: "A guide on how to add Netlify Functions to an existing Hugo site"
 tags:
+- serverless
+- Netlify
 ---
 
 So far this site has just been static, pre-built pages (built by
@@ -14,8 +16,10 @@ I could use to load data into this site's pages.
 
 This post's a tutorial for my future self and others :)
 
-## to do
-- edit/proof read
+## todo
+- delete domain events post
+
+
 
 ## Options
 [Netlify Functions](https://www.netlify.com/products/functions/) allows you to

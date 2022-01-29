@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Netlify on woz</title>
+    <link>https://iamwoz.com/tags/netlify/</link>
+    <description>Recent content in Netlify on woz</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 26 Jan 2022 12:55:48 +1100</lastBuildDate><atom:link href="https://iamwoz.com/tags/netlify/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Adding dynamic content to a Hugo site with Netlify Functions</title>
+      <link>https://iamwoz.com/blog/20220126_netlify-functions/</link>
+      <pubDate>Wed, 26 Jan 2022 12:55:48 +1100</pubDate>
+      
+      <guid>https://iamwoz.com/blog/20220126_netlify-functions/</guid>
+      <description>A guide on how to add Netlify Functions to an existing Hugo site</description>
+    </item>
+    
+    <item>
+      <title>How this site is built</title>
+      <link>https://iamwoz.com/blog/20210424_how_this_site_is_built/</link>
+      <pubDate>Sat, 24 Apr 2021 14:48:00 +1100</pubDate>
+      
+      <guid>https://iamwoz.com/blog/20210424_how_this_site_is_built/</guid>
+      <description>How this site is built, using Hugo, GitHub and Netlify</description>
+    </item>
+    
+  </channel>
+</rss>

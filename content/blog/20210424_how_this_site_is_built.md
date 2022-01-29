@@ -3,6 +3,8 @@ title: "How this site is built"
 date: 2021-04-24T14:48:00+11:00
 draft: false
 summary: "How this site is built, using Hugo, GitHub and Netlify"
+tags:
+- Netlify
 ---
 
 I currently use [Hugo](https://gohugo.io/) to generate the site content from

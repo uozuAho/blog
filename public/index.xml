@@ -7,7 +7,144 @@
     <atom:icon>https://iamwoz.com/favicon.ico</atom:icon>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-GB</language>
-    <lastBuildDate>Sat, 25 Dec 2021 08:25:56 +1100</lastBuildDate><atom:link href="https://iamwoz.com/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 26 Jan 2022 12:55:48 +1100</lastBuildDate><atom:link href="https://iamwoz.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Adding dynamic content to a Hugo site with Netlify Functions</title>
+      <link>https://iamwoz.com/blog/20220126_netlify-functions/</link>
+      <pubDate>Wed, 26 Jan 2022 12:55:48 +1100</pubDate>
+      
+      <guid>https://iamwoz.com/blog/20220126_netlify-functions/</guid>
+      <description>&lt;p&gt;So far this site has just been static, pre-built pages (built by
+&lt;a href=&#34;https://gohugo.io/&#34;&gt;Hugo&lt;/a&gt;). I now want to load and display information from
+other sites &amp;amp; services. I settled on using &lt;a href=&#34;https://www.netlify.com/products/functions/&#34;&gt;Netlify
+Functions&lt;/a&gt; to create endpoints that
+I could use to load data into this site&amp;rsquo;s pages.&lt;/p&gt;
+&lt;p&gt;This post&amp;rsquo;s a tutorial for my future self and others :)&lt;/p&gt;
+&lt;h2 id=&#34;options&#34;&gt;Options&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.netlify.com/products/functions/&#34;&gt;Netlify Functions&lt;/a&gt; allows you to
+write web API endpoints just as easily as the rest of your static site content:
+Write a function in the netlify/functions directory, push it to GitHub, done!&lt;/p&gt;
+&lt;p&gt;Being a little wary of &amp;lsquo;vendor lock-in&amp;rsquo;, I had a quick look to see if there were
+any services that would let me run containers as easily as Netlify functions.
+&lt;a href=&#34;https://aws.amazon.com/fargate/&#34;&gt;AWS Fargate&lt;/a&gt; came close, but it still can&amp;rsquo;t
+compete with the simplicity of Netlify functions. There&amp;rsquo;s really not much being
+locked in anyway - no infrastructure code, scaling configuration, etc. It will
+be easy to move to a more powerful platform in the future, if I need to.&lt;/p&gt;
+&lt;h2 id=&#34;lets-do-it&#34;&gt;Let&amp;rsquo;s do it&lt;/h2&gt;
+&lt;p&gt;These steps assume you&amp;rsquo;ve got a Hugo site up and running on Netlify. I&amp;rsquo;ve got
+some details about how to do  that in my first post - &lt;a href=&#34;https://iamwoz.com/blog/20210424_how_this_site_is_built/&#34;&gt;how this site is
+built&lt;/a&gt;. That post doesn&amp;rsquo;t really
+clearly tell you how the site is built, but it&amp;rsquo;s a start :)&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# install the netlify cli&lt;/span&gt;
+npm i -g netlify-cli
+&lt;span style=&#34;color:#75715e&#34;&gt;# link your project to your netlify site&lt;/span&gt;
+ntl link
+&lt;span style=&#34;color:#75715e&#34;&gt;# create an example function&lt;/span&gt;
+ntl functions:create
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This creates a function in your site that you can call from your site pages.
+Here&amp;rsquo;s the default TypeScript code that gets created:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ts&#34; data-lang=&#34;ts&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;import&lt;/span&gt; { &lt;span style=&#34;color:#a6e22e&#34;&gt;Handler&lt;/span&gt; } &lt;span style=&#34;color:#66d9ef&#34;&gt;from&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;@netlify/functions&amp;#39;&lt;/span&gt;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;export&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;handler&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;Handler&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;async&lt;/span&gt; (&lt;span style=&#34;color:#a6e22e&#34;&gt;event&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;context&lt;/span&gt;) &lt;span style=&#34;color:#f92672&#34;&gt;=&amp;gt;&lt;/span&gt; {
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; { &lt;span style=&#34;color:#a6e22e&#34;&gt;name&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;stranger&amp;#39;&lt;/span&gt; } &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;event&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;queryStringParameters&lt;/span&gt;
+
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; {
+    &lt;span style=&#34;color:#a6e22e&#34;&gt;statusCode&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;200&lt;/span&gt;,
+    &lt;span style=&#34;color:#a6e22e&#34;&gt;body&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;JSON.stringify&lt;/span&gt;({
+      &lt;span style=&#34;color:#a6e22e&#34;&gt;message&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;`Hello, &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;name&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;!`&lt;/span&gt;,
+    }),
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;By default, functions are placed under &lt;code&gt;./netlify/functions&lt;/code&gt; directory in your
+site. Once there, they can be called from within your page content. For example,
+let&amp;rsquo;s replace some text with the response from the function when a button is
+pressed:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-html&#34; data-lang=&#34;html&#34;&gt;&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;id&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;static_text&amp;#34;&lt;/span&gt;&amp;gt;static text&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt;&amp;gt;
+&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;button&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;onclick&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;replaceText()&amp;#34;&lt;/span&gt;&amp;gt;Replace static text&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;button&lt;/span&gt;&amp;gt;
+
+&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;script&lt;/span&gt;&amp;gt;
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;async&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;function&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;replaceText&lt;/span&gt;() {
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;response&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;await&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;fetch&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;/.netlify/functions/hello-world?name=stinky&amp;#39;&lt;/span&gt;)
+      .&lt;span style=&#34;color:#a6e22e&#34;&gt;then&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;response&lt;/span&gt; =&amp;gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;response&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;json&lt;/span&gt;());
+
+    document.&lt;span style=&#34;color:#a6e22e&#34;&gt;getElementById&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;static_text&amp;#39;&lt;/span&gt;).&lt;span style=&#34;color:#a6e22e&#34;&gt;innerText&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;response&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;message&lt;/span&gt;;
+  }
+&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;script&lt;/span&gt;&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You can run the site locally with &lt;code&gt;ntl dev&lt;/code&gt; (&lt;code&gt;ntl dev -c &amp;quot;hugo server -D&amp;quot;&lt;/code&gt; to
+show draft content). The Netlify CLI detects Hugo and runs that too, so site
+content and functions are updated whenever you change them.&lt;/p&gt;
+&lt;p&gt;Here&amp;rsquo;s the above code in action:&lt;/p&gt;
+&lt;hr&gt;
+&lt;p id=&#34;some_id&#34;&gt;static text&lt;/p&gt;
+&lt;button onclick=&#34;replaceText()&#34;&gt;Replace static text&lt;/button&gt;
+&lt;script&gt;
+  async function replaceText() {
+    const response = await fetch(&#39;/.netlify/functions/hello-world?name=stinky&#39;)
+      .then(response =&gt; response.json());
+
+    document.getElementById(&#39;some_id&#39;).innerText = response.message;
+  }
+&lt;/script&gt;
+&lt;hr&gt;
+&lt;p&gt;If you open your browser dev tools and click the button, you&amp;rsquo;ll see the text
+is being loaded via a network call to the hello-world API!&lt;/p&gt;
+&lt;h2 id=&#34;deployment&#34;&gt;Deployment&lt;/h2&gt;
+&lt;p&gt;Deployment &amp;lsquo;just works&amp;rsquo;. There&amp;rsquo;s no need to build containers, publish artifacts,
+provision any infrastructure - your functions are useable as endpoints simply by
+deploying your site as usual!&lt;/p&gt;
+&lt;p&gt;The &amp;lsquo;hello world&amp;rsquo; endpoint used above is accessible here:
+&lt;a href=&#34;https://iamwoz.com/.netlify/functions/hello-world&#34;&gt;https://iamwoz.com/.netlify/functions/hello-world&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;hiding-secrets-with-environment-variables&#34;&gt;Hiding secrets with environment variables&lt;/h2&gt;
+&lt;p&gt;The example above is trivial, and doesn&amp;rsquo;t really need a web API - it could all
+be done with JavaScript within the page. Here&amp;rsquo;s a more realistic use case.&lt;/p&gt;
+&lt;p&gt;Say you want to use a 3rd party API that needs an API key. You could directly
+call the API from the frontend, but that would mean exposing your API key for
+all to see.&lt;/p&gt;
+&lt;p&gt;A way around this is to create your own API that hides the 3rd party API key
+value. This can be done using Netlify&amp;rsquo;s environment variables:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;ntl env:set EXAMPLE_SECRET my-secret-value
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;I&amp;rsquo;ll create a separate API that loads and returns the secret, using &lt;code&gt;ntl functions:create&lt;/code&gt;. I called the function &lt;code&gt;get-secret&lt;/code&gt;. I modified the function
+to this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ts&#34; data-lang=&#34;ts&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;import&lt;/span&gt; { &lt;span style=&#34;color:#a6e22e&#34;&gt;Handler&lt;/span&gt; } &lt;span style=&#34;color:#66d9ef&#34;&gt;from&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;@netlify/functions&amp;#39;&lt;/span&gt;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;export&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;handler&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;Handler&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;async&lt;/span&gt; (&lt;span style=&#34;color:#a6e22e&#34;&gt;event&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;context&lt;/span&gt;) &lt;span style=&#34;color:#f92672&#34;&gt;=&amp;gt;&lt;/span&gt; {
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;secret&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;process&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;env&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;EXAMPLE_SECRET&lt;/span&gt;;
+
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; {
+    &lt;span style=&#34;color:#a6e22e&#34;&gt;statusCode&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;200&lt;/span&gt;,
+    &lt;span style=&#34;color:#a6e22e&#34;&gt;body&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;`my secret value is: &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;secret&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;`&lt;/span&gt;
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Here&amp;rsquo;s the same &amp;lsquo;click a button to replace text&amp;rsquo; example as before, but using
+the environment variable:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-html&#34; data-lang=&#34;html&#34;&gt;&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;id&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;secret_p&amp;#34;&lt;/span&gt;&amp;gt;Shhh....&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt;&amp;gt;
+&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;button&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;onclick&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;showSecretValue()&amp;#34;&lt;/span&gt;&amp;gt;Show the secret!&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;button&lt;/span&gt;&amp;gt;
+
+&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;script&lt;/span&gt;&amp;gt;
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;async&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;function&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;showSecretValue&lt;/span&gt;() {
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;response&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;await&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;fetch&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;/.netlify/functions/get-secret&amp;#39;&lt;/span&gt;)
+      .&lt;span style=&#34;color:#a6e22e&#34;&gt;then&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;response&lt;/span&gt; =&amp;gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;response&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;text&lt;/span&gt;());
+
+    document.&lt;span style=&#34;color:#a6e22e&#34;&gt;getElementById&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;secret_p&amp;#39;&lt;/span&gt;).&lt;span style=&#34;color:#a6e22e&#34;&gt;innerText&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;response&lt;/span&gt;;
+  }
+&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;script&lt;/span&gt;&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p id=&#34;secret_p&#34;&gt;Shhh....&lt;/p&gt;
+&lt;button onclick=&#34;showSecretValue()&#34;&gt;Show the secret!&lt;/button&gt;
+&lt;script&gt;
+  async function showSecretValue() {
+    const response = await fetch(&#39;/.netlify/functions/get-secret&#39;)
+      .then(response =&gt; response.text());
+
+    document.getElementById(&#39;secret_p&#39;).innerText = response;
+  }
+&lt;/script&gt;
+&lt;h2 id=&#34;further-reading&#34;&gt;Further reading&lt;/h2&gt;
+&lt;p&gt;I got most of the information for this post from &lt;a href=&#34;https://explorers.netlify.com/learn/up-and-running-with-serverless-functions/&#34;&gt;this Netlify
+tutorial&lt;/a&gt;
+There&amp;rsquo;s plenty more tutorials here: &lt;a href=&#34;https://functions.netlify.com/tutorials/&#34;&gt;https://functions.netlify.com/tutorials/&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
     <item>
       <title>How Australian federal elections work</title>
       <link>https://iamwoz.com/blog/20211225_how_aus_federal_elections_work/</link>

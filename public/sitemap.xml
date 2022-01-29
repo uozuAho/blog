@@ -2,16 +2,25 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://iamwoz.com/blog/20220126_netlify-functions/</loc>
+    <lastmod>2022-01-26T12:55:48+11:00</lastmod>
+  </url><url>
     <loc>https://iamwoz.com/blog/</loc>
-    <lastmod>2021-12-25T08:25:56+11:00</lastmod>
+    <lastmod>2022-01-26T12:55:48+11:00</lastmod>
+  </url><url>
+    <loc>https://iamwoz.com/tags/netlify/</loc>
+    <lastmod>2022-01-26T12:55:48+11:00</lastmod>
+  </url><url>
+    <loc>https://iamwoz.com/tags/serverless/</loc>
+    <lastmod>2022-01-26T12:55:48+11:00</lastmod>
+  </url><url>
+    <loc>https://iamwoz.com/</loc>
+    <lastmod>2022-01-26T12:55:48+11:00</lastmod>
   </url><url>
     <loc>https://iamwoz.com/tags/government/</loc>
     <lastmod>2021-12-25T08:25:56+11:00</lastmod>
   </url><url>
     <loc>https://iamwoz.com/blog/20211225_how_aus_federal_elections_work/</loc>
-    <lastmod>2021-12-25T08:25:56+11:00</lastmod>
-  </url><url>
-    <loc>https://iamwoz.com/</loc>
     <lastmod>2021-12-25T08:25:56+11:00</lastmod>
   </url><url>
     <loc>https://iamwoz.com/tags/docker/</loc>

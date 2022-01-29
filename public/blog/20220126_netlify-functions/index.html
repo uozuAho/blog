@@ -120,7 +120,7 @@ all to see.</p>
 <p>A way around this is to create your own API that hides the 3rd party API key
 value. This can be done using Netlify&rsquo;s environment variables:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">ntl env:set EXAMPLE_SECRET my-secret-value
-</code></pre></div><p>I&rsquo;ll create a separate API that loads and returns the secret, using <code>ntl functions:create</code>. I called the function <code>get-secret</code>. I modified the function
+</code></pre></div><p>I&rsquo;ll create a separate API that loads and returns the secret, using <code>ntl functions:create</code>. I called the function <code>get-secret</code>. I modified the function
 to this:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ts" data-lang="ts"><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">Handler</span> } <span style="color:#66d9ef">from</span> <span style="color:#e6db74">&#39;@netlify/functions&#39;</span>
 

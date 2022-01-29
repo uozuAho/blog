@@ -103,7 +103,7 @@ all to see.&lt;/p&gt;
 &lt;p&gt;A way around this is to create your own API that hides the 3rd party API key
 value. This can be done using Netlify&amp;rsquo;s environment variables:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;ntl env:set EXAMPLE_SECRET my-secret-value
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;I&amp;rsquo;ll create a separate API that loads and returns the secret, using &lt;code&gt;ntl functions:create&lt;/code&gt;. I called the function &lt;code&gt;get-secret&lt;/code&gt;. I modified the function
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;I&amp;rsquo;ll create a separate API that loads and returns the secret, using &lt;code&gt;ntl functions:create&lt;/code&gt;. I called the function &lt;code&gt;get-secret&lt;/code&gt;. I modified the function
 to this:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ts&#34; data-lang=&#34;ts&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;import&lt;/span&gt; { &lt;span style=&#34;color:#a6e22e&#34;&gt;Handler&lt;/span&gt; } &lt;span style=&#34;color:#66d9ef&#34;&gt;from&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;@netlify/functions&amp;#39;&lt;/span&gt;
 

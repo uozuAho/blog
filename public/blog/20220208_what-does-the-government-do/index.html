@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+      <meta name="description" content="I made a site that quickly shows party&#39;s stances on policy issues"/>
+    
+    <title>What does the government do? | woz</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">Home</a></li>
+      
+      <li><a href="/blog/">Blog</a></li>
+      
+      <li><a href="/index.xml">RSS</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+  <h1 class="page_title"><span class="title">What does the government do?</span></h1>
+  <h2 class="date">2022-02-08</h2>
+</div>
+
+<main>
+<p>For the upcoming Australian federal election, I want a quick summary view of
+what politicians have been doing in their time in office, so I can decide if I
+want to vote for them or not. I am physically incapable of listening to
+politicians speak, and watching the news is a pretty inefficient way of finding
+this information.</p>
+<p>Thankfully, <a href="theyvoteforyou.org.au/">They Vote For You</a> does a lot of hard work
+to summarise what politicians are voting for in parliament. They get their data
+from the <a href="https://www.aph.gov.au/">Australian parliament</a>, which, also
+thankfully, publishes a lot of information about what is going on.</p>
+<p>They Vote For You makes it easy to see what your representatives are voting for,
+but doesn&rsquo;t make it easy to see each party&rsquo;s stance on an issue. This is where
+<a href="https://what-does-the-government-do.netlify.app/">my site</a> comes in. It uses
+data provided by They Vote For You to show voting records at a party level.</p>
+<p>Have a go! <a href="https://what-does-the-government-do.netlify.app/">https://what-does-the-government-do.netlify.app/</a></p>
+<figure>
+  <img src="/blog/20220208_what-does-the-government-do/20220208_votes_for_coal.png"
+  alt=""
+  width="1027"
+  loading="lazy" />
+  <figcaption>The Greens are the only sane party, right?</figcaption>
+</figure>
+<p>It&rsquo;s not perfect - the votes recorded are from
+<a href="https://theyvoteforyou.org.au/help/faq#division">divisions</a>, which only make up
+a small minority of all the votes happening parliament. There is plenty more
+information published by the Australian parliament, but it&rsquo;s nowhere near as
+concise as the information here.</p>
+<h2 id="technical-details">Technical details</h2>
+<p>I used Netlify Functions to access the They Vote For You APIs. See <a href="https://iamwoz.com/blog/20220126_netlify-functions/">my post on
+Netlify Functions</a>.</p>
+<p>I ended up writing the HTML myself. Hugo &amp; other static site generators all seem
+to be most easily used to create blogs. I got frustrated trying to create a
+custom site with Hugo. I kinda regret this choice, as there&rsquo;s already a lot of
+duplication between pages, but at least it was simple-ish to put together.</p>
+<p>I intended to write all the CSS myself, but quickly gave up and went with
+<a href="https://getbootstrap.com/">Bootstrap</a>. My initial version had no styling, and
+my first &ldquo;hallway usability test&rdquo; failed dismally with my partner asking &ldquo;Is it
+supposed to look like this? It looks broken.&rdquo; :P</p>
+
+</main>
+
+  <footer>
+    <hr/>
+    <nav>
+      <ul class="menu">
+        
+        <li><a href="/">Home</a></li>
+        
+        <li><a href="/blog/">Blog</a></li>
+        
+        <li><a href="/index.xml">RSS</a></li>
+        
+      </ul>
+    </nav>
+  </footer>
+  </body>
+</html>
+

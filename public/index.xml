@@ -7,7 +7,53 @@
     <atom:icon>https://iamwoz.com/favicon.ico</atom:icon>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-GB</language>
-    <lastBuildDate>Wed, 26 Jan 2022 12:55:48 +1100</lastBuildDate><atom:link href="https://iamwoz.com/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 08 Feb 2022 21:00:33 +1100</lastBuildDate><atom:link href="https://iamwoz.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>What does the government do?</title>
+      <link>https://iamwoz.com/blog/20220208_what-does-the-government-do/</link>
+      <pubDate>Tue, 08 Feb 2022 21:00:33 +1100</pubDate>
+      
+      <guid>https://iamwoz.com/blog/20220208_what-does-the-government-do/</guid>
+      <description>&lt;p&gt;For the upcoming Australian federal election, I want a quick summary view of
+what politicians have been doing in their time in office, so I can decide if I
+want to vote for them or not. I am physically incapable of listening to
+politicians speak, and watching the news is a pretty inefficient way of finding
+this information.&lt;/p&gt;
+&lt;p&gt;Thankfully, &lt;a href=&#34;theyvoteforyou.org.au/&#34;&gt;They Vote For You&lt;/a&gt; does a lot of hard work
+to summarise what politicians are voting for in parliament. They get their data
+from the &lt;a href=&#34;https://www.aph.gov.au/&#34;&gt;Australian parliament&lt;/a&gt;, which, also
+thankfully, publishes a lot of information about what is going on.&lt;/p&gt;
+&lt;p&gt;They Vote For You makes it easy to see what your representatives are voting for,
+but doesn&amp;rsquo;t make it easy to see each party&amp;rsquo;s stance on an issue. This is where
+&lt;a href=&#34;https://what-does-the-government-do.netlify.app/&#34;&gt;my site&lt;/a&gt; comes in. It uses
+data provided by They Vote For You to show voting records at a party level.&lt;/p&gt;
+&lt;p&gt;Have a go! &lt;a href=&#34;https://what-does-the-government-do.netlify.app/&#34;&gt;https://what-does-the-government-do.netlify.app/&lt;/a&gt;&lt;/p&gt;
+&lt;figure&gt;
+  &lt;img src=&#34;https://iamwoz.com/blog/20220208_what-does-the-government-do/20220208_votes_for_coal.png&#34;
+  alt=&#34;&#34;
+  width=&#34;1027&#34;
+  loading=&#34;lazy&#34; /&gt;
+  &lt;figcaption&gt;The Greens are the only sane party, right?&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;p&gt;It&amp;rsquo;s not perfect - the votes recorded are from
+&lt;a href=&#34;https://theyvoteforyou.org.au/help/faq#division&#34;&gt;divisions&lt;/a&gt;, which only make up
+a small minority of all the votes happening parliament. There is plenty more
+information published by the Australian parliament, but it&amp;rsquo;s nowhere near as
+concise as the information here.&lt;/p&gt;
+&lt;h2 id=&#34;technical-details&#34;&gt;Technical details&lt;/h2&gt;
+&lt;p&gt;I used Netlify Functions to access the They Vote For You APIs. See &lt;a href=&#34;https://iamwoz.com/blog/20220126_netlify-functions/&#34;&gt;my post on
+Netlify Functions&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;I ended up writing the HTML myself. Hugo &amp;amp; other static site generators all seem
+to be most easily used to create blogs. I got frustrated trying to create a
+custom site with Hugo. I kinda regret this choice, as there&amp;rsquo;s already a lot of
+duplication between pages, but at least it was simple-ish to put together.&lt;/p&gt;
+&lt;p&gt;I intended to write all the CSS myself, but quickly gave up and went with
+&lt;a href=&#34;https://getbootstrap.com/&#34;&gt;Bootstrap&lt;/a&gt;. My initial version had no styling, and
+my first &amp;ldquo;hallway usability test&amp;rdquo; failed dismally with my partner asking &amp;ldquo;Is it
+supposed to look like this? It looks broken.&amp;rdquo; :P&lt;/p&gt;
+</description>
+    </item>
+    
     <item>
       <title>Adding dynamic content to a Hugo site with Netlify Functions</title>
       <link>https://iamwoz.com/blog/20220126_netlify-functions/</link>

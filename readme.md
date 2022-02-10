@@ -31,12 +31,11 @@ git push
 
 
 # todo
-- percy: how to compare branch vs main? done?
 - display tags
   - in post
   - in post list
   - page of all tags?
 - light syntax highlighting for light mode
 - how to find links to my posts?
+- find dead links
 - any SEO I should be doing?
-- site/blog info missing on feedly

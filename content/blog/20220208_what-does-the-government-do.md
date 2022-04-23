@@ -14,10 +14,10 @@ want to vote for them or not. I am physically incapable of listening to
 politicians speak, and watching the news is a pretty inefficient way of finding
 this information.
 
-Thankfully, [They Vote For You](theyvoteforyou.org.au/) does a lot of hard work
-to summarise what politicians are voting for in parliament. They get their data
-from the [Australian parliament](https://www.aph.gov.au/), which, also
-thankfully, publishes a lot of information about what is going on.
+Thankfully, [They Vote For You](https://theyvoteforyou.org.au) does a lot of
+hard work to summarise what politicians are voting for in parliament. They get
+their data from the [Australian parliament](https://www.aph.gov.au/), which,
+also thankfully, publishes a lot of information about what is going on.
 
 They Vote For You makes it easy to see what your representatives are voting for,
 but doesn't make it easy to see each party's stance on an issue. This is where

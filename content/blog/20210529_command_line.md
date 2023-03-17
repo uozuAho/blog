@@ -146,6 +146,16 @@ Just an appetiser before you get bored.
 - learning resources
     - [art of unix programming](http://www.catb.org/esr/writings/taoup/)
     - [myob](https://github.com/MYOB-Technology/General_Developer/blob/main/things-we-value/technical/programming/unix-command-line.md)
+- integrate/add stuff from this post: https://www.warp.dev/blog/what-happens-when-you-open-a-terminal-and-enter-ls
+    - my notes
+        - terminal is just another app. its purpose: let you "use the computer":
+          run programs
+        - terminal spawns a shell
+        - login vs non-login shell?
+            - login runs .profile
+        - shells have their own languages and syntax, although bash influence
+          seems strong
+
 
 # out of scope
 - my git workflow

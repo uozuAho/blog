@@ -25,96 +25,47 @@ design decisions from an earlier post. My implementation is more complex than
 a reference implementation done with React.
 
 # Intro
-A long time ago, I started building the pandemic board game as a way of learning
-domain-driven design (DDD): [original post]({{< ref "20210924_learning_ddd_by_implementing_pandemic" >}}).
-I finally finished it! In this post I'll reflect on my early design decisions,
-and whether the tactical patterns of DDD helped or not.
+A long time ago, I started [building the pandemic board game]({{< ref "20210924_learning_ddd_by_implementing_pandemic" >}})
+as a way of learning some domain-driven design (DDD). I finally finished it!
+Let's reflect on my early design decisions, and whether DDD helped or not.
 
-I will compare my implementation to [this React implementation](https://github.com/alexzherdev/pandemic).
+As mentioned in my [original post]({{< ref "20210924_learning_ddd_by_implementing_pandemic" >}}),
+
+I'm only using a small fraction of DDD, namely some of the tactical design
+patterns. These are implementation details that help achieve the higher level
+aims of DDD.
+
+In this post I will compare my implementation to [this React implementation](https://github.com/alexzherdev/pandemic).
+I'll call my implementation 'the DDD one'.
+
 
 # Reviewing my design decisions
 
 ## Fine-grained commands & events
-At the end of my [original post]({{< ref "20210924_learning_ddd_by_implementing_pandemic" >}}),
-I had gotten to a stage where I was confident that I could implement the rest of
-the game without needing to make many more design decisions. I had found that
-breaking the game rules down into fine-grained commands, handlers and events
-made them easy to think about and therefore implement. This remained true. There
-were a few rules that needed changes to a number of other areas of the program,
-but they weren't too costly. This was also due to the way I implemented the
-commands - very fine-grained. More on that later.
+At the end of my original post, I had gotten to a stage where I was confident
+that I could implement the rest of the game without needing to make many more
+design decisions. I had found that breaking the game rules down into
+fine-grained commands, handlers and events made them easy to think about and
+therefore implement. This remained true to the end! There were a few rules that
+needed changes to a number of other areas of the program, but they weren't too
+costly. This was also due to the way I implemented the commands - very
+fine-grained. More on that later.
 
-## How to handle events that trigger other events
-Based on [Armadora](https://dev.to/thomasferro/ddd-in-action-armadora-the-board-game-2o07),
-I decided to not to listen for & react to events. I thought doing this would
-make chain reactions of events hard to debug & trace in code. Instead, command
-handlers would deal with any side effects of events, calling other command
-handlers if necessary.
+## One aggregate
+I was worried about how big the aggregate was getting.
 
-This turned out to be a bit of a mistake. The react implementation reacts to its
-own events, which made it very easy to decouple events and their side effects.
+I'm torn about this one. I still think it's a good decision, but there's a lot
+of code in the aggregate. I actually split it into multiple files to make it
+easier to manage (using C# partials). Game data, command handlers, event
+handlers and process managers. Regions are another option. There's about 2200
+total lines across those files. I find them easy to navigate, as they're mostly
+made of small methods that deal with specific commands and events. No need to
+split them up.
 
-Most of the player commands were simple to implement. These are actions made by
-a player in the game, that have few effects. An example is driving from one city
-to another. In most cases, the only effect of this action is that a player moves
-from one city to another.
-
-The most complicated logic in the player commands dealt with conditional side
-effects. For example, when curing a disease:
-
-```cs
-// A disease is cured by discarding cards.
-// The result of ApplyEvents is the updated game state.
-game = ApplyEvents(cmd.Cards
-    .Select(c => new PlayerCardDiscarded(cmd.Role, c))
-    .Concat<IEvent>(new[] { new CureDiscovered(colour) }), events);
-
-// If a medic is on a city with cubes for the disease that has
-// just been discovered, then those cubes are removed.
-game = game.ApplyEvents(game.AnyMedicAutoRemoves(), events);
-
-// If the cube pile is full (has all 24 cubes) for the cured disease,
-// then the disease is eradicated.
-if (game.Cubes.NumberOf(colour) == 24)
-    game = game.ApplyEvent(new DiseaseEradicated(colour), events);
-
-return (game, events);
-```
-
-how the react version does this:
-- cure managed as [saga](https://github.com/alexzherdev/pandemic/blob/364a516d9b9455283a4c3c59bc7cd829b27ff7ce/src/sagas/actionSagas.js#L146)
-- curing emits PLAYER_CURE_DISEASE_COMPLETE: https://github.com/alexzherdev/pandemic/blob/364a516d9b9455283a4c3c59bc7cd829b27ff7ce/src/containers/BottomBar.js#L107
-    - [watched by medic for curing](https://github.com/alexzherdev/pandemic/blob/364a516d9b9455283a4c3c59bc7cd829b27ff7ce/src/sagas/roleSagas.js#L55)
-        - emits MEDIC_TREAT_CURED_DISEASES
-        - eradication is checked on these events: treat disease, treat all, cure
-            - not MEDIC_TREAT_CURED_DISEASES though? Bug?
-    - continues saga
-- saga discards cards
-
-Handling chain reactions of events caused the highest complexity. For example,
-[Outbreak](https://github.com/uozuAho/pandemic_ddd/blob/00cf00f4ac76a0ce30583b25f4bf9b05d28943c7/pandemic/Aggregates/Game/CommandHandlers.cs#L824)
-and
-[EpidemicInfectCity](https://github.com/uozuAho/pandemic_ddd/blob/00cf00f4ac76a0ce30583b25f4bf9b05d28943c7/pandemic/Aggregates/Game/ProcessManagers.cs#L51)
-
-Corresponding react impls:
-[yieldOutbreak](https://github.com/alexzherdev/pandemic/blob/364a516d9b9455283a4c3c59bc7cd829b27ff7ce/src/sagas/diseaseSagas.js#L14)
-[yieldEpidemic](https://github.com/alexzherdev/pandemic/blob/364a516d9b9455283a4c3c59bc7cd829b27ff7ce/src/sagas/diseaseSagas.js#L108)
-
-To manage this, I added extra state attributes to the game aggregate, then after
-each player action, looped until it was time for another player action:
-
-```py
-# pseudo
-def do_player_action(game, action):
-  validate(game, action)
-
-  game = do(game, action)
-
-  while not game.available_player_commands.any?:
-    game = do(game, game.next_step())
-
-  return game
-```
+Using the command pattern has been useful. This has made it easy to do
+cross-cutting stuff like command validation & post-command actions, keeping
+command handlers small as a result. `DoStuffAfterActions` is now the non-player
+stepper thing.
 
 ## Everything is immutable
 Good
@@ -162,19 +113,86 @@ private static PandemicGame Apply(PandemicGame game, DispatcherMovedPawnToOther 
 }
 ```
 
-## One aggregate
-I was worried about how big the aggregate was getting.
+## How to handle events that trigger other events
+Based on [Armadora](https://dev.to/thomasferro/ddd-in-action-armadora-the-board-game-2o07),
+I decided to not to listen for & react to events. I thought doing this would
+make chain reactions of events hard to debug & trace in code. Instead, command
+handlers would deal with any side effects of events, calling other command
+handlers if necessary.
 
-I'm torn about this one. I still think it's a good decision, but there's a lot
-of code in the aggregate. I actually split it into multiple files to make it
-easier to manage (using C# partials). Game data, command handlers, event handlers
-and process managers. Regions are another option. There's about 2200 total lines
-across those files. I find them easy to navigate, as they're mostly made of small
-methods that deal with specific commands and events. No need to split them up.
+Ultimately I regret this decision. Publishing and reacting to events is how DDD
+decouples domain logic, and would have been useful to reduce the complexity of
+some of my command handlers. I don't know if it's against DDD rules to emit and
+react to events within a transaction, but given the chance again, I'd do it. The
+react implementation does this using react-saga to listen for and react to its
+own events. The result is smaller action handlers & less overall code to handle
+common cross-cutting stuff **blergh maybe just show examples?**. One downside of
+this approach is that it's not immediately obvious from reading the code that
+there may be many handlers reacting to emitted events, & modifying the game
+state.
 
-Using the command pattern has been useful. This has made it easy to do
-cross-cutting stuff like command validation & post-command actions, keeping
-command handlers small as a result. `DoStuffAfterActions` is now the non-player stepper thing
+Most of the player commands were simple to implement. These are actions made by
+a player in the game, that have few effects. An example is driving from one city
+to another. In most cases, the only effect of this action is that a player moves
+from one city to another.
+
+An example of when things got complicated is checking for side effects when
+curing a disease:
+
+```cs
+// A disease is cured by discarding cards.
+// The result of ApplyEvents is the updated game state.
+game = ApplyEvents(cmd.Cards
+    .Select(c => new PlayerCardDiscarded(cmd.Role, c))
+    .Concat<IEvent>(new[] { new CureDiscovered(colour) }), events);
+
+// If a medic is on a city with cubes for the disease that has
+// just been discovered, then those cubes are removed.
+game = game.ApplyEvents(game.AnyMedicAutoRemoves(), events);
+
+// If the cube pile is full (has all 24 cubes) for the cured disease,
+// then the disease is eradicated.
+if (game.Cubes.NumberOf(colour) == 24)
+    game = game.ApplyEvent(new DiseaseEradicated(colour), events);
+
+return (game, events);
+```
+
+The react implementation does the above by watching for cure events, and handling
+[medic cube removals](https://github.com/alexzherdev/pandemic/blob/364a516d9b9455283a4c3c59bc7cd829b27ff7ce/src/sagas/roleSagas.js#L55)
+and
+[eradication](https://github.com/alexzherdev/pandemic/blob/364a516d9b9455283a4c3c59bc7cd829b27ff7ce/src/sagas/diseaseSagas.js#L149)
+separately from handling the 'cure disease' action played by the player.
+
+
+//-----------------------------------------------------
+**todo**
+// REMOVE THIS SECTION????
+Handling chain reactions of events caused the highest complexity. For example,
+[Outbreak](https://github.com/uozuAho/pandemic_ddd/blob/00cf00f4ac76a0ce30583b25f4bf9b05d28943c7/pandemic/Aggregates/Game/CommandHandlers.cs#L824)
+and
+[EpidemicInfectCity](https://github.com/uozuAho/pandemic_ddd/blob/00cf00f4ac76a0ce30583b25f4bf9b05d28943c7/pandemic/Aggregates/Game/ProcessManagers.cs#L51)
+
+Corresponding react impls:
+[yieldOutbreak](https://github.com/alexzherdev/pandemic/blob/364a516d9b9455283a4c3c59bc7cd829b27ff7ce/src/sagas/diseaseSagas.js#L14)
+[yieldEpidemic](https://github.com/alexzherdev/pandemic/blob/364a516d9b9455283a4c3c59bc7cd829b27ff7ce/src/sagas/diseaseSagas.js#L108)
+
+To manage this, I added extra state attributes to the game aggregate, then after
+each player action, looped until it was time for another player action:
+
+```py
+# pseudo
+def do_player_action(game, action):
+  validate(game, action)
+
+  game = do(game, action)
+
+  while not game.available_player_commands.any?:
+    game = do(game, game.next_step())
+
+  return game
+```
+//-----------------------------------------------------
 
 
 # Thoughts on the finished product

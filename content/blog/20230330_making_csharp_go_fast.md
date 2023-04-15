@@ -8,9 +8,12 @@ tags:
 ---
 
 # Todo
-- inline todos
+- proof read
 - add TOC
 - spell/grammar check
+- add tags
+- add summary
+- better title?
 
 # Notes to self
 - proof-reading notes
@@ -18,36 +21,61 @@ tags:
     - include advice from perf book
 
 # Introduction
-- finished pandemic impl (link). slow. ~7 games/sec!
-- goal: 100 games/sec
-- YOU ARE THE FUTURE AUDIENCE: notes to self when i want to do perf again
-- audience 2: ppl new to profiling/perf improvement
-  - not a deep dive into how profiling works etc. A practical post on
-    using profilers & benchmarking to guide & measure perf improvement.
-- i read book: get name/link
-    - note it's a bit dated
-        - mentions .NET framework, no mention of records
-    - main takeaways: mem, benchmark, GC num1 rule: GC objects in gen 0 or not at all
-    - lots of tools and what to look for. I just used rider
-        - what's being allocated? how much? by what methods? how much time in GC?
-        - rider appears to have most of the important tools, may be missing some
-          of the more detailed stuff, eg. ETW analysis
-- in intro, give a quick description of what I'm benchmarking, eg.
-    - play games
-        - loop
-            - new game
-            - while game not done
-                - find best move
-                    - score all moves
-                    - pick best
-                - do move
+I finally finished my implementation of the pandemic board game
+([original post]({{< ref "20210924_learning_ddd_by_implementing_pandemic" >}})).
+I didn't focus on making the implementation fast, so it wasn't much of a surprise
+to see that it could only play about 7 games per second. I want to be
+able to run search algorithms to win each game, and 7 games/second is ... slow.
+
+I learned some things about performance improvement and got performance up to
+100 games per second. This post is a bit of a diary of improvements, mistakes
+and lessons learned along the way. If you want to skip the diary and just see
+the lessons, go to **todo: link here**.
+
+This won't be a deep dive into profiling or C#. It's mainly a log for me for
+nnext time.
+
+As part of this project, I read "Writing High-Performance .NET Code" [1] by Ben
+Watson. It helped me understand what to do with profiler results. It's a little
+dated now (C#7 was the latest at the time of writing), but I still found a large
+amount of useful information. There's a lot of Window-only tools mentioned in
+the book. I used Rider to do all my performance analysis.
+
+## What I'm optimising
+The code I wanted to optimise looks something like this:
+
+```py
+while True:
+  game = newGame()
+  while not game.over:
+    move = agent.move(game)
+    game = game.do(move)
+```
+
+The agent I wanted to optimise is a greedy agent, which tries all legal moves
+from each state, and picks the move the results in the best game state. 'Best'
+is determined by a score, which I coded:
+
+```py
+class GreedyAgent:
+  def move(game):
+    return best([score(move) for move in game.legal_moves()])
+```
+
 
 # Log
-Starting state: [3a5ff0a](https://github.com/uozuAho/pandemic_ddd/commit/3a5ff0a)
+Let's get cracking. Starting state: [3a5ff0a](https://github.com/uozuAho/pandemic_ddd/commit/3a5ff0a)
 ~7 games per second.
 
 ## Plan
-Following the runsheet from the book. Summary of what I ended up doing:
+The performance book [1] has a runsheet on how to improve performance, which I decided to follow
+as a starting point. In short, the steps are:
+
+- define a performance goal & metrics
+- create an environment that allows you to run repeatable benchmarks (I added this step)
+  **did i?**
+
+ Summary of what I ended up doing:
 - pregame:
     - define metrics: I want 100 games/sec avg, on my machine
     - create repeatable test runs for profiling and benchmarking: https://github.com/uozuAho/pandemic_ddd/blob/3a5ff0afafcfaa823098ca3b8792eae0ede5bae6/pandemic.perftest/Program.cs#L5
@@ -368,3 +396,7 @@ Follow the run sheet. Don't attempt to explain improvements, just loop:
     - common perf problems (some)
         - using string.substring instead of Span
         - using string interpolation/format
+
+# References
+**todo: this isn't rendering**
+- [1]: https://www.writinghighperf.net (Writing High-Performance .NET Code, 2nd ed.)

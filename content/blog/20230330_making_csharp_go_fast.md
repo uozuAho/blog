@@ -42,6 +42,13 @@ amount of useful information. There's a lot of Window-only tools mentioned in
 the book. I used Rider to do all my performance analysis.
 
 ## What I'm optimising
+### The game
+**todo** draw pic of players on a map, with disease cubes, research stations, and cards
+- clear cubes (too many outbreaks/no cubes = loss)
+- cure diseases (cure all = win, cure at research stations, need cards)
+- pick up cards after each turn
+
+### My code
 The code I wanted to optimise looks something like this:
 
 ```py
@@ -68,22 +75,37 @@ Let's get cracking. Starting state: [3a5ff0a](https://github.com/uozuAho/pandemi
 ~7 games per second.
 
 ## Plan
-The performance book [1] has a runsheet on how to improve performance, which I decided to follow
-as a starting point. In short, the steps are:
+The performance book [1] has a short chapter that can be used as a runsheet on
+how to improve performance, which I decided to follow as a starting point. In
+short, the steps are:
 
-- define a performance goal & metrics
-- create an environment that allows you to run repeatable benchmarks (I added this step)
-  **did i?**
+1. define a performance goal & metrics
+2. create an environment that allows you to run repeatable benchmarks (I added
+   this step)
+3. profile and analyse:
+  - CPU usage
+  - mem usage, time in GC
+  - time spent in JIT
+  - async/threads
 
- Summary of what I ended up doing:
-- pregame:
-    - define metrics: I want 100 games/sec avg, on my machine
-    - create repeatable test runs for profiling and benchmarking: https://github.com/uozuAho/pandemic_ddd/blob/3a5ff0afafcfaa823098ca3b8792eae0ede5bae6/pandemic.perftest/Program.cs#L5
+1. I want 100 games/sec avg, on my machine
+2. I created a quick console app that could do fixed-time runs for profiling, and
+   run benchmarks using [BenchmarkDotNet](https://benchmarkdotnet.org/):
+   [my benchmarking app](https://github.com/uozuAho/pandemic_ddd/blob/3a5ff0afafcfaa823098ca3b8792eae0ede5bae6/pandemic.perftest/Program.cs#L5)
+3. Rider tools:
+  - CPU: profile with sampling, timeline, tracing
+  - Memory: profile with timeline, memory profile with full allocations
+  - JIT: timeline
+  - async: no need, since my app is synchronous
+
+**todo: delete?**
+-----
 - profile with sampling: quick picture of where the CPU is spending its time
 - profile with timeline: better understanding of top allocators, GC time, JIT time
 - profile with full allocations: easiest way to trace allocations
 - focus on where the CPU spends most of its time (sampling). Use mem profiler
   if undecided, or for hints on what is taking the time
+-----
 
 To measure the performance gain from each change, I compared the time per game
 before and after the change. `Percent improvement = 100 * (msec/game before /

@@ -52,11 +52,11 @@ If you're unfamiliar with pandemic, here's a very simplified explanation:
     loading="lazy" />
 </figure>
 
-A player is currently in Melbourne. There are three disease cubes in Hobart.
-There's a research station in Sydney. The objective for all players in the game
-is to cure all diseases before they run rampant across the world. Diseases are
-cured by players at research stations, by spending cards that they pick up at
-the end of each turn.
+A player is currently in Melbourne. There is a high level of 'red' disease in
+Hobart, represented by the three disease cubes there. There's a research station
+in Sydney. The objective for all players in the game is to cure all diseases
+before they run rampant across the world. Diseases are cured by players at
+research stations, by spending cards that they pick up at the end of each turn.
 
 In the scenario above, the player has a decision to make:
 - go to Hobart to treat the red disease, before an outbreak occurs and spreads
@@ -176,22 +176,18 @@ dictionary and sorting the elements.
 ## Round 2: from 12 to 20 games/sec
 I was on a roll with following memory allocations, so I continued in this round.
 
-20% improvement by removing LINQ in hot paths:
+I made 60% improvement by removing LINQ in hot paths:
 - [PlayerHandScore: group, filter, sum](https://github.com/uozuAho/pandemic_ddd/commit/d664cea8846c005655f891d20fb08427e6d26258)
 - [PenaliseDiscards: filter, cast, group](https://github.com/uozuAho/pandemic_ddd/commit/4c6a8b188cccb11495cbeb59f97d81c989098c67)
 - [IsCured: search](https://github.com/uozuAho/pandemic_ddd/commit/08a63cdb9a051c2f2c82b635d0f49e49d04915c8)
+- [HasEnoughToCure: group, count, search](https://github.com/uozuAho/pandemic_ddd/commit/6055aedbbcdc365bef31d583dc4e690401548ac3)
 
-41% [HasEnoughToCure: group, count, search](https://github.com/uozuAho/pandemic_ddd/commit/6055aedbbcdc365bef31d583dc4e690401548ac3)
+The last change alone contributed 40%. I wanted to understand exactly where this
+drastic improvement came from, but couldn't. The benchmark appeared to be giving
+different results to the profiling run. I could only see about 10% improvement
+when profiling with CPU sampling, and a 40% reduction in memory allocations.
 
-I didn't bother trying to understand the first three. I wanted to understand how
-the last change made such a drastic improvement, but couldn't. With CPU
-sampling, I couldn't find what exactly was consuming 41% unnecessary time. The
-best I could find was that after the change, 40% less memory was being
-allocated. I tried running for a fixed time, then for 100 games, but I couldn't
-see where in the CPU profile the 40% was coming from. Running 100 games with
-sampling profiling takes 8100ms before the change, and 7550ms after. Not even
-10% improvement. The time spend per method looks similar across each run. I can
-only think that Benchmark.net is compiling/running the program differently.
+**todo: get a repeatable benchmark vs profile comparison here, eg. dotnet run -c Release**
 
 ### A derpy moment
 For a while I was confused as to why playing random games was so much faster
@@ -209,32 +205,32 @@ in the program:
 - greedy agent calls to `CreateNewGame`: 2. Random agent: 226
 
 The random agent makes on average 42 calls to `Do()` per game, whereas the
-greedy agent makes over 2000!
+greedy agent makes over 2000.
 
 ## Round 3: from 20 to 50 games/sec
 I tried making a few more changes to reduce allocations, but these didn't have
-much of an effect. I decided to focus on CPU time instead.
+much of an effect. For this round, I decided to focus on CPU time instead.
 
-45% (28.6/19.7) use city idx instead of string lookup
+45%: looking up cities by array index instead of from a name:city dictionary.
 
 - [original change, with lots of other changes](https://github.com/uozuAho/pandemic_ddd/commit/22ff9b59231b10c87cf1df435b8ce1f3d6051baa)
 - [validate with just the lookup change](https://github.com/uozuAho/pandemic_ddd/commit/1066696)
 
-The main contributor to the speedup here was replacing the dictionary lookup
-with an array lookup.
+Similar to round 1, looking up cities with a dictionary is much more expensive
+than an array.
 
-- 40% (40/28.6) [CubePile: replace dict(colour, int) with just ints](https://github.com/uozuAho/pandemic_ddd/compare/ee6443f..b600a04)
+40%: [Storing cubes counts as integer fields rather than colour:int dictionaries](https://github.com/uozuAho/pandemic_ddd/compare/ee6443f..b600a04)
 
-Yet again, getting rid of expensive dictionary lookups. Cubes are used everywhere!
+Yet again, getting rid of expensive dictionary lookups.
 
-- 25% (50/41) [use ImmutableArray<Player> instead of ImmutableList](https://github.com/uozuAho/pandemic_ddd/commit/15261296d03ae40bf4711ae0b746b4b55bfc88b3)
+25%: [use ImmutableArray instead of ImmutableList for Players](https://github.com/uozuAho/pandemic_ddd/commit/15261296d03ae40bf4711ae0b746b4b55bfc88b3)
 
-Before I started focusing on performance, I had changed the cities collection from
-a list to an array, and got a considerable speedup. I decided to make this change
-since I was "in the area" at the time.
-
-A sampling profile run shows that the list consumes more time dealing with
-enumerators than the array:
+ImmutableArray is more targeted at performance than ImmutableList. There's advice in
+[this post](https://devblogs.microsoft.com/dotnet/please-welcome-immutablearrayt)
+on when to use each. In this case, the top reason appears to be better performance
+when iterating over the array in performance critical sections. A before & after
+profile shows that the list consumes more time dealing with enumerators than the
+array:
 
 <figure>
   <img src="/blog/20230330_making_csharp_go_fast/round_3_immutable_list.png"
@@ -252,22 +248,6 @@ enumerators than the array:
   <figcaption>ImmutableArray operations</figcaption>
 </figure>
 
-ImmutableArray is more targeted at perf than list, see https://devblogs.microsoft.com/dotnet/please-welcome-immutablearrayt
-
-Advice from there:
-
-Reasons to use immutable array:
-
-    Updating the data is rare or the number of elements is quite small (<16)
-    you need to be able to iterate over the data in performance critical sections
-    you have many instances of immutable collections and you can’t afford keeping the data in trees
-
-Reasons to stick with immutable list:
-
-    Updating the data is common or the number of elements isn’t expected to be small
-    Updating the collection is more performance critical than iterating the contents
-
-If you're unsure, try both & measure.
 
 ### Another derpy moment - comparing the wrong thing
 This feels really dumb to have to explain, but I was stumped for an
@@ -367,11 +347,12 @@ reason to set a goal beforehand!
 - profile and benchmark using the same build & run config
     - mistake1: benchmarking in release, profiling in debug
         - benchmark.net doesn't allow you to bench in debug
+        - release build does more optimisations. profile looks different,
+          different things will be hotspots. Snapshot: debug = 17 games/sec,
+          release = 46/sec
     - mistake2: benchmark & profiling had different players
-    - release build does more optimisations. profile looks different, different
-      things will be hotspots. Snapshot: debug = 17 games/sec, release = 46/sec
-- be careful comparing different implementations. eg. random vs greedy (see
-  round 2).
+- compare the same thing: stay aware of what you're profiling: see derpy moment
+  one
 - (derp): when trying to correlate profile results with benchmark gains, it's
   easier to compare when running a fixed number of iterations when profiling. If
   you run for a fixed time, you'll fit more iterations into an optimised run,
@@ -411,6 +392,9 @@ Follow the run sheet. Don't attempt to explain improvements, just loop:
 - tackle biggest time consumers/allocators first. Follow tips above
 
 # Remaining questions
+- [HasEnoughToCure: group, count, search](https://github.com/uozuAho/pandemic_ddd/commit/6055aedbbcdc365bef31d583dc4e690401548ac3)
+    - Why does benchmarking show a 40% improvement here, while a regular run only shows about 10%?
+      See Round 2.
 
 # References & further reading
 - [rider profiling tute series](https://www.jetbrains.com/dotnet/guide/tutorials/rider-profiling/)

@@ -14,6 +14,7 @@ tags:
 - add tags
 - add summary
 - better title?
+- keep the remaining questions section?
 
 # Notes to self
 - proof-reading notes
@@ -43,10 +44,24 @@ the book. I used Rider to do all my performance analysis.
 
 ## What I'm optimising
 ### The game
-**todo** draw pic of players on a map, with disease cubes, research stations, and cards
-- clear cubes (too many outbreaks/no cubes = loss)
-- cure diseases (cure all = win, cure at research stations, need cards)
-- pick up cards after each turn
+If you're unfamiliar with pandemic, here's a very simplified explanation:
+
+<figure>
+  <img
+    src="/blog/20230330_making_csharp_go_fast/intro_pandemic_example.png"
+    loading="lazy" />
+</figure>
+
+A player is currently in Melbourne. There are three disease cubes in Hobart.
+There's a research station in Sydney. The objective for all players in the game
+is to cure all diseases before they run rampant across the world. Diseases are
+cured by players at research stations, by spending cards that they pick up at
+the end of each turn.
+
+In the scenario above, the player has a decision to make:
+- go to Hobart to treat the red disease, before an outbreak occurs and spreads
+  the disease to more cities?
+- go to Sydney to cure a disease?
 
 ### My code
 The code I wanted to optimise looks something like this:
@@ -67,6 +82,16 @@ is determined by a score, which I coded:
 class GreedyAgent:
   def move(game):
     return best([score(move) for move in game.legal_moves()])
+
+  def score(game):
+    """ A combination of things, including:
+
+        - How many disease cubes are on cities?
+        - How many diseases have been cured?
+        - Does any player have enough cards to cure a disease?
+        - How far are players away from important cities?
+    """
+    ...
 ```
 
 
@@ -83,29 +108,22 @@ short, the steps are:
 2. create an environment that allows you to run repeatable benchmarks (I added
    this step)
 3. profile and analyse:
-  - CPU usage
-  - mem usage, time in GC
-  - time spent in JIT
-  - async/threads
+    - CPU usage
+    - mem usage, time in GC
+    - time spent in JIT
+    - async/threads
+
+My plan:
 
 1. I want 100 games/sec avg, on my machine
 2. I created a quick console app that could do fixed-time runs for profiling, and
    run benchmarks using [BenchmarkDotNet](https://benchmarkdotnet.org/):
    [my benchmarking app](https://github.com/uozuAho/pandemic_ddd/blob/3a5ff0afafcfaa823098ca3b8792eae0ede5bae6/pandemic.perftest/Program.cs#L5)
 3. Rider tools:
-  - CPU: profile with sampling, timeline, tracing
-  - Memory: profile with timeline, memory profile with full allocations
-  - JIT: timeline
-  - async: no need, since my app is synchronous
-
-**todo: delete?**
------
-- profile with sampling: quick picture of where the CPU is spending its time
-- profile with timeline: better understanding of top allocators, GC time, JIT time
-- profile with full allocations: easiest way to trace allocations
-- focus on where the CPU spends most of its time (sampling). Use mem profiler
-  if undecided, or for hints on what is taking the time
------
+    - CPU: profile with sampling, timeline, tracing
+    - Memory: profile with timeline, memory profile with full allocations
+    - JIT: timeline
+    - async: no need, since my app is synchronous
 
 To measure the performance gain from each change, I compared the time per game
 before and after the change. `Percent improvement = 100 * (msec/game before /
@@ -156,14 +174,14 @@ gave a 36% speedup. This removed a lot of LINQ code, that was iterating over the
 dictionary and sorting the elements.
 
 ## Round 2: from 12 to 20 games/sec
-Same as round 1, hunting for easy wins.
+I was on a roll with following memory allocations, so I continued in this round.
 
-20% (14/11.7) remove LINQ in hot paths
+20% improvement by removing LINQ in hot paths:
 - [PlayerHandScore: group, filter, sum](https://github.com/uozuAho/pandemic_ddd/commit/d664cea8846c005655f891d20fb08427e6d26258)
 - [PenaliseDiscards: filter, cast, group](https://github.com/uozuAho/pandemic_ddd/commit/4c6a8b188cccb11495cbeb59f97d81c989098c67)
 - [IsCured: search](https://github.com/uozuAho/pandemic_ddd/commit/08a63cdb9a051c2f2c82b635d0f49e49d04915c8)
 
-41% (19.7/14) [HasEnoughToCure: group, count, search](https://github.com/uozuAho/pandemic_ddd/commit/6055aedbbcdc365bef31d583dc4e690401548ac3)
+41% [HasEnoughToCure: group, count, search](https://github.com/uozuAho/pandemic_ddd/commit/6055aedbbcdc365bef31d583dc4e690401548ac3)
 
 I didn't bother trying to understand the first three. I wanted to understand how
 the last change made such a drastic improvement, but couldn't. With CPU
@@ -391,6 +409,8 @@ Follow the run sheet. Don't attempt to explain improvements, just loop:
 - profile CPU
 - profile mem
 - tackle biggest time consumers/allocators first. Follow tips above
+
+# Remaining questions
 
 # References & further reading
 - [rider profiling tute series](https://www.jetbrains.com/dotnet/guide/tutorials/rider-profiling/)

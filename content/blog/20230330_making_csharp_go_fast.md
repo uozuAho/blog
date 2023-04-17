@@ -259,11 +259,12 @@ when comparing the benchmarks and the profile results.
 I was measuring performance improvement by benchmark results, which gave me a
 throughput figure (games per second). However, when running the profiler, I ran
 the app for a fixed amount of time. This made it seem as though the benchmark
-was giving better results than the profiler run. I'll try to explain with pictures.
+was giving better results than the profiler run. I'll try to explain with
+pictures.
 
 Say your app repeatedly calls two methods, A and B. You benchmark the app, and
-find that its throughput is 10 (things) per second. To profile it, you run the
-app for 1 second:
+find that its throughput is 10 per second. To profile it, you run the app for 1
+second:
 
 <figure>
   <img src="/blog/20230330_making_csharp_go_fast/derp_profile_1.png"
@@ -282,16 +283,34 @@ throughput is now 13.3 per second. However, the profile looks like this:
   <figcaption></figcaption>
 </figure>
 
-The app spends 333ms of its time calling A, 167ms less than in the previous
-profile. You naively see this as only 16.7% of the 33% improvement shown by the
-benchmark. Where's the rest?
+It looks as though you've made A 167ms faster, which is 16.7% of the time the
+app runs. Where's the rest of the 33% improvement?
 
-This is the wrong way of looking at it. Since you've made A 2x as fast,
-throughput increases. You're still profiling the app for 1 second, so the app
+It's there, but profiling the app for a fixed amount of time makes it harder to
+see. Wait, no it's not. Profiling for time shows the inverse of throughput...?
 
-A takes 0.5 x original time
+- throughput before optimisation: 10 = 1/(A + B)
+- A = B
+- 10 = 1/2A
+- A = 0.05
+- throughput after optimisation: 13.3 = 1/(Ax + A)
+- A takes 0.5x of its original time
+- the app runs for 1 second
+-
 total calls to A & B = 1/(0.5 + 0.5*0.5) = 1.33
 
+It's easier to see where the performance gain was made by running the app for a
+certain number of iterations:
+
+- run the app for 10 iterations
+- before A is optimised, 10 iterations will run in 1s
+- after A is optimised, 10 iterations will run in 750ms
+- the 33% improvement is immediately obvious: 1s/750ms = 1.33 = 33% improvement
+- the app spends 250ms in A
+
+Note there's still times when benchmarking may give quite different results to
+the profiling run, possibly due to the way the benchmark and profiling apps are
+configured, compiled and run. See round 2.
 
 ## Round 4: from 50 to ... 200!? Oh...
 - 22%
@@ -333,14 +352,14 @@ de3eced: 6%: remove LINQ `Sum`, compute manually. Simple.
 
 
 # Done. What worked?
-I had achieved my goal of 100 games/sec! I could have kept going - I had become
+I achieved my goal of 100 games/sec! I could have kept going - I had become
 addicted to the hit of seeing the benchmark score go up. I guess that's one
-reason to set a goal beforehand!
+reason to set a goal beforehand.
 
 ## Effective changes
-- replacing dicts & hash sets with arrays
-- pre-sizing collections
-- ImmutableArray > ImmutableList (measure though)
+- replacing .NET collections with arrays where possible
+- pre-sizing arrays and collections
+- ImmutableArray > ImmutableList (measure it)
 - replace LINQ with simple loops
 
 ## Lessons learned

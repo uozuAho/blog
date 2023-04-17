@@ -8,12 +8,12 @@ tags:
 ---
 
 # Todo
-- proof read
 - add TOC
 - spell/grammar check
-- add tags
+- proof read
+- better titles?
 - add summary
-- better title?
+- add tags
 - keep the remaining questions section?
 
 # Notes to self
@@ -287,80 +287,97 @@ It looks as though you've made A 167ms faster, which is 16.7% of the time the
 app runs. Where's the rest of the 33% improvement?
 
 It's there, but profiling the app for a fixed amount of time makes it harder to
-see. Wait, no it's not. Profiling for time shows the inverse of throughput...?
+see.
 
-- throughput before optimisation: 10 = 1/(A + B)
-- A = B
-- 10 = 1/2A
-- A = 0.05
-- throughput after optimisation: 13.3 = 1/(Ax + A)
-- A takes 0.5x of its original time
-- the app runs for 1 second
--
-total calls to A & B = 1/(0.5 + 0.5*0.5) = 1.33
+- xA = 0.5s
+- yB = 0.5s
+
+improvement increases calls to A and B by the same factor, n
+- nxA^ = 0.333s
+- nyB = 0.666s
+
+yB = 0.5
+nyB = 0.666
+want to know how many more calls to B, ie. n
+
+n = nyB / yB = 0.666 / 0.5 = 1.333, ie a 33% improvement
 
 It's easier to see where the performance gain was made by running the app for a
-certain number of iterations:
+certain number of iterations. Say you run it for 10 iterations. Before the optimisation,
+the run takes 1 second. Afterwards, it takes 750ms. The 33% improvement is much
+easier to see there.
 
-- run the app for 10 iterations
-- before A is optimised, 10 iterations will run in 1s
-- after A is optimised, 10 iterations will run in 750ms
-- the 33% improvement is immediately obvious: 1s/750ms = 1.33 = 33% improvement
-- the app spends 250ms in A
+<figure>
+  <img src="/blog/20230330_making_csharp_go_fast/derp_profile_3.png"
+  loading="lazy" />
+  <figcaption></figcaption>
+</figure>
 
 Note there's still times when benchmarking may give quite different results to
-the profiling run, possibly due to the way the benchmark and profiling apps are
-configured, compiled and run. See round 2.
+the profiling run, as happened in round 2. I think this is due to the way the
+benchmark and profiling apps are configured, compiled and run.
 
 ## Round 4: from 50 to ... 200!? Oh...
-- 22%
-  - Player.HasEnoughToCure: remove LINQ enumerator creation: https://github.com/uozuAho/pandemic_ddd/commit/3a5d3e98e025f59107245527e862fe2591dcfd7f
-  - [Deck: prevent list resizing in Deck](https://github.com/uozuAho/pandemic_ddd/commit/183fb212c6010154e7078eb820912d8ab01982e6)
+22% from:
+  - [Player.HasEnoughToCure: iterate over cards directly instead of using iterator method](https://github.com/uozuAho/pandemic_ddd/commit/3a5d3e98e025f59107245527e862fe2591dcfd7f)
+  - [Deck: use pre-sized array instead of list](https://github.com/uozuAho/pandemic_ddd/commit/183fb212c6010154e7078eb820912d8ab01982e6)
 
-- 23% [yield commands directly instead of building list](https://github.com/uozuAho/pandemic_ddd/commit/b9de07996671770f1ea4ed43f7fed9c07e94fa1f)
-
-When I first made this change, I unintentionally modified the behaviour of the
-app. The game rate jumped up drastically (300%!). I just assumed that building &
-discarding the list was very expensive, and didn't confirm the sanity of the
-change by comparing the before & after CPU profiles. I eventually spotted the
-bug I'd introduced ([fixed here](https://github.com/uozuAho/pandemic_ddd/commit/0b70df1))
-- I'd allowed the agent to pass its turn. It's a valid move, but not very
-effective. The change caused games to be lost a lot sooner, thus allowing the
-performance test to run more games.
+### Mistake!
+[Yielding available commands instead returning a list](https://github.com/uozuAho/pandemic_ddd/commit/b9de07996671770f1ea4ed43f7fed9c07e94fa1f)
+made a 310% improvement! I felt very satisfied and assumed that building the list
+was expensive. I wasn't carefully checking each improvement I was making at the time.
+A little bit later, I happened to notice I'd modified the app's behaviour in a way
+that made it run games a lot faster. I'd made the 'sensible' command generator
+generate pass commands, which makes the current player give up their turn. This
+is almost never useful in a game, and thus caused games to be lost a lot quicker
+than before. The benchmark and profiler didn't mind though! More games = better!
 
 Lesson learned - have tests in place that ensure your app behaves as expected,
-before making performance changes. Also, if the performance jump seems too good
-to be true, it may just well be.
+before making performance changes.  Also, be wary of large performance changes
+that you can't explain.
+
 
 ## Round 5: from 78 to 124
 The biggest improvement in this round came from improving an algorithm, rather
-than microoptimisations. When computing the score for research stations, I was
+than micro-optimisations. When computing the score for research stations, I was
 originally running a breadth-first search for the closest stations to the 'best'
 cities, scoring higher the closer they were. Instead of running this search, I
-pre-computed the cities that would contribute to the score. This gave a 27%
-boost.
+[pre-computed the scores that cities would contribute](https://github.com/uozuAho/pandemic_ddd/commit/2a5ecc3).
+This gave a 27% boost.
 
-2a5ecc3: 27%: ResearchStationScore: hard code best, 1st & 2nd neighbours
-    - https://github.com/uozuAho/pandemic_ddd/commit/2a5ecc3
+A couple more to finish off:
+- 10%: [cubes on city score: inline loop & method call](https://github.com/uozuAho/pandemic_ddd/commit/e38df63)
+- 6%: [remove LINQ `Sum`, compute manually](https://github.com/uozuAho/pandemic_ddd/commit/de3eced)
 
-A couple more:
-
-e38df63: 10%: cube on city score: inline loop & method call
-    - https://github.com/uozuAho/pandemic_ddd/commit/e38df63
-de3eced: 6%: remove LINQ `Sum`, compute manually. Simple.
-    - https://github.com/uozuAho/pandemic_ddd/commit/de3eced
-
-
-# Done. What worked?
+# I made it!
 I achieved my goal of 100 games/sec! I could have kept going - I had become
-addicted to the hit of seeing the benchmark score go up. I guess that's one
-reason to set a goal beforehand.
+addicted to the hit of seeing the benchmark score go up. That's a good reason to
+set a goal beforehand.
 
-## Effective changes
-- replacing .NET collections with arrays where possible
-- pre-sizing arrays and collections
-- ImmutableArray > ImmutableList (measure it)
-- replace LINQ with simple loops
+## All changes, ranked by % speedup
+45 [validate with just the lookup change](https://github.com/uozuAho/pandemic_ddd/commit/1066696)
+40 [Storing cubes counts as integer fields rather than colour:int dictionaries](https://github.com/uozuAho/pandemic_ddd/compare/ee6443f..b600a04)
+40 [HasEnoughToCure: group, count, search](https://github.com/uozuAho/pandemic_ddd/commit/6055aedbbcdc365bef31d583dc4e690401548ac3)
+36 [Removing Values and Max from MaxNumCubes](https://github.com/uozuAho/pandemic_ddd/commit/f172f390696ea7be93a65ffa89849710dfb47da6)
+27 [pre-computed the scores that cities would contribute](https://github.com/uozuAho/pandemic_ddd/commit/2a5ecc3).
+25 [use ImmutableArray instead of ImmutableList for Players](https://github.com/uozuAho/pandemic_ddd/commit/15261296d03ae40bf4711ae0b746b4b55bfc88b3)
+23 [convert this method to use simple integer arrays](https://github.com/uozuAho/pandemic_ddd/commit/02d44b3a5c65260fb9d33af429e2f5e7aff5fee2).
+22 from:
+    - [Player.HasEnoughToCure: iterate over cards directly instead of using iterator method](https://github.com/uozuAho/pandemic_ddd/commit/3a5d3e98e025f59107245527e862fe2591dcfd7f)
+    - [Deck: use pre-sized array instead of list](https://github.com/uozuAho/pandemic_ddd/commit/183fb212c6010154e7078eb820912d8ab01982e6)
+20
+    - [PlayerHandScore: group, filter, sum](https://github.com/uozuAho/pandemic_ddd/commit/d664cea8846c005655f891d20fb08427e6d26258)
+    - [PenaliseDiscards: filter, cast, group](https://github.com/uozuAho/pandemic_ddd/commit/4c6a8b188cccb11495cbeb59f97d81c989098c67)
+    - [IsCured: search](https://github.com/uozuAho/pandemic_ddd/commit/08a63cdb9a051c2f2c82b635d0f49e49d04915c8)
+20 [Yielding available commands instead returning a list](https://github.com/uozuAho/pandemic_ddd/commit/b9de07996671770f1ea4ed43f7fed9c07e94fa1f)
+10 [cubes on city score: inline loop & method call](https://github.com/uozuAho/pandemic_ddd/commit/e38df63)
+6 [remove LINQ `Sum`, compute manually](https://github.com/uozuAho/pandemic_ddd/commit/de3eced)
+
+general:
+    - replacing .NET collections with arrays where possible
+    - pre-sizing arrays and collections
+    - ImmutableArray > ImmutableList (measure it)
+    - replace LINQ with simple loops
 
 ## Lessons learned
 - profile and benchmark using the same build & run config

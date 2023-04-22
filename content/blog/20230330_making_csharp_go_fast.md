@@ -2,45 +2,42 @@
 title: "Making C# Go Fast"
 date: 2023-03-30T12:20:53+11:00
 draft: true
-summary: "a short summary of this post"
+summary: "A practical example of using the profiler to increase performance by 18x"
 tags:
 - example-tag
 ---
 
-# Todo
-- add TOC
-- spell/grammar check
-- proof read
-- better titles?
-- add summary
-- add tags
-- keep the remaining questions section?
-
-# Notes to self
-- proof-reading notes
+# To do
+- proof read loop
+    - better titles
+    - consistent tense (present feels better)
     - make sure benchmark results, how to measure is explained
     - include advice from perf book
+- add tags
+- keep the remaining questions section?
+- keep the further reading section?
+
+# Contents
+{{< toc >}}
 
 # Introduction
-I finally finished my implementation of the pandemic board game
-([original post]({{< ref "20210924_learning_ddd_by_implementing_pandemic" >}})).
-I didn't focus on making the implementation fast, so it wasn't much of a surprise
-to see that it could only play about 7 games per second. I want to be
-able to run search algorithms to win each game, and 7 games/second is ... slow.
+I finally finished my implementation of the pandemic board game ([original
+post]({{< ref "20210924_learning_ddd_by_implementing_pandemic" >}})). I didn't
+focus on making the implementation fast, so it wasn't much of a surprise to see
+that it could only play about 7 games per second. I want to be able to run
+search algorithms to win each game, and there's many trillions of possible
+games. 7 games per second isn't going to get through all of those in a hurry.
 
-I learned some things about performance improvement and got performance up to
-100 games per second. This post is a bit of a diary of improvements, mistakes
-and lessons learned along the way. If you want to skip the diary and just see
-the lessons, go to **todo: link here**.
+In this post, I show a small diary of my progress, learnings and mistakes. In
+the end, I manage to get performance to over 100 games per second. This won't be
+a deep dive into profiling or C#, but rather a practical example. If you want to
+skip the diary and just see the condensed changes and lessons learned, skip to
+[I made it!]({{< ref "#i_made_it" >}}).
 
-This won't be a deep dive into profiling or C#. It's mainly a log for me for
-nnext time.
-
-As part of this project, I read "Writing High-Performance .NET Code" [1] by Ben
+As part of this project, I read "Writing High-Performance .NET Code" [^1] by Ben
 Watson. It helped me understand what to do with profiler results. It's a little
 dated now (C#7 was the latest at the time of writing), but I still found a large
-amount of useful information. There's a lot of Window-only tools mentioned in
-the book. I used Rider to do all my performance analysis.
+amount of useful information, which I'll litter through this post.
 
 ## What I'm optimising
 ### The game
@@ -81,67 +78,64 @@ is determined by a score, which I coded:
 ```py
 class GreedyAgent:
   def move(game):
-    return best([score(move) for move in game.legal_moves()])
+    for move in game.legal_moves():
+      if score(game, move) > best:
+        best = move
 
-  def score(game):
+  def score(game, move):
     """ A combination of things, including:
 
-        - How many disease cubes are on cities?
-        - How many diseases have been cured?
-        - Does any player have enough cards to cure a disease?
-        - How far are players away from important cities?
+      - How many disease cubes are on cities?
+      - How many diseases have been cured?
+      - Does any player have enough cards to cure a disease?
+      - How far are players away from important cities?
     """
     ...
 ```
 
 
 # Log
-Let's get cracking. Starting state: [3a5ff0a](https://github.com/uozuAho/pandemic_ddd/commit/3a5ff0a)
-~7 games per second.
+Let's get cracking. My starting state is [3a5ff0a](https://github.com/uozuAho/pandemic_ddd/commit/3a5ff0a),
+where I've just added a benchmarking and profiling app. The app runs at
+approximately 7 games per second.
 
 ## Plan
-The performance book [1] has a short chapter that can be used as a runsheet on
-how to improve performance, which I decided to follow as a starting point. In
-short, the steps are:
+The performance book [^1] has a short chapter that can be used as a run sheet on
+how to improve performance, which I decided to follow as a starting point. My
+adaptation of the run sheet:
 
 1. define a performance goal & metrics
-2. create an environment that allows you to run repeatable benchmarks (I added
-   this step)
-3. profile and analyse:
+    - my goal: 100 games per second, on my regular development machine,
+      according to benchmarks
+2. create an environment that allows you to run repeatable benchmarks & profiles
+    - I created a quick console app that could do fixed-time runs for profiling,
+      and run benchmarks using [BenchmarkDotNet](https://benchmarkdotnet.org/):
+      [my benchmarking app](https://github.com/uozuAho/pandemic_ddd/blob/3a5ff0afafcfaa823098ca3b8792eae0ede5bae6/pandemic.perftest/Program.cs#L5)
+3. profile and analyse (I'll use Rider's profiling tools [^2])
     - CPU usage
-    - mem usage, time in GC
+    - memory usage, time in GC
     - time spent in JIT
     - async/threads
+4. look for the biggest time consumers, use the book's advice to reduce them
 
-My plan:
-
-1. I want 100 games/sec avg, on my machine
-2. I created a quick console app that could do fixed-time runs for profiling, and
-   run benchmarks using [BenchmarkDotNet](https://benchmarkdotnet.org/):
-   [my benchmarking app](https://github.com/uozuAho/pandemic_ddd/blob/3a5ff0afafcfaa823098ca3b8792eae0ede5bae6/pandemic.perftest/Program.cs#L5)
-3. Rider tools:
-    - CPU: profile with sampling, timeline, tracing
-    - Memory: profile with timeline, memory profile with full allocations
-    - JIT: timeline
-    - async: no need, since my app is synchronous
-
-To measure the performance gain from each change, I compared the time per game
-before and after the change. `Percent improvement = 100 * (msec/game before /
-msec/game after) - 100`.
+The benchmark gives a single mean time per game figure when it's done. To
+measure the performance gain from each change, I compared the time per game
+before and after the change.
+`Percent improvement = 100 * (time per game before change / time after) - 100`.
 
 ## Round 1: from 7 to 12 games/sec
-Inspired by the performance book, I started by looking at allocations. The most
-allocations by size were the (city, distance) tuples, in the
-`ClosestResearchStationTo` method. This method was doing a breadth-first search
-from the given city, until it found a city with a research station. It used a
-hash set to store visited cities, and a queue to enqueue the next neighbouring
-cities to visit. Given there's a constant 48 cities in the game, it was
-straightforward to [convert this method to use simple integer arrays](https://github.com/uozuAho/pandemic_ddd/commit/02d44b3a5c65260fb9d33af429e2f5e7aff5fee2).
+Inspired by the performance book [^1], I started by looking at allocations. The
+most allocations by size were the (city, distance) tuples, in the
+[ClosestResearchStationTo](https://github.com/uozuAho/pandemic_ddd/blob/3a5ff0afafcfaa823098ca3b8792eae0ede5bae6/pandemic.agents/GameEvaluator.cs#L178)
+method. This method was doing a breadth-first search from the given city, until
+it found a city with a research station. It used a hash set to store visited
+cities, and a queue to enqueue the next neighbouring cities to visit. Given
+there's a constant 48 cities in the game, it was straightforward to
+[convert this method to use simple integer arrays](https://github.com/uozuAho/pandemic_ddd/commit/02d44b3a5c65260fb9d33af429e2f5e7aff5fee2).
 
 <figure>
   <img src="/blog/20230330_making_csharp_go_fast/round_1_mem_profile.png"
   alt=""
-  width="999"
   loading="lazy" />
   <figcaption>Memory profiler analysis. Time spent in GC is shown at the bottom right.</figcaption>
 </figure>
@@ -184,10 +178,23 @@ I made 60% improvement by removing LINQ in hot paths:
 
 The last change alone contributed 40%. I wanted to understand exactly where this
 drastic improvement came from, but couldn't. The benchmark appeared to be giving
-different results to the profiling run. I could only see about 10% improvement
-when profiling with CPU sampling, and a 40% reduction in memory allocations.
+different results to the profiling run:
 
-**todo: get a repeatable benchmark vs profile comparison here, eg. dotnet run -c Release**
+```sh
+git checkout 08a63cd
+# change RunSamples to run 100 games instead of for a fixed time
+./runBenchmarks.sh    # 68.67 ms/game
+./runSamples.sh       # 12.40/sec (80.65ms/game)
+git checkout 6055aed
+./runBenchmarks.sh    # 50.72 ms/game (35.4% speedup)
+./runSamples.sh       # 13.15/sec (76.05ms/game, 6% speedup)
+```
+
+Increasing the number of games played in `RunSamples` didn't affect the average
+game time. There must be something different about how the benchmark app is
+coded/built/run that produces a bigger improvement than the 'samples' run.
+Ultimately, it's the samples run I care about, because this is much closer to
+how I use the application to win games. I'll leave figuring this out to later.
 
 ### A derpy moment
 For a while I was confused as to why playing random games was so much faster
@@ -287,25 +294,23 @@ It looks as though you've made A 167ms faster, which is 16.7% of the time the
 app runs. Where's the rest of the 33% improvement?
 
 It's there, but profiling the app for a fixed amount of time makes it harder to
-see.
+see. You can find the improvement by looking at the change of time spent in B,
+since the time to run B has not changed. The assumption here is that the
+increase in throughput in A and B are the same, which is reasonable for a
+synchronous application.
 
-- xA = 0.5s
-- yB = 0.5s
+- xB = 0.5s
+- nxB = 0.666s
 
-improvement increases calls to A and B by the same factor, n
-- nxA^ = 0.333s
-- nyB = 0.666s
+We want to know n, so divide both sides by xB, which we know is 0.5s:
 
-yB = 0.5
-nyB = 0.666
-want to know how many more calls to B, ie. n
-
-n = nyB / yB = 0.666 / 0.5 = 1.333, ie a 33% improvement
+nxB / xB = n = 0.666 / 0.5 = 1.33
 
 It's easier to see where the performance gain was made by running the app for a
-certain number of iterations. Say you run it for 10 iterations. Before the optimisation,
-the run takes 1 second. Afterwards, it takes 750ms. The 33% improvement is much
-easier to see there.
+certain number of iterations. Say you run it for 10 iterations. Before the
+optimisation, the run takes 1 second. Afterwards, it takes 750ms. The 33%
+increase in throughput of the app is immediately obvious (1000 / 750 = 1.33),
+and the 250ms saved all comes from A.
 
 <figure>
   <img src="/blog/20230330_making_csharp_go_fast/derp_profile_3.png"
@@ -313,9 +318,8 @@ easier to see there.
   <figcaption></figcaption>
 </figure>
 
-Note there's still times when benchmarking may give quite different results to
-the profiling run, as happened in round 2. I think this is due to the way the
-benchmark and profiling apps are configured, compiled and run.
+There are still times when benchmarking may give quite different results to the
+profiling run, as happened in round 2.
 
 ## Round 4: from 50 to ... 200!? Oh...
 22% from:
@@ -349,7 +353,7 @@ A couple more to finish off:
 - 10%: [cubes on city score: inline loop & method call](https://github.com/uozuAho/pandemic_ddd/commit/e38df63)
 - 6%: [remove LINQ `Sum`, compute manually](https://github.com/uozuAho/pandemic_ddd/commit/de3eced)
 
-# I made it!
+# I made it! {#i_made_it}
 I achieved my goal of 100 games/sec! I could have kept going - I had become
 addicted to the hit of seeing the benchmark score go up. That's a good reason to
 set a goal beforehand.
@@ -409,38 +413,26 @@ general:
 
 ## General tips
 - perf improvements lead to more code, harder to read
-    - LINQ is nice to read, but slow, esp in tight loops
-- from book: make sure to comment why the code is hard to read, otherwise
-  others may come along and 'clean up' your performant code
+    - LINQ is nice to read, but slow, especially in tight loops
+    - from book: make sure to comment why the code is hard to read, otherwise
+    - others may come along and 'clean up' your performant code
 - quick list of improvements (ymmv, measure)
     - replace linq with simple loops and arrays
     - replace dicts and sets with arrays
     - use immutableArray instead of list
     - size collections before use
 
-## Advice to self, if doing again
-If my sole goal was to improve perf: just have at it. You haven't focused on
-perf for the whole project, so there will be many easy wins.
-
-Follow the run sheet. Don't attempt to explain improvements, just loop:
-- profile CPU
-- profile mem
-- tackle biggest time consumers/allocators first. Follow tips above
+## Advice to myself, next time I need to make something faster
+If the sole goal is to improve performance: just have at it. Don't analyse too
+much. Just follow the run sheet and be guided by the profiler. If performance
+hasn't been a focus until now, then there are likely to be many easy wins.
 
 # Remaining questions
 - [HasEnoughToCure: group, count, search](https://github.com/uozuAho/pandemic_ddd/commit/6055aedbbcdc365bef31d583dc4e690401548ac3)
     - Why does benchmarking show a 40% improvement here, while a regular run only shows about 10%?
       See Round 2.
 
-# References & further reading
-- [rider profiling tute series](https://www.jetbrains.com/dotnet/guide/tutorials/rider-profiling/)
-    - small intro to profiling in rider, with demo apps
-    - [modes](https://www.jetbrains.com/dotnet/guide/tutorials/rider-profiling/profiling-modes/)
-        - timeline: like sampling, but collects events for more info on GC,
-          threads, allocs
-    - [DPA](https://www.jetbrains.com/dotnet/guide/tutorials/rider-profiling/dynamic-program-analysis/)
-        - using DPA to improve example Sudoku solver
-        - can highlight memory pressure issues
+# Some useful resources + further reading
 - [Rider DPA: fixing memory issues](https://www.jetbrains.com/help/rider/Fixing_Issues_Found_by_DPA.html)
     - mem allocation is cheap, but GC can be expensive
     - main strategy when using lambdas is avoiding closures
@@ -460,5 +452,5 @@ Follow the run sheet. Don't attempt to explain improvements, just loop:
         - using string interpolation/format
 
 # References
-**todo: this isn't rendering**
-- [1]: https://www.writinghighperf.net (Writing High-Performance .NET Code, 2nd ed.)
+[^1]: Writing High-Performance .NET Code, 2nd ed. https://www.writinghighperf.net
+[^2]: [JetBrains Rider profiling tutorial series](https://www.jetbrains.com/dotnet/guide/tutorials/rider-profiling/): a small introduction to profiling in Rider, with demo apps

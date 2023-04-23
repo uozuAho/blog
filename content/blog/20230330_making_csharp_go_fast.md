@@ -9,10 +9,10 @@ tags:
 
 # To do
 - proof read loop
-    - better titles
     - consistent tense (present feels better)
     - make sure benchmark results, how to measure is explained
     - include advice from perf book
+- consistent reference format
 - add tags
 - keep the remaining questions section?
 - keep the further reading section?
@@ -196,22 +196,23 @@ coded/built/run that produces a bigger improvement than the 'samples' run.
 Ultimately, it's the samples run I care about, because this is much closer to
 how I use the application to win games. I'll leave figuring this out to later.
 
-### A derpy moment
+### Silly moment #1: different programs' profiles can look the same
 For a while I was confused as to why playing random games was so much faster
 than greedy games. Greedy games were spending about 50% of their CPU time making
 moves, and the other 50% searching for the best move. I thought this meant that
 greedy games should be running at ~50% of random speed, they actually ran at
-less than 1% of the speed. I'd had my head stuck in the profiler for too long.
-The greedy agent tries all possible moves before choosing the best one, thus
-it's spending a lot less time actually progressing the game than the random
-agent.
+less than 1% of the speed. I'd had my head stuck in the profiler for too long -
+the two agents work quite differently, which isn't immediately obvious in the
+profiler results. The greedy agent tries all possible moves before choosing the
+best one, while the random agent immediately plays a random move. The greedy
+agent thus spends a lot less time progressing the game than the random agent.
 
 This can be seen by profiling with tracing. Tracing counts calls to every method
 in the program:
-- greedy agent calls to `Do()`: 4358. Random agent: 9550.
-- greedy agent calls to `CreateNewGame`: 2. Random agent: 226
+- greedy agent calls to `Do(action)`: 4358. Random agent: 9550.
+- greedy agent calls to `CreateNewGame()`: 2. Random agent: 226
 
-The random agent makes on average 42 calls to `Do()` per game, whereas the
+The random agent makes on average 42 calls to `Do(action)` per game, whereas the
 greedy agent makes over 2000.
 
 ## Round 3: from 20 to 50 games/sec
@@ -256,7 +257,7 @@ array:
 </figure>
 
 
-### Another derpy moment - comparing the wrong thing
+### Silly moment #2 - what made it go faster?
 This feels really dumb to have to explain, but I was stumped for an
 embarrassingly long time by it. This section is for future me.
 
@@ -326,18 +327,19 @@ profiling run, as happened in round 2.
   - [Player.HasEnoughToCure: iterate over cards directly instead of using iterator method](https://github.com/uozuAho/pandemic_ddd/commit/3a5d3e98e025f59107245527e862fe2591dcfd7f)
   - [Deck: use pre-sized array instead of list](https://github.com/uozuAho/pandemic_ddd/commit/183fb212c6010154e7078eb820912d8ab01982e6)
 
-### Mistake!
+### Mistake! (Silly moment #3)
 [Yielding available commands instead returning a list](https://github.com/uozuAho/pandemic_ddd/commit/b9de07996671770f1ea4ed43f7fed9c07e94fa1f)
-made a 310% improvement! I felt very satisfied and assumed that building the list
-was expensive. I wasn't carefully checking each improvement I was making at the time.
-A little bit later, I happened to notice I'd modified the app's behaviour in a way
-that made it run games a lot faster. I'd made the 'sensible' command generator
-generate pass commands, which makes the current player give up their turn. This
-is almost never useful in a game, and thus caused games to be lost a lot quicker
-than before. The benchmark and profiler didn't mind though! More games = better!
+made a 310% improvement! I felt very satisfied and assumed that building the
+list was expensive. I wasn't carefully checking each improvement I was making at
+the time. A little bit later, I happened to notice I'd incorrectly modified the
+app's behaviour in a way that made it run games a lot faster. I'd made the
+'sensible' command generator generate pass commands, which makes the current
+player give up their turn. This is almost never useful in a game, and thus
+caused games to be lost a lot quicker than before. The benchmark and profiler
+didn't mind though! More games = better!
 
 Lesson learned - have tests in place that ensure your app behaves as expected,
-before making performance changes.  Also, be wary of large performance changes
+before making performance changes. Also, be wary of large performance changes
 that you can't explain.
 
 
@@ -359,73 +361,68 @@ addicted to the hit of seeing the benchmark score go up. That's a good reason to
 set a goal beforehand.
 
 ## All changes, ranked by % speedup
-45 [validate with just the lookup change](https://github.com/uozuAho/pandemic_ddd/commit/1066696)
-40 [Storing cubes counts as integer fields rather than colour:int dictionaries](https://github.com/uozuAho/pandemic_ddd/compare/ee6443f..b600a04)
-40 [HasEnoughToCure: group, count, search](https://github.com/uozuAho/pandemic_ddd/commit/6055aedbbcdc365bef31d583dc4e690401548ac3)
-36 [Removing Values and Max from MaxNumCubes](https://github.com/uozuAho/pandemic_ddd/commit/f172f390696ea7be93a65ffa89849710dfb47da6)
-27 [pre-computed the scores that cities would contribute](https://github.com/uozuAho/pandemic_ddd/commit/2a5ecc3).
-25 [use ImmutableArray instead of ImmutableList for Players](https://github.com/uozuAho/pandemic_ddd/commit/15261296d03ae40bf4711ae0b746b4b55bfc88b3)
-23 [convert this method to use simple integer arrays](https://github.com/uozuAho/pandemic_ddd/commit/02d44b3a5c65260fb9d33af429e2f5e7aff5fee2).
-22 from:
-    - [Player.HasEnoughToCure: iterate over cards directly instead of using iterator method](https://github.com/uozuAho/pandemic_ddd/commit/3a5d3e98e025f59107245527e862fe2591dcfd7f)
-    - [Deck: use pre-sized array instead of list](https://github.com/uozuAho/pandemic_ddd/commit/183fb212c6010154e7078eb820912d8ab01982e6)
-20
-    - [PlayerHandScore: group, filter, sum](https://github.com/uozuAho/pandemic_ddd/commit/d664cea8846c005655f891d20fb08427e6d26258)
-    - [PenaliseDiscards: filter, cast, group](https://github.com/uozuAho/pandemic_ddd/commit/4c6a8b188cccb11495cbeb59f97d81c989098c67)
-    - [IsCured: search](https://github.com/uozuAho/pandemic_ddd/commit/08a63cdb9a051c2f2c82b635d0f49e49d04915c8)
-20 [Yielding available commands instead returning a list](https://github.com/uozuAho/pandemic_ddd/commit/b9de07996671770f1ea4ed43f7fed9c07e94fa1f)
-10 [cubes on city score: inline loop & method call](https://github.com/uozuAho/pandemic_ddd/commit/e38df63)
-6 [remove LINQ `Sum`, compute manually](https://github.com/uozuAho/pandemic_ddd/commit/de3eced)
+- 45% [look up cities by array index instead of name:city dictionary](https://github.com/uozuAho/pandemic_ddd/commit/1066696)
+- 40% [Storing cubes counts as integer fields rather than colour:int dictionaries](https://github.com/uozuAho/pandemic_ddd/compare/ee6443f..b600a04)
+- 40% [remove LINQ: HasEnoughToCure: group, count, search](https://github.com/uozuAho/pandemic_ddd/commit/6055aedbbcdc365bef31d583dc4e690401548ac3)
+- 36% [remove iterator and LINQ: MaxNumCubes](https://github.com/uozuAho/pandemic_ddd/commit/f172f390696ea7be93a65ffa89849710dfb47da6)
+- 27% [replace search with pre-computed scores per city](https://github.com/uozuAho/pandemic_ddd/commit/2a5ecc3).
+- 25% [use ImmutableArray instead of ImmutableList for Players](https://github.com/uozuAho/pandemic_ddd/commit/15261296d03ae40bf4711ae0b746b4b55bfc88b3)
+- 23% [use integer array instead of HashSet](https://github.com/uozuAho/pandemic_ddd/commit/02d44b3a5c65260fb9d33af429e2f5e7aff5fee2).
+- 22%:
+    - [iterate over cards directly instead of using iterator method](https://github.com/uozuAho/pandemic_ddd/commit/3a5d3e98e025f59107245527e862fe2591dcfd7f)
+    - [use pre-sized array instead of list](https://github.com/uozuAho/pandemic_ddd/commit/183fb212c6010154e7078eb820912d8ab01982e6)
+- 20%
+    - [remove LINQ: PlayerHandScore: group, filter, sum](https://github.com/uozuAho/pandemic_ddd/commit/d664cea8846c005655f891d20fb08427e6d26258)
+    - [remove LINQ: PenaliseDiscards: filter, cast, group](https://github.com/uozuAho/pandemic_ddd/commit/4c6a8b188cccb11495cbeb59f97d81c989098c67)
+    - [remove LINQ: IsCured](https://github.com/uozuAho/pandemic_ddd/commit/08a63cdb9a051c2f2c82b635d0f49e49d04915c8)
+- 20% [use an iterator method instead of building and returning a list](https://github.com/uozuAho/pandemic_ddd/commit/b9de07996671770f1ea4ed43f7fed9c07e94fa1f)
+- 10% [inline loop & method call](https://github.com/uozuAho/pandemic_ddd/commit/e38df63)
+- 6%  [remove LINQ: sum](https://github.com/uozuAho/pandemic_ddd/commit/de3eced)
 
-general:
-    - replacing .NET collections with arrays where possible
-    - pre-sizing arrays and collections
-    - ImmutableArray > ImmutableList (measure it)
-    - replace LINQ with simple loops
+## What changes improve performance?
+The changes above boil down to a few simple dot points of advice. Measure your
+application first before blindly applying these changes! The profiler will tell
+you where making these changes will have the biggest benefit.
 
-## Lessons learned
+- replace LINQ with simple loops and arrays
+- where possible, replace dictionaries and sets with arrays
+- use ImmutableArray instead of ImmutableList
+- pre-size arrays and collections
+- pre-compute values that are known before runtime
+
+
+## Practical Lessons learned
 - profile and benchmark using the same build & run config
-    - mistake1: benchmarking in release, profiling in debug
+    - mistake 1: benchmarking in release, profiling in debug
         - benchmark.net doesn't allow you to bench in debug
         - release build does more optimisations. profile looks different,
           different things will be hotspots. Snapshot: debug = 17 games/sec,
           release = 46/sec
-    - mistake2: benchmark & profiling had different players
-- compare the same thing: stay aware of what you're profiling: see derpy moment
-  one
-- (derp): when trying to correlate profile results with benchmark gains, it's
-  easier to compare when running a fixed number of iterations when profiling. If
-  you run for a fixed time, you'll fit more iterations into an optimised run,
-  thus making it harder to compare the two profile results.
-    - draw some box diagrams for this :facepalm:
-- if results look too good to be true, they might be. See round 4.
-- improvement strategy. IMO, you could spend days analysing where perf gains
-  could be made. If perf hasn't been a focus at all, then it's very likely
-  there'll be some cheap gains to be made. Timebox it and just follow the
-  profiler.
-- each profiling type yields slightly different results, since they are
-  more/less intrusive on your application. For example, a timeline profiling run
-  shows GC wait time as 7%, while running the memory profiler shows the app
-  spent 11% in GC.
+- stay aware of what you're profiling - different programs can have very similar
+  profiler results. See silly moment #1.
+- when trying to correlate profile results with benchmark gains, it's easier to
+  compare when running a fixed number of iterations when profiling. If you run
+  for a fixed time, you'll fit more iterations into an optimised run, thus
+  making it harder to compare the two profile results. See silly moment #2.
+- if results look too good to be true, they might be. Make sure you've got tests
+  in place that catch any unintended changes in application behaviour. See round
+  4 (silly moment #3).
+- you could spend days analysing where performance gains could be made. A better
+  strategy is to set yourself a deadline, follow the profiler, and see where you
+  end up. If no attention has been paid to performance, then you'll likely make
+  significant gains in a short amount of time.
+- different profilers yield slightly different results, since they are more/less
+  intrusive on your application. For example, a timeline profiling run shows GC
+  wait time as 7%, while running the memory profiler shows the app spent 11% in
+  GC.
 - when viewing/comparing profiler results in rider, ensure you select the main
   thread (if your app is single threaded). Annoyingly, CLR worker and finalizer
   threads are selected by default
-
-## General tips
 - perf improvements lead to more code, harder to read
     - LINQ is nice to read, but slow, especially in tight loops
     - from book: make sure to comment why the code is hard to read, otherwise
     - others may come along and 'clean up' your performant code
-- quick list of improvements (ymmv, measure)
-    - replace linq with simple loops and arrays
-    - replace dicts and sets with arrays
-    - use immutableArray instead of list
-    - size collections before use
 
-## Advice to myself, next time I need to make something faster
-If the sole goal is to improve performance: just have at it. Don't analyse too
-much. Just follow the run sheet and be guided by the profiler. If performance
-hasn't been a focus until now, then there are likely to be many easy wins.
 
 # Remaining questions
 - [HasEnoughToCure: group, count, search](https://github.com/uozuAho/pandemic_ddd/commit/6055aedbbcdc365bef31d583dc4e690401548ac3)

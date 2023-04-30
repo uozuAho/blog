@@ -9,7 +9,10 @@ tags:
 
 # To do
 - proof read loop
-    - consistent tense (present feels better)
+    - consistent tense
+        - up to start of round 1. fix present tense there
+        - past tense in log
+        - present tense outside of log
     - make sure benchmark results, how to measure is explained
     - include advice from perf book
 - consistent reference format
@@ -26,22 +29,27 @@ post]({{< ref "20210924_learning_ddd_by_implementing_pandemic" >}})). I didn't
 focus on making the implementation fast, so it wasn't much of a surprise to see
 that it could only play about 7 games per second. I want to be able to run
 search algorithms to win each game, and there's many trillions of possible
-games. 7 games per second isn't going to get through all of those in a hurry.
+games. 7 games per second isn't going to get through all of those in a hurry, so
+I took the opportunity to learn more about C# performance and profiling while
+speeding it up.
 
-In this post, I show a small diary of my progress, learnings and mistakes. In
-the end, I manage to get performance to over 100 games per second. This won't be
-a deep dive into profiling or C#, but rather a practical example. If you want to
-skip the diary and just see the condensed changes and lessons learned, skip to
-[I made it!]({{< ref "#i_made_it" >}}).
+In this post I'll show a small diary of my progress, learnings and mistakes. In
+the end, I manage to run over 100 games per second. This won't be a deep dive
+into profiling or C#, but rather a practical example of using profilers to guide
+performance improvements. There are plenty of resources online that cover how to
+use various profilers. See the references at the end of this post for a few. If
+you want to skip the diary and just see the condensed changes and lessons
+learned, skip to [I made it!]({{< ref "#i_made_it">}}).
 
-As part of this project, I read "Writing High-Performance .NET Code" [^1] by Ben
-Watson. It helped me understand what to do with profiler results. It's a little
-dated now (C#7 was the latest at the time of writing), but I still found a large
-amount of useful information, which I'll litter through this post.
+As part of this project, I read [Writing High-Performance .NET Code](https://www.writinghighperf.net)
+[^1] by Ben Watson. It helped me understand what to look for in the profiler
+results. It's a little dated now (C#7 was the latest at the time of writing),
+but I still found a large amount of useful information, which I'll litter
+through this post.
 
 ## What I'm optimising
 ### The game
-If you're unfamiliar with pandemic, here's a very simplified explanation:
+If you're unfamiliar with pandemic, here's a very simplified version of it:
 
 <figure>
   <img
@@ -49,31 +57,41 @@ If you're unfamiliar with pandemic, here's a very simplified explanation:
     loading="lazy" />
 </figure>
 
-A player is currently in Melbourne. There is a high level of 'red' disease in
-Hobart, represented by the three disease cubes there. There's a research station
-in Sydney. The objective for all players in the game is to cure all diseases
-before they run rampant across the world. Diseases are cured by players at
-research stations, by spending cards that they pick up at the end of each turn.
+The goal of all players is to discover the cure to 4 diseases. Throughout the
+game, disease cases emerge and spread across the world. If the diseases spread
+too widely, the players lose. Therefore, the players must balance their efforts
+between treating disease cases, and discovering their cures.
 
-In the scenario above, the player has a decision to make:
-- go to Hobart to treat the red disease, before an outbreak occurs and spreads
-  the disease to more cities?
-- go to Sydney to cure a disease?
+The image above demonstrates what the game board looks like. A player is
+currently in Melbourne. There is a high level of 'red' disease in Hobart,
+represented by the three disease cubes there. There's a research station in
+Sydney. Diseases are cured by players at research stations, by spending cards
+that they pick up at the end of each turn.
+
+You can find all the rules online, and play online at
+https://boardgamearena.com/gamepanel?game=pandemic.
+
 
 ### My code
-The code I wanted to optimise looks something like this:
+The code I'm optimising starts at
+[this commit](https://github.com/uozuAho/pandemic_ddd/commit/3a5ff0a),
+where I've just added a
+[benchmarking and profiling app](https://github.com/uozuAho/pandemic_ddd/blob/3a5ff0afafcfaa823098ca3b8792eae0ede5bae6/pandemic.perftest/Program.cs#L5).
+
+The pseudocode of what I'm trying to optimise:
 
 ```py
 while True:
   game = newGame()
-  while not game.over:
-    move = agent.move(game)
+  while game not over:
+    move = agent.next_move(game)
     game = game.do(move)
 ```
 
-The agent I wanted to optimise is a greedy agent, which tries all legal moves
-from each state, and picks the move the results in the best game state. 'Best'
-is determined by a score, which I coded:
+The agent I want to optimise is a [greedy agent](https://github.com/uozuAho/pandemic_ddd/blob/3a5ff0afafcfaa823098ca3b8792eae0ede5bae6/pandemic.agents/GreedyAgent.cs#L7),
+which tries all legal moves from each state, and picks the move that results in
+the best game state. 'Best' is determined by a [score](https://github.com/uozuAho/pandemic_ddd/blob/3a5ff0afafcfaa823098ca3b8792eae0ede5bae6/pandemic.agents/GameEvaluator.cs#L17)
+that I coded. The greedy agent looks a bit like this:
 
 ```py
 class GreedyAgent:
@@ -81,6 +99,7 @@ class GreedyAgent:
     for move in game.legal_moves():
       if score(game, move) > best:
         best = move
+    return best
 
   def score(game, move):
     """ A combination of things, including:
@@ -94,11 +113,7 @@ class GreedyAgent:
 ```
 
 
-# Log
-Let's get cracking. My starting state is [3a5ff0a](https://github.com/uozuAho/pandemic_ddd/commit/3a5ff0a),
-where I've just added a benchmarking and profiling app. The app runs at
-approximately 7 games per second.
-
+# Progress log
 ## Plan
 The performance book [^1] has a short chapter that can be used as a run sheet on
 how to improve performance, which I decided to follow as a starting point. My
@@ -113,25 +128,27 @@ adaptation of the run sheet:
       [my benchmarking app](https://github.com/uozuAho/pandemic_ddd/blob/3a5ff0afafcfaa823098ca3b8792eae0ede5bae6/pandemic.perftest/Program.cs#L5)
 3. profile and analyse (I'll use Rider's profiling tools [^2])
     - CPU usage
-    - memory usage, time in GC
+    - memory usage, time spent by the garbage collector (GC)
     - time spent in JIT
     - async/threads
-4. look for the biggest time consumers, use the book's advice to reduce them
+4. look for the biggest time consumers, use the performance book's advice to
+   reduce them
+5. repeat 3 & 4 until your performance goal is achieved
 
-The benchmark gives a single mean time per game figure when it's done. To
-measure the performance gain from each change, I compared the time per game
+My benchmark gives a single mean time per game figure when it's done. To
+measure the performance gain from each change, I'll compare the time per game
 before and after the change.
-`Percent improvement = 100 * (time per game before change / time after) - 100`.
+Percent improvement = `100 * (time per game before change / time after) - 100`.
 
 ## Round 1: from 7 to 12 games/sec
-Inspired by the performance book [^1], I started by looking at allocations. The
-most allocations by size were the (city, distance) tuples, in the
+The performance book [^1] starts by describing the importance of understanding
+how memory allocation and the GC work in .NET. Therefore I started this round by
+looking at allocations. The most allocations by size were `(city, distance)`
+tuples, in the
 [ClosestResearchStationTo](https://github.com/uozuAho/pandemic_ddd/blob/3a5ff0afafcfaa823098ca3b8792eae0ede5bae6/pandemic.agents/GameEvaluator.cs#L178)
-method. This method was doing a breadth-first search from the given city, until
-it found a city with a research station. It used a hash set to store visited
-cities, and a queue to enqueue the next neighbouring cities to visit. Given
-there's a constant 48 cities in the game, it was straightforward to
-[convert this method to use simple integer arrays](https://github.com/uozuAho/pandemic_ddd/commit/02d44b3a5c65260fb9d33af429e2f5e7aff5fee2).
+method. This method does a breadth-first search from the given city, until
+it finds a city with a research station. It uses a hash set to store visited
+cities, and a queue to enqueue the next neighbouring cities to visit.
 
 <figure>
   <img src="/blog/20230330_making_csharp_go_fast/round_1_mem_profile.png"
@@ -140,28 +157,39 @@ there's a constant 48 cities in the game, it was straightforward to
   <figcaption>Memory profiler analysis. Time spent in GC is shown at the bottom right.</figcaption>
 </figure>
 
+Given there's a constant 48 cities in the game, it was straightforward to
+[convert this method to use simple integer arrays](https://github.com/uozuAho/pandemic_ddd/commit/02d44b3a5c65260fb9d33af429e2f5e7aff5fee2).
 This resulted in a 23% improvement. The biggest saving was actually from removing
 the `HashSet`, as the app was spending about 20% of its time looking for items
 in the set. Look up "Contains" in the [HashSet implementation](https://source.dot.net/#q=hashset)
-to see why. Although array and hash set lookup is constant time (`O(1)`), don't
-forget there may be a large constant being hidden by that Big O notation.
+to see why. Although array and hash set lookup is constant time (`O(1)`),
+there's a large constant in the hash set implementation being hidden by that Big
+O notation.
 
-There were no more (city, distance) tuples being allocated, however the time
+There were no more `(city, distance)` tuples being allocated, however the time
 spent in GC was still about 10%. I think the reason for this is due to the .NET
 GC design - as long as the memory you allocate is out of scope by the next GC,
-it won't affect the time the GC takes to run. The rule from the perf book is
-"collect objects in gen 0 or not at all".
+it won't affect the time the GC takes to run. The lesson here, as mentioned in
+the performance book, is to keep object lifetimes as short as possible, ensuring
+they are collected while still in [generation 0](https://learn.microsoft.com/en-us/dotnet/standard/garbage-collection/fundamentals#generations) [^3].
 
-The next highest allocations were of `System.Collections.Immutable.ImmutableDictionary+<get_Values>d__27<Colour, Int32>`,
-coming from the [MaxNumCubes](https://github.com/uozuAho/pandemic_ddd/blob/3239ab12ade8a2a118e74b9243699336a7837735/pandemic/Values/City.cs#L16)
+The next highest allocations were of
+`System.Collections.Immutable.ImmutableDictionary+<get_Values>d__27<Colour, Int32>`,
+coming from the
+[MaxNumCubes](https://github.com/uozuAho/pandemic_ddd/blob/3239ab12ade8a2a118e74b9243699336a7837735/pandemic/Values/City.cs#L16)
 method. My understanding of what's happening here is that each call to
 `ImmutableDictionary.Values` instantiates a new iterator that traverses all items
 in the dictionary. This is due to `Values` being a [iterator method](https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/iterators).
 ([ImmutableDictionary.Values implementation](https://source.dot.net/#System.Collections.Immutable/System/Collections/Immutable/ImmutableDictionary_2.cs,fcef75d0d45c76eb,references)).
 
-I tried to find the naming convention for generated code like this, but I couldn't
-find an authoritative source. Here's a [JetBrains article that talks about code
-that gets generated from lambdas and closures](https://blog.jetbrains.com/dotnet/2019/01/23/c-classes-memory-snapshots/).
+I tried to find the naming convention for generated code like this, but I
+couldn't find an authoritative source. This
+[JetBrains article](https://blog.jetbrains.com/dotnet/2019/01/23/c-classes-memory-snapshots/)
+talks about code that gets generated from lambdas and closures, but doesn't
+mention where the names of the generated code classes/methods come from. It
+seems to be something like `SomeClass+<method that generates code>x__id<types>`.
+`x` appears to indicate the type, eg. `c` for class, `d` for delegate (?). The
+id is a number to distinguish it from other generated code.
 
 [Removing Values and Max from MaxNumCubes](https://github.com/uozuAho/pandemic_ddd/commit/f172f390696ea7be93a65ffa89849710dfb47da6)
 gave a 36% speedup. This removed a lot of LINQ code, that was iterating over the
@@ -176,13 +204,12 @@ I made 60% improvement by removing LINQ in hot paths:
 - [IsCured: search](https://github.com/uozuAho/pandemic_ddd/commit/08a63cdb9a051c2f2c82b635d0f49e49d04915c8)
 - [HasEnoughToCure: group, count, search](https://github.com/uozuAho/pandemic_ddd/commit/6055aedbbcdc365bef31d583dc4e690401548ac3)
 
-The last change alone contributed 40%. I wanted to understand exactly where this
-drastic improvement came from, but couldn't. The benchmark appeared to be giving
-different results to the profiling run:
+The last change alone gave a 40% speedup in benchmarks, but only about 10%
+during profiling runs. I couldn't figure out why. For now, here's how to
+reproduce the difference:
 
 ```sh
 git checkout 08a63cd
-# change RunSamples to run 100 games instead of for a fixed time
 ./runBenchmarks.sh    # 68.67 ms/game
 ./runSamples.sh       # 12.40/sec (80.65ms/game)
 git checkout 6055aed
@@ -190,17 +217,16 @@ git checkout 6055aed
 ./runSamples.sh       # 13.15/sec (76.05ms/game, 6% speedup)
 ```
 
-Increasing the number of games played in `RunSamples` didn't affect the average
-game time. There must be something different about how the benchmark app is
-coded/built/run that produces a bigger improvement than the 'samples' run.
-Ultimately, it's the samples run I care about, because this is much closer to
-how I use the application to win games. I'll leave figuring this out to later.
+Running `RunSamples` for longer doesn't affect the average game time. There must
+be something different about how the benchmark app is coded/built/run that
+produces a bigger improvement than the 'samples' run. I'll leave figuring this
+out to later.
 
-### Silly moment #1: different programs' profiles can look the same
+### Facepalm #1: different programs' profiles can look the same
 For a while I was confused as to why playing random games was so much faster
 than greedy games. Greedy games were spending about 50% of their CPU time making
 moves, and the other 50% searching for the best move. I thought this meant that
-greedy games should be running at ~50% of random speed, they actually ran at
+greedy games should be running at ~50% of random speed. They actually ran at
 less than 1% of the speed. I'd had my head stuck in the profiler for too long -
 the two agents work quite differently, which isn't immediately obvious in the
 profiler results. The greedy agent tries all possible moves before choosing the
@@ -219,10 +245,7 @@ greedy agent makes over 2000.
 I tried making a few more changes to reduce allocations, but these didn't have
 much of an effect. For this round, I decided to focus on CPU time instead.
 
-45%: looking up cities by array index instead of from a name:city dictionary.
-
-- [original change, with lots of other changes](https://github.com/uozuAho/pandemic_ddd/commit/22ff9b59231b10c87cf1df435b8ce1f3d6051baa)
-- [validate with just the lookup change](https://github.com/uozuAho/pandemic_ddd/commit/1066696)
+45%: [1066696](https://github.com/uozuAho/pandemic_ddd/commit/1066696): looking up cities by array index instead of from a name:city dictionary.
 
 Similar to round 1, looking up cities with a dictionary is much more expensive
 than an array.
@@ -451,3 +474,4 @@ you where making these changes will have the biggest benefit.
 # References
 [^1]: Writing High-Performance .NET Code, 2nd ed. https://www.writinghighperf.net
 [^2]: [JetBrains Rider profiling tutorial series](https://www.jetbrains.com/dotnet/guide/tutorials/rider-profiling/): a small introduction to profiling in Rider, with demo apps
+[^3]: [Fundamentals of garbage collection](https://learn.microsoft.com/en-us/dotnet/standard/garbage-collection/fundamentals)

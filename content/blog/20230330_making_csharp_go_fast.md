@@ -17,7 +17,6 @@ tags:
     - include advice from perf book
 - consistent reference format
 - add tags
-- keep the remaining questions section?
 - keep the further reading section?
 
 # Contents
@@ -350,7 +349,7 @@ profiling run, as happened in round 2.
   - [Player.HasEnoughToCure: iterate over cards directly instead of using iterator method](https://github.com/uozuAho/pandemic_ddd/commit/3a5d3e98e025f59107245527e862fe2591dcfd7f)
   - [Deck: use pre-sized array instead of list](https://github.com/uozuAho/pandemic_ddd/commit/183fb212c6010154e7078eb820912d8ab01982e6)
 
-### Mistake! (Silly moment #3)
+### Mistake! (facepalm #3)
 [Yielding available commands instead returning a list](https://github.com/uozuAho/pandemic_ddd/commit/b9de07996671770f1ea4ed43f7fed9c07e94fa1f)
 made a 310% improvement! I felt very satisfied and assumed that building the
 list was expensive. I wasn't carefully checking each improvement I was making at
@@ -362,8 +361,8 @@ caused games to be lost a lot quicker than before. The benchmark and profiler
 didn't mind though! More games = better!
 
 Lesson learned - have tests in place that ensure your app behaves as expected,
-before making performance changes. Also, be wary of large performance changes
-that you can't explain.
+before making performance changes. Be wary of large performance changes that you
+can't explain.
 
 
 ## Round 5: from 78 to 124
@@ -402,7 +401,7 @@ set a goal beforehand.
 - 10% [inline loop & method call](https://github.com/uozuAho/pandemic_ddd/commit/e38df63)
 - 6%  [remove LINQ: sum](https://github.com/uozuAho/pandemic_ddd/commit/de3eced)
 
-## What changes improve performance?
+## What kind of changes improved performance?
 The changes above boil down to a few simple dot points of advice. Measure your
 application first before blindly applying these changes! The profiler will tell
 you where making these changes will have the biggest benefit.
@@ -415,42 +414,29 @@ you where making these changes will have the biggest benefit.
 
 
 ## Practical Lessons learned
-- profile and benchmark using the same build & run config
-    - mistake 1: benchmarking in release, profiling in debug
-        - benchmark.net doesn't allow you to bench in debug
-        - release build does more optimisations. profile looks different,
-          different things will be hotspots. Snapshot: debug = 17 games/sec,
-          release = 46/sec
-- stay aware of what you're profiling - different programs can have very similar
-  profiler results. See silly moment #1.
-- when trying to correlate profile results with benchmark gains, it's easier to
-  compare when running a fixed number of iterations when profiling. If you run
-  for a fixed time, you'll fit more iterations into an optimised run, thus
-  making it harder to compare the two profile results. See silly moment #2.
-- if results look too good to be true, they might be. Make sure you've got tests
-  in place that catch any unintended changes in application behaviour. See round
-  4 (silly moment #3).
-- you could spend days analysing where performance gains could be made. A better
-  strategy is to set yourself a deadline, follow the profiler, and see where you
-  end up. If no attention has been paid to performance, then you'll likely make
-  significant gains in a short amount of time.
-- different profilers yield slightly different results, since they are more/less
-  intrusive on your application. For example, a timeline profiling run shows GC
-  wait time as 7%, while running the memory profiler shows the app spent 11% in
-  GC.
-- when viewing/comparing profiler results in rider, ensure you select the main
-  thread (if your app is single threaded). Annoyingly, CLR worker and finalizer
-  threads are selected by default
-- perf improvements lead to more code, harder to read
-    - LINQ is nice to read, but slow, especially in tight loops
-    - from book: make sure to comment why the code is hard to read, otherwise
-    - others may come along and 'clean up' your performant code
+- Profile and benchmark in using the same build & run config
+    - there can be large differences in performance between Release and Debug
+      modes - benchmark and profile in Release mode!
+    - benchmark.net doesn't allow you to bench in Debug
+- If you get a massive increase in performance that looks too good to be true,
+  it might be. Make sure you've got tests in place that catch any unintended
+  changes in application behaviour. See round 4 (facepalm #3).
+- If you haven't focused on performance, then there will likely be many
+  significant gains to be made with little effort. Set yourself a deadline, and
+  just follow the profiler.
+- Different profilers yield slightly different results, since they are more/less
+  intrusive on your application. For example, the timeline profile may show less
+  time spend in GC than the memory profiler.
+- Rider shows all threads by default, including runtime threads. If your app is
+  single threaded, select the main thread to reduce noise in the profiling
+  results.
+- From the perf book [^1]: C# libraries are usually made with robustness and
+  convenience in mind, not performance. For example, LINQ. If you need
+  performance, you'll likely have to use different libraries, or write your own
+  (usually more verbose) code.
+- Stay aware of what you're profiling - different programs can look similar in a
+  profiler, but behave very differently. See facepalm #1.
 
-
-# Remaining questions
-- [HasEnoughToCure: group, count, search](https://github.com/uozuAho/pandemic_ddd/commit/6055aedbbcdc365bef31d583dc4e690401548ac3)
-    - Why does benchmarking show a 40% improvement here, while a regular run only shows about 10%?
-      See Round 2.
 
 # Some useful resources + further reading
 - [Rider DPA: fixing memory issues](https://www.jetbrains.com/help/rider/Fixing_Issues_Found_by_DPA.html)

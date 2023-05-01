@@ -279,7 +279,7 @@ array:
 </figure>
 
 
-### Silly moment #2 - what made it go faster?
+### Facepalm #2 - what made it go faster?
 This feels really dumb to have to explain, but I was stumped for an
 embarrassingly long time by it. This section is for future me.
 

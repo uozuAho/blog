@@ -37,8 +37,8 @@ the end, I manage to run over 100 games per second. This won't be a deep dive
 into profiling or C#, but rather a practical example of using profilers to guide
 performance improvements. There are plenty of resources online that cover how to
 use various profilers. See the references at the end of this post for a few. If
-you want to skip the diary and just see the condensed changes and lessons
-learned, skip to [I made it!]({{< ref "#i_made_it">}}).
+you want to skip the diary and just see a list of performance improvements and
+lessons learned, skip to [I made it!]({{< ref "#i_made_it">}}).
 
 As part of this project, I read [Writing High-Performance .NET Code](https://www.writinghighperf.net)
 [^1] by Ben Watson. It helped me understand what to look for in the profiler
@@ -48,7 +48,8 @@ through this post.
 
 ## What I'm optimising
 ### The game
-If you're unfamiliar with pandemic, here's a very simplified version of it:
+If you're unfamiliar with [Pandemic](https://en.wikipedia.org/wiki/Pandemic_(board_game)),
+here's a very simplified version of it:
 
 <figure>
   <img
@@ -141,7 +142,7 @@ Percent improvement = `100 * (time per game before change / time after) - 100`.
 
 ## Round 1: from 7 to 12 games/sec
 The performance book [^1] starts by describing the importance of understanding
-how memory allocation and the GC work in .NET. Therefore I started this round by
+how memory allocation and the garbage collector (GC) [^3] work in .NET. Therefore I started this round by
 looking at allocations. The most allocations by size were `(city, distance)`
 tuples, in the
 [ClosestResearchStationTo](https://github.com/uozuAho/pandemic_ddd/blob/3a5ff0afafcfaa823098ca3b8792eae0ede5bae6/pandemic.agents/GameEvaluator.cs#L178)
@@ -190,9 +191,11 @@ seems to be something like `SomeClass+<method that generates code>x__id<types>`.
 `x` appears to indicate the type, eg. `c` for class, `d` for delegate (?). The
 id is a number to distinguish it from other generated code.
 
-[Removing Values and Max from MaxNumCubes](https://github.com/uozuAho/pandemic_ddd/commit/f172f390696ea7be93a65ffa89849710dfb47da6)
-gave a 36% speedup. This removed a lot of LINQ code, that was iterating over the
-dictionary and sorting the elements.
+In
+[f172f390](https://github.com/uozuAho/pandemic_ddd/commit/f172f390696ea7be93a65ffa89849710dfb47da6),
+I access each dictionary element directly, instead of iterating over all
+elements. I also remove the use of the LINQ `Max` method. These changes gave a
+36% speedup.
 
 ## Round 2: from 12 to 20 games/sec
 I was on a roll with following memory allocations, so I continued in this round.
@@ -204,8 +207,11 @@ I made 60% improvement by removing LINQ in hot paths:
 - [HasEnoughToCure: group, count, search](https://github.com/uozuAho/pandemic_ddd/commit/6055aedbbcdc365bef31d583dc4e690401548ac3)
 
 The last change alone gave a 40% speedup in benchmarks, but only about 10%
-during profiling runs. I couldn't figure out why. For now, here's how to
-reproduce the difference:
+during profiling runs. Running `RunSamples` for longer doesn't affect the
+average game time. There must be something different about how the benchmark app
+is coded/built/run that produces a bigger improvement than the 'samples' run.
+I'll leave figuring this out to later. For now, here's how to reproduce the
+difference:
 
 ```sh
 git checkout 08a63cd
@@ -216,10 +222,6 @@ git checkout 6055aed
 ./runSamples.sh       # 13.15/sec (76.05ms/game, 6% speedup)
 ```
 
-Running `RunSamples` for longer doesn't affect the average game time. There must
-be something different about how the benchmark app is coded/built/run that
-produces a bigger improvement than the 'samples' run. I'll leave figuring this
-out to later.
 
 ### Facepalm #1: different programs' profiles can look the same
 For a while I was confused as to why playing random games was so much faster
@@ -317,17 +319,23 @@ It looks as though you've made A 167ms faster, which is 16.7% of the time the
 app runs. Where's the rest of the 33% improvement?
 
 It's there, but profiling the app for a fixed amount of time makes it harder to
-see. You can find the improvement by looking at the change of time spent in B,
-since the time to run B has not changed. The assumption here is that the
-increase in throughput in A and B are the same, which is reasonable for a
-synchronous application.
+see. You can find the throughput improvement by looking at the change of time spent in B,
+since B's code has not been modified.
 
-- xB = 0.5s
-- nxB = 0.666s
+Let the number of calls to B = `x`. Then:
 
-We want to know n, so divide both sides by xB, which we know is 0.5s:
+    xB = 0.5s
 
-nxB / xB = n = 0.666 / 0.5 = 1.33
+The optimisation of A resulted in some change in throughput of the whole
+application, which I'll call `y`. The app now spends 0.666s in B. So:
+
+    yxB = 0.666s
+
+We want to know `y`, so divide both sides by `xB`, which we know is 0.5s:
+
+    yxB / xB = n = 0.666 / 0.5 = 1.33
+
+There's the 33% increase in throughput.
 
 It's easier to see where the performance gain was made by running the app for a
 certain number of iterations. Say you run it for 10 iterations. Before the
@@ -353,12 +361,10 @@ profiling run, as happened in round 2.
 [Yielding available commands instead returning a list](https://github.com/uozuAho/pandemic_ddd/commit/b9de07996671770f1ea4ed43f7fed9c07e94fa1f)
 made a 310% improvement! I felt very satisfied and assumed that building the
 list was expensive. I wasn't carefully checking each improvement I was making at
-the time. A little bit later, I happened to notice I'd incorrectly modified the
-app's behaviour in a way that made it run games a lot faster. I'd made the
-'sensible' command generator generate pass commands, which makes the current
-player give up their turn. This is almost never useful in a game, and thus
-caused games to be lost a lot quicker than before. The benchmark and profiler
-didn't mind though! More games = better!
+the time. Later, I just happened to notice that I had changed the way the greedy
+agent was playing games. It was now making players pass their turn. It's a
+completely valid move, but hardly ever useful. As a result, it was losing games
+much faster than before.
 
 Lesson learned - have tests in place that ensure your app behaves as expected,
 before making performance changes. Be wary of large performance changes that you

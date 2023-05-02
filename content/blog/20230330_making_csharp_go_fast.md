@@ -2,22 +2,14 @@
 title: "Making C# Go Fast"
 date: 2023-03-30T12:20:53+11:00
 draft: true
-summary: "A practical example of using the profiler to increase performance by 18x"
+summary: "A practical example of using Rider's .NET profilers to increase my app's performance by 18x"
 tags:
 - example-tag
 ---
 
 # To do
-- proof read loop
-    - consistent tense
-        - up to start of round 1. fix present tense there
-        - past tense in log
-        - present tense outside of log
-    - make sure benchmark results, how to measure is explained
-    - include advice from perf book
-- consistent reference format
 - add tags
-- keep the further reading section?
+- publish
 
 # Contents
 {{< toc >}}
@@ -43,8 +35,8 @@ lessons learned, skip to [I made it!]({{< ref "#i_made_it">}}).
 As part of this project, I read [Writing High-Performance .NET Code](https://www.writinghighperf.net)
 [^1] by Ben Watson. It helped me understand what to look for in the profiler
 results. It's a little dated now (C#7 was the latest at the time of writing),
-but I still found a large amount of useful information, which I'll litter
-through this post.
+but I still found a large amount of useful information, which I'll add
+throughout this post.
 
 ## What I'm optimising
 ### The game
@@ -207,11 +199,10 @@ I made 60% improvement by removing LINQ in hot paths:
 - [HasEnoughToCure: group, count, search](https://github.com/uozuAho/pandemic_ddd/commit/6055aedbbcdc365bef31d583dc4e690401548ac3)
 
 The last change alone gave a 40% speedup in benchmarks, but only about 10%
-during profiling runs. Running `RunSamples` for longer doesn't affect the
-average game time. There must be something different about how the benchmark app
-is coded/built/run that produces a bigger improvement than the 'samples' run.
-I'll leave figuring this out to later. For now, here's how to reproduce the
-difference:
+during profiling runs. Running `RunSamples` for longer didn't affect the average
+game time. There must be something different about how the benchmark app is
+coded/built/run that produces a bigger improvement than the 'samples' run. I
+couldn't figure it out :(. For now, here's how to reproduce the difference:
 
 ```sh
 git checkout 08a63cd
@@ -246,17 +237,15 @@ greedy agent makes over 2000.
 I tried making a few more changes to reduce allocations, but these didn't have
 much of an effect. For this round, I decided to focus on CPU time instead.
 
-45%: [1066696](https://github.com/uozuAho/pandemic_ddd/commit/1066696): looking up cities by array index instead of from a name:city dictionary.
-
-Similar to round 1, looking up cities with a dictionary is much more expensive
+45%: [1066696](https://github.com/uozuAho/pandemic_ddd/commit/1066696): looking
+up cities by array index instead of from a name:city dictionary. Similar to the
+hash set in round 1, looking up cities with a dictionary is much more expensive
 than an array.
 
-40%: [Storing cubes counts as integer fields rather than colour:int dictionaries](https://github.com/uozuAho/pandemic_ddd/compare/ee6443f..b600a04)
-
+40%: [Storing cubes counts as integer fields rather than colour:int dictionaries](https://github.com/uozuAho/pandemic_ddd/compare/ee6443f..b600a04).
 Yet again, getting rid of expensive dictionary lookups.
 
-25%: [use ImmutableArray instead of ImmutableList for Players](https://github.com/uozuAho/pandemic_ddd/commit/15261296d03ae40bf4711ae0b746b4b55bfc88b3)
-
+25%: [use ImmutableArray instead of ImmutableList for Players](https://github.com/uozuAho/pandemic_ddd/commit/15261296d03ae40bf4711ae0b746b4b55bfc88b3).
 ImmutableArray is more targeted at performance than ImmutableList. There's advice in
 [this post](https://devblogs.microsoft.com/dotnet/please-welcome-immutablearrayt)
 on when to use each. In this case, the top reason appears to be better performance
@@ -322,7 +311,7 @@ It's there, but profiling the app for a fixed amount of time makes it harder to
 see. You can find the throughput improvement by looking at the change of time spent in B,
 since B's code has not been modified.
 
-Let the number of calls to B = `x`. Then:
+Let the initial number of calls to B = `x`. Then:
 
     xB = 0.5s
 
@@ -333,7 +322,7 @@ application, which I'll call `y`. The app now spends 0.666s in B. So:
 
 We want to know `y`, so divide both sides by `xB`, which we know is 0.5s:
 
-    yxB / xB = n = 0.666 / 0.5 = 1.33
+    yxB / xB = y = 0.666 / 0.5 = 1.33
 
 There's the 33% increase in throughput.
 
@@ -353,22 +342,24 @@ There are still times when benchmarking may give quite different results to the
 profiling run, as happened in round 2.
 
 ## Round 4: from 50 to ... 200!? Oh...
-22% from:
+I gained an easy 22% from:
   - [Player.HasEnoughToCure: iterate over cards directly instead of using iterator method](https://github.com/uozuAho/pandemic_ddd/commit/3a5d3e98e025f59107245527e862fe2591dcfd7f)
   - [Deck: use pre-sized array instead of list](https://github.com/uozuAho/pandemic_ddd/commit/183fb212c6010154e7078eb820912d8ab01982e6)
 
+Then, [yielding available commands instead returning a list](https://github.com/uozuAho/pandemic_ddd/commit/b9de07996671770f1ea4ed43f7fed9c07e94fa1f)
+caused a massive 310% improvement! Or, so I thought...
+
 ### Mistake! (facepalm #3)
-[Yielding available commands instead returning a list](https://github.com/uozuAho/pandemic_ddd/commit/b9de07996671770f1ea4ed43f7fed9c07e94fa1f)
-made a 310% improvement! I felt very satisfied and assumed that building the
-list was expensive. I wasn't carefully checking each improvement I was making at
-the time. Later, I just happened to notice that I had changed the way the greedy
-agent was playing games. It was now making players pass their turn. It's a
-completely valid move, but hardly ever useful. As a result, it was losing games
-much faster than before.
+I felt very satisfied with the great leap in performance, and assumed that it
+all came from removing the repeated construction of the list. Later, I just
+happened to notice that I had changed the way the greedy agent was playing
+games. It was now making players pass their turn. It's a completely valid move,
+but hardly ever useful. As a result, it was losing games much faster than
+before.
 
 Lesson learned - have tests in place that ensure your app behaves as expected,
 before making performance changes. Be wary of large performance changes that you
-can't explain.
+can't explain. Also, don't put me in charge of a [paperclip factory](https://en.wikipedia.org/wiki/Instrumental_convergence#Paperclip_maximizer).
 
 
 ## Round 5: from 78 to 124
@@ -379,7 +370,7 @@ cities, scoring higher the closer they were. Instead of running this search, I
 [pre-computed the scores that cities would contribute](https://github.com/uozuAho/pandemic_ddd/commit/2a5ecc3).
 This gave a 27% boost.
 
-A couple more to finish off:
+Finally, a couple more quick wins to finish off:
 - 10%: [cubes on city score: inline loop & method call](https://github.com/uozuAho/pandemic_ddd/commit/e38df63)
 - 6%: [remove LINQ `Sum`, compute manually](https://github.com/uozuAho/pandemic_ddd/commit/de3eced)
 
@@ -413,13 +404,16 @@ application first before blindly applying these changes! The profiler will tell
 you where making these changes will have the biggest benefit.
 
 - replace LINQ with simple loops and arrays
-- where possible, replace dictionaries and sets with arrays
+- where possible, replace collections with arrays
 - use ImmutableArray instead of ImmutableList
 - pre-size arrays and collections
 - pre-compute values that are known before runtime
 
 
 ## Practical Lessons learned
+In addition learning some technicalities of profiling and optimising C# code,
+I learned a few valuable practical lessons while working on this project:
+
 - Profile and benchmark in using the same build & run config
     - there can be large differences in performance between Release and Debug
       modes - benchmark and profile in Release mode!
@@ -433,9 +427,9 @@ you where making these changes will have the biggest benefit.
 - Different profilers yield slightly different results, since they are more/less
   intrusive on your application. For example, the timeline profile may show less
   time spend in GC than the memory profiler.
-- Rider shows all threads by default, including runtime threads. If your app is
-  single threaded, select the main thread to reduce noise in the profiling
-  results.
+- Rider's profilers show all threads by default, including runtime threads. If
+  your app is single threaded, select the main thread to reduce noise in the
+  profiling results.
 - From the perf book [^1]: C# libraries are usually made with robustness and
   convenience in mind, not performance. For example, LINQ. If you need
   performance, you'll likely have to use different libraries, or write your own
@@ -443,25 +437,6 @@ you where making these changes will have the biggest benefit.
 - Stay aware of what you're profiling - different programs can look similar in a
   profiler, but behave very differently. See facepalm #1.
 
-
-# Some useful resources + further reading
-- [Rider DPA: fixing memory issues](https://www.jetbrains.com/help/rider/Fixing_Issues_Found_by_DPA.html)
-    - mem allocation is cheap, but GC can be expensive
-    - main strategy when using lambdas is avoiding closures
-    - C# compiler generates delegates for closures: `<>c__DisplayClass...` and `Func<...>`
-    - method groups allocate delegates, use same caution as for lambdas
-    - boxing: if DPA shows issue with allocating a value type, boxing is occurring
-    - allocations themselves may not be expensive, but may indicate
-      inefficiencies, eg boxing, incorrect collection sizing
-    - strongly recommends [Heap Allocations Viewer](https://plugins.jetbrains.com/plugin/9223-heap-allocations-viewer/reviews)
-- [stackify: .NET Performance Optimization: Everything You Need To Know](https://stackify.com/net-application-optimization/)
-    - profiles some sample apps
-        - CPU bound, mem bound
-    - covers benchmarking, and using BenchmarkDotNet [Diagnosers](https://benchmarkdotnet.org/articles/configs/diagnosers.html)
-        - cross platform CPU + mem stats, alternative to profiling
-    - common perf problems (some)
-        - using string.substring instead of Span
-        - using string interpolation/format
 
 # References
 [^1]: Writing High-Performance .NET Code, 2nd ed. https://www.writinghighperf.net

@@ -4,12 +4,9 @@ date: 2023-03-30T12:20:53+11:00
 draft: true
 summary: "A practical example of using Rider's .NET profilers to increase my app's performance by 18x"
 tags:
-- example-tag
+- csharp
+- performance
 ---
-
-# To do
-- add tags
-- publish
 
 # Contents
 {{< toc >}}
@@ -290,6 +287,7 @@ second:
 <figure>
   <img src="/blog/20230330_making_csharp_go_fast/derp_profile_1.png"
   alt=""
+  width="622"
   loading="lazy" />
   <figcaption></figcaption>
 </figure>
@@ -300,6 +298,7 @@ throughput is now 13.3 per second. However, the profile looks like this:
 <figure>
   <img src="/blog/20230330_making_csharp_go_fast/derp_profile_2.png"
   alt=""
+  width="622"
   loading="lazy" />
   <figcaption></figcaption>
 </figure>
@@ -334,6 +333,7 @@ and the 250ms saved all comes from A.
 
 <figure>
   <img src="/blog/20230330_making_csharp_go_fast/derp_profile_3.png"
+  width="622"
   loading="lazy" />
   <figcaption></figcaption>
 </figure>
@@ -375,18 +375,18 @@ Finally, a couple more quick wins to finish off:
 - 6%: [remove LINQ `Sum`, compute manually](https://github.com/uozuAho/pandemic_ddd/commit/de3eced)
 
 # I made it! {#i_made_it}
-I achieved my goal of 100 games/sec! I could have kept going - I had become
-addicted to the hit of seeing the benchmark score go up. That's a good reason to
-set a goal beforehand.
+I achieved my goal of 100 games per second! I could have kept going - I had
+become addicted to the hit of seeing the benchmark score go up. That's a good
+reason to set a goal beforehand.
 
 ## All changes, ranked by % speedup
 - 45% [look up cities by array index instead of name:city dictionary](https://github.com/uozuAho/pandemic_ddd/commit/1066696)
-- 40% [Storing cubes counts as integer fields rather than colour:int dictionaries](https://github.com/uozuAho/pandemic_ddd/compare/ee6443f..b600a04)
+- 40% [store cubes counts as integer fields rather than colour:int dictionaries](https://github.com/uozuAho/pandemic_ddd/compare/ee6443f..b600a04)
 - 40% [remove LINQ: HasEnoughToCure: group, count, search](https://github.com/uozuAho/pandemic_ddd/commit/6055aedbbcdc365bef31d583dc4e690401548ac3)
 - 36% [remove iterator and LINQ: MaxNumCubes](https://github.com/uozuAho/pandemic_ddd/commit/f172f390696ea7be93a65ffa89849710dfb47da6)
-- 27% [replace search with pre-computed scores per city](https://github.com/uozuAho/pandemic_ddd/commit/2a5ecc3).
+- 27% [replace search with pre-computed scores per city](https://github.com/uozuAho/pandemic_ddd/commit/2a5ecc3)
 - 25% [use ImmutableArray instead of ImmutableList for Players](https://github.com/uozuAho/pandemic_ddd/commit/15261296d03ae40bf4711ae0b746b4b55bfc88b3)
-- 23% [use integer array instead of HashSet](https://github.com/uozuAho/pandemic_ddd/commit/02d44b3a5c65260fb9d33af429e2f5e7aff5fee2).
+- 23% [use integer array instead of HashSet](https://github.com/uozuAho/pandemic_ddd/commit/02d44b3a5c65260fb9d33af429e2f5e7aff5fee2)
 - 22%:
     - [iterate over cards directly instead of using iterator method](https://github.com/uozuAho/pandemic_ddd/commit/3a5d3e98e025f59107245527e862fe2591dcfd7f)
     - [use pre-sized array instead of list](https://github.com/uozuAho/pandemic_ddd/commit/183fb212c6010154e7078eb820912d8ab01982e6)
@@ -410,7 +410,7 @@ you where making these changes will have the biggest benefit.
 - pre-compute values that are known before runtime
 
 
-## Practical Lessons learned
+## Practical lessons learned
 In addition learning some technicalities of profiling and optimising C# code,
 I learned a few valuable practical lessons while working on this project:
 
@@ -420,7 +420,7 @@ I learned a few valuable practical lessons while working on this project:
     - benchmark.net doesn't allow you to bench in Debug
 - If you get a massive increase in performance that looks too good to be true,
   it might be. Make sure you've got tests in place that catch any unintended
-  changes in application behaviour. See round 4 (facepalm #3).
+  changes in application behaviour. See facepalm #3.
 - If you haven't focused on performance, then there will likely be many
   significant gains to be made with little effort. Set yourself a deadline, and
   just follow the profiler.

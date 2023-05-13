@@ -39,3 +39,4 @@ git push
 - how to find links to my posts?
 - find dead links
 - any SEO I should be doing?
+- hello

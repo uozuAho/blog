@@ -21,6 +21,7 @@
 
 # final steps
 # - merge to main
+# - set the article date to today's date
 # - publish (run this script)
 # - push
 # - goto https://github.com/uozuAho/blog -> check percy

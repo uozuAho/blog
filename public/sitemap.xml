@@ -3,15 +3,24 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://iamwoz.com/blog/</loc>
-    <lastmod>2022-02-08T21:00:33+11:00</lastmod>
+    <lastmod>2023-03-30T12:20:53+11:00</lastmod>
+  </url><url>
+    <loc>https://iamwoz.com/tags/csharp/</loc>
+    <lastmod>2023-03-30T12:20:53+11:00</lastmod>
+  </url><url>
+    <loc>https://iamwoz.com/blog/20230330_making_csharp_go_fast/</loc>
+    <lastmod>2023-03-30T12:20:53+11:00</lastmod>
+  </url><url>
+    <loc>https://iamwoz.com/tags/performance/</loc>
+    <lastmod>2023-03-30T12:20:53+11:00</lastmod>
+  </url><url>
+    <loc>https://iamwoz.com/</loc>
+    <lastmod>2023-03-30T12:20:53+11:00</lastmod>
   </url><url>
     <loc>https://iamwoz.com/tags/government/</loc>
     <lastmod>2022-02-08T21:00:33+11:00</lastmod>
   </url><url>
     <loc>https://iamwoz.com/tags/netlify/</loc>
-    <lastmod>2022-02-08T21:00:33+11:00</lastmod>
-  </url><url>
-    <loc>https://iamwoz.com/</loc>
     <lastmod>2022-02-08T21:00:33+11:00</lastmod>
   </url><url>
     <loc>https://iamwoz.com/blog/20220208_what-does-the-government-do/</loc>
@@ -40,9 +49,6 @@
   </url><url>
     <loc>https://iamwoz.com/tags/unix/</loc>
     <lastmod>2021-12-19T07:50:17+11:00</lastmod>
-  </url><url>
-    <loc>https://iamwoz.com/tags/csharp/</loc>
-    <lastmod>2021-09-24T16:40:58+10:00</lastmod>
   </url><url>
     <loc>https://iamwoz.com/tags/ddd/</loc>
     <lastmod>2021-09-24T16:40:58+10:00</lastmod>

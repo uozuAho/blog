@@ -1,7 +1,7 @@
 ---
 title: "Making C# Go Fast"
 date: 2023-03-30T12:20:53+11:00
-draft: true
+draft: false
 summary: "A practical example of using Rider's .NET profilers to increase my app's performance by 18x"
 tags:
 - csharp
@@ -43,6 +43,7 @@ here's a very simplified version of it:
 <figure>
   <img
     src="/blog/20230330_making_csharp_go_fast/intro_pandemic_example.png"
+    alt="a little map of some Australian cities, representing a pandemic game board"
     loading="lazy" />
 </figure>
 
@@ -140,9 +141,10 @@ it finds a city with a research station. It uses a hash set to store visited
 cities, and a queue to enqueue the next neighbouring cities to visit.
 
 <figure>
-  <img src="/blog/20230330_making_csharp_go_fast/round_1_mem_profile.png"
-  alt=""
-  loading="lazy" />
+  <img
+    src="/blog/20230330_making_csharp_go_fast/round_1_mem_profile.png"
+    alt="a screenshot of Rider's memory profiler"
+    loading="lazy" />
   <figcaption>Memory profiler analysis. Time spent in GC is shown at the bottom right.</figcaption>
 </figure>
 
@@ -251,18 +253,20 @@ profile shows that the list consumes more time dealing with enumerators than the
 array:
 
 <figure>
-  <img src="/blog/20230330_making_csharp_go_fast/round_3_immutable_list.png"
-  alt=""
-  width="784"
-  loading="lazy" />
+  <img
+    src="/blog/20230330_making_csharp_go_fast/round_3_immutable_list.png"
+    alt="a screenshot of Rider's profiler, showing ImmutableList method calls"
+    width="784"
+    loading="lazy" />
   <figcaption>ImmutableList operations, before switching to ImmutableArray</figcaption>
 </figure>
 
 <figure>
-  <img src="/blog/20230330_making_csharp_go_fast/round_3_immutable_array.png"
-  alt=""
-  width="737"
-  loading="lazy" />
+  <img
+    src="/blog/20230330_making_csharp_go_fast/round_3_immutable_array.png"
+    alt="a screenshot of Rider's profiler, showing ImmutableArray method calls"
+    width="737"
+    loading="lazy" />
   <figcaption>ImmutableArray operations</figcaption>
 </figure>
 
@@ -285,10 +289,11 @@ find that its throughput is 10 per second. To profile it, you run the app for 1
 second:
 
 <figure>
-  <img src="/blog/20230330_making_csharp_go_fast/derp_profile_1.png"
-  alt=""
-  width="622"
-  loading="lazy" />
+  <img
+    src="/blog/20230330_making_csharp_go_fast/derp_profile_1.png"
+    alt="a mockup of a CPU profiler run, showing functions A and B taking 500ms each"
+    width="622"
+    loading="lazy" />
   <figcaption></figcaption>
 </figure>
 
@@ -296,10 +301,11 @@ You then optimise A, and measure again. The benchmark shows a 33% improvement -
 throughput is now 13.3 per second. However, the profile looks like this:
 
 <figure>
-  <img src="/blog/20230330_making_csharp_go_fast/derp_profile_2.png"
-  alt=""
-  width="622"
-  loading="lazy" />
+  <img
+    src="/blog/20230330_making_csharp_go_fast/derp_profile_2.png"
+    alt="a mockup of a CPU profiler run, showing function A taking 333ms and B taking 666ms"
+    width="622"
+    loading="lazy" />
   <figcaption></figcaption>
 </figure>
 
@@ -332,9 +338,11 @@ increase in throughput of the app is immediately obvious (1000 / 750 = 1.33),
 and the 250ms saved all comes from A.
 
 <figure>
-  <img src="/blog/20230330_making_csharp_go_fast/derp_profile_3.png"
-  width="622"
-  loading="lazy" />
+  <img
+    src="/blog/20230330_making_csharp_go_fast/derp_profile_3.png"
+    alt="a mockup of a CPU profiler run, showing A taking 250ms and B taking 500ms"
+    width="622"
+    loading="lazy" />
   <figcaption></figcaption>
 </figure>
 

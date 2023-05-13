@@ -13,8 +13,7 @@
 # - goto https://github.com/uozuAho/blog -> current branch
 # - click on the netlify build badge - this shows the branch deployment
 # - check percy: click the tick/cross in github -> click on Details of Percy
-#   snapshot -> Run npx percy snapshot public -> click the percy link near the
-#   top of the logs
+#   snapshot -> Run npx percy snapshot public -> click the percy link in the logs
 # - read in feedly
 # - run lighthouse
 # - check with original authors if using any content

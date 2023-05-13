@@ -46,44 +46,44 @@ I inevitably try out new stuff.</p>
 <p>Percy is just a visual comparison tool, not a testing framework. It supports
 many frameworks, including <a href="https://webdriver.io/">WebdriverIO</a> which I&rsquo;m
 familiar with, so let&rsquo;s start with that:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># initialise npm in my blog project (nooo! I didn&#39;t think it would happen so soon :( )</span>
-npm init
-<span style="color:#75715e"># add webdriver</span>
-npm install @wdio/cli
-npx wdio init
-<span style="color:#75715e"># modify package.json to make the test script = wdio ./wdio.conf.js</span>
-<span style="color:#75715e"># check it works:</span>
-npm test
-</code></pre></div><p>All good. Now replace the example test <code>wdio</code> created with just opening a few
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span><span style="color:#75715e"># initialise npm in my blog project (nooo! I didn&#39;t think it would happen so soon :( )</span>
+</span></span><span style="display:flex;"><span>npm init
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># add webdriver</span>
+</span></span><span style="display:flex;"><span>npm install @wdio/cli
+</span></span><span style="display:flex;"><span>npx wdio init
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># modify package.json to make the test script = wdio ./wdio.conf.js</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># check it works:</span>
+</span></span><span style="display:flex;"><span>npm test
+</span></span></code></pre></div><p>All good. Now replace the example test <code>wdio</code> created with just opening a few
 pages on my site running locally:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">baseUrl</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;http://localhost:1313&#39;</span>;
-
-<span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">click</span>(<span style="color:#a6e22e">selector</span>) {
-  <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">elem</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">$</span>(<span style="color:#a6e22e">selector</span>);
-  <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">elem</span>.<span style="color:#a6e22e">waitForDisplayed</span>();
-  <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">elem</span>.<span style="color:#a6e22e">click</span>();
-}
-
-<span style="color:#a6e22e">describe</span>(<span style="color:#e6db74">&#39;stuff&#39;</span>, () =&gt; {
-  <span style="color:#a6e22e">it</span>(<span style="color:#e6db74">&#39;goto homepage&#39;</span>, <span style="color:#66d9ef">async</span> () =&gt; {
-    <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">browser</span>.<span style="color:#a6e22e">url</span>(<span style="color:#a6e22e">baseUrl</span>);
-  });
-
-  <span style="color:#a6e22e">it</span>(<span style="color:#e6db74">&#39;goto blog&#39;</span>, <span style="color:#66d9ef">async</span> () =&gt; {
-    <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">browser</span>.<span style="color:#a6e22e">url</span>(<span style="color:#a6e22e">baseUrl</span>);
-    <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">click</span>(<span style="color:#e6db74">&#39;=Blog&#39;</span>);
-  });
-});
-</code></pre></div><p>In one terminal:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">hugo server
-</code></pre></div><p>In another terminal:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">npm test
-</code></pre></div><p>OK. This should be enough to take a couple of snapshots with Percy. Install it:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">npm i @percy/cli @percy/webdriverio
-</code></pre></div><p>Add a <code>percySnapshot</code> at the end of each test, then run:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">export PERCY_TOKEN<span style="color:#f92672">=</span>my_secret_token
-npx percy exec -- wdio ./wdio.conf.js
-</code></pre></div><p>All my pages are new at this point, so there&rsquo;s no changes to compare:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">baseUrl</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;http://localhost:1313&#39;</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">click</span>(<span style="color:#a6e22e">selector</span>) {
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">elem</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">$</span>(<span style="color:#a6e22e">selector</span>);
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">elem</span>.<span style="color:#a6e22e">waitForDisplayed</span>();
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">elem</span>.<span style="color:#a6e22e">click</span>();
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">describe</span>(<span style="color:#e6db74">&#39;stuff&#39;</span>, () =&gt; {
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">it</span>(<span style="color:#e6db74">&#39;goto homepage&#39;</span>, <span style="color:#66d9ef">async</span> () =&gt; {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">browser</span>.<span style="color:#a6e22e">url</span>(<span style="color:#a6e22e">baseUrl</span>);
+</span></span><span style="display:flex;"><span>  });
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">it</span>(<span style="color:#e6db74">&#39;goto blog&#39;</span>, <span style="color:#66d9ef">async</span> () =&gt; {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">browser</span>.<span style="color:#a6e22e">url</span>(<span style="color:#a6e22e">baseUrl</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">click</span>(<span style="color:#e6db74">&#39;=Blog&#39;</span>);
+</span></span><span style="display:flex;"><span>  });
+</span></span><span style="display:flex;"><span>});
+</span></span></code></pre></div><p>In one terminal:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>hugo server
+</span></span></code></pre></div><p>In another terminal:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>npm test
+</span></span></code></pre></div><p>OK. This should be enough to take a couple of snapshots with Percy. Install it:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>npm i @percy/cli @percy/webdriverio
+</span></span></code></pre></div><p>Add a <code>percySnapshot</code> at the end of each test, then run:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>export PERCY_TOKEN<span style="color:#f92672">=</span>my_secret_token
+</span></span><span style="display:flex;"><span>npx percy exec -- wdio ./wdio.conf.js
+</span></span></code></pre></div><p>All my pages are new at this point, so there&rsquo;s no changes to compare:</p>
 <p><img
 src="/blog/20210618_percy/new_snapshot.png"
 alt="example of a new snapshot display on Percy's UI" /></p>
@@ -92,40 +92,40 @@ alt="example of a new snapshot display on Percy's UI" /></p>
 there&rsquo;s an easier process. For static sites like this one, the
 <a href="https://docs.percy.io/docs/snapshot-cli-command">Percy CLI</a> can take snapshots
 of all published content. Let&rsquo;s try that:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># publish everything</span>
-hugo
-<span style="color:#75715e"># snapshot all html files, and send to percy</span>
-npx percy snapshot public/
-</code></pre></div><p>This is much easier than using webdriver! In the bin!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span><span style="color:#75715e"># publish everything</span>
+</span></span><span style="display:flex;"><span>hugo
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># snapshot all html files, and send to percy</span>
+</span></span><span style="display:flex;"><span>npx percy snapshot public/
+</span></span></code></pre></div><p>This is much easier than using webdriver! In the bin!</p>
 <p>Also, I&rsquo;ve just realised that the only browsers currently supported by Percy are
 Chrome, Edge and Firefox. Derp. So much for using it to detect problems on
 Safari. Ah well, I&rsquo;ve come this far, and it may still come in handy. Let&rsquo;s get
 it running in GitHub instead of locally. Add the Percy token to the GitHub repo:
 Go to the repo, then: settings -&gt; secrets -&gt; new secret.</p>
 <p>Then, create an action in <code>.github/workflows</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml"><span style="color:#f92672">name</span>: <span style="color:#ae81ff">Percy</span>
-<span style="color:#f92672">on</span>: [<span style="color:#ae81ff">push]</span>
-<span style="color:#f92672">jobs</span>:
-  <span style="color:#f92672">snapshot</span>:
-    <span style="color:#f92672">runs-on</span>: <span style="color:#ae81ff">ubuntu-latest</span>
-    <span style="color:#f92672">steps</span>:
-      - <span style="color:#f92672">uses</span>: <span style="color:#ae81ff">actions/checkout@v2</span>
-      - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">get Node.js</span>
-        <span style="color:#f92672">uses</span>: <span style="color:#ae81ff">actions/setup-node@v1</span>
-        <span style="color:#f92672">with</span>:
-          <span style="color:#f92672">node-version</span>: <span style="color:#ae81ff">12.</span><span style="color:#ae81ff">x</span>
-      - <span style="color:#f92672">run</span>: <span style="color:#ae81ff">npm ci</span>
-      <span style="color:#75715e"># don&#39;t need to do a hugo build here - I do that locally, for now at least</span>
-      - <span style="color:#f92672">run</span>: <span style="color:#ae81ff">npx percy snapshot public/</span>
-        <span style="color:#f92672">env</span>:
-          <span style="color:#f92672">PERCY_TOKEN</span>: <span style="color:#ae81ff">${{ secrets.PERCY_TOKEN }}</span>
-</code></pre></div><p>Push the changes. If all&rsquo;s gone well, the action will upload the site&rsquo;s
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span><span style="color:#f92672">name</span>: <span style="color:#ae81ff">Percy</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">on</span>: [<span style="color:#ae81ff">push]</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">jobs</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">snapshot</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">runs-on</span>: <span style="color:#ae81ff">ubuntu-latest</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">steps</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">uses</span>: <span style="color:#ae81ff">actions/checkout@v2</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">get Node.js</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">uses</span>: <span style="color:#ae81ff">actions/setup-node@v1</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">node-version</span>: <span style="color:#ae81ff">12.</span><span style="color:#ae81ff">x</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">run</span>: <span style="color:#ae81ff">npm ci</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#75715e"># don&#39;t need to do a hugo build here - I do that locally, for now at least</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">run</span>: <span style="color:#ae81ff">npx percy snapshot public/</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">env</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">PERCY_TOKEN</span>: <span style="color:#ae81ff">${{ secrets.PERCY_TOKEN }}</span>
+</span></span></code></pre></div><p>Push the changes. If all&rsquo;s gone well, the action will upload the site&rsquo;s
 snapshots to Percy, where changes can be reviewed:</p>
 <p><img
 src="/blog/20210618_percy/compare_page_versions.png"
 alt="example of comparing two versions of a page in Percy's UI" /></p>
 <p>The Percy UI shows a list of pages, with visual changes highlighted in red. You
-can toggle the highlighting on/off with the &rsquo;d' key, which makes finding and
+can toggle the highlighting on/off with the &rsquo;d&rsquo; key, which makes finding and
 comparing changes easy.</p>
 <h1 id="next-steps">Next steps</h1>
 <p>OK. I&rsquo;m tired, and as usual, have learned a bunch of stuff without solving my

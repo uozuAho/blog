@@ -81,42 +81,42 @@ be easy to move to a more powerful platform in the future, if I need to.&lt;/p&g
 some details about how to do  that in my first post - &lt;a href=&#34;https://iamwoz.com/blog/20210424_how_this_site_is_built/&#34;&gt;how this site is
 built&lt;/a&gt;. That post doesn&amp;rsquo;t really
 clearly tell you how the site is built, but it&amp;rsquo;s a start :)&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# install the netlify cli&lt;/span&gt;
-npm i -g netlify-cli
-&lt;span style=&#34;color:#75715e&#34;&gt;# link your project to your netlify site&lt;/span&gt;
-ntl link
-&lt;span style=&#34;color:#75715e&#34;&gt;# create an example function&lt;/span&gt;
-ntl functions:create
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This creates a function in your site that you can call from your site pages.
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# install the netlify cli&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;npm i -g netlify-cli
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# link your project to your netlify site&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ntl link
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# create an example function&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ntl functions:create
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This creates a function in your site that you can call from your site pages.
 Here&amp;rsquo;s the default TypeScript code that gets created:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ts&#34; data-lang=&#34;ts&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;import&lt;/span&gt; { &lt;span style=&#34;color:#a6e22e&#34;&gt;Handler&lt;/span&gt; } &lt;span style=&#34;color:#66d9ef&#34;&gt;from&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;@netlify/functions&amp;#39;&lt;/span&gt;
-
-&lt;span style=&#34;color:#66d9ef&#34;&gt;export&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;handler&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;Handler&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;async&lt;/span&gt; (&lt;span style=&#34;color:#a6e22e&#34;&gt;event&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;context&lt;/span&gt;) &lt;span style=&#34;color:#f92672&#34;&gt;=&amp;gt;&lt;/span&gt; {
-  &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; { &lt;span style=&#34;color:#a6e22e&#34;&gt;name&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;stranger&amp;#39;&lt;/span&gt; } &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;event&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;queryStringParameters&lt;/span&gt;
-
-  &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; {
-    &lt;span style=&#34;color:#a6e22e&#34;&gt;statusCode&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;200&lt;/span&gt;,
-    &lt;span style=&#34;color:#a6e22e&#34;&gt;body&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;JSON.stringify&lt;/span&gt;({
-      &lt;span style=&#34;color:#a6e22e&#34;&gt;message&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;`Hello, &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;name&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;!`&lt;/span&gt;,
-    }),
-  }
-}
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;By default, functions are placed under &lt;code&gt;./netlify/functions&lt;/code&gt; directory in your
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-ts&#34; data-lang=&#34;ts&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;import&lt;/span&gt; { &lt;span style=&#34;color:#a6e22e&#34;&gt;Handler&lt;/span&gt; } &lt;span style=&#34;color:#66d9ef&#34;&gt;from&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;@netlify/functions&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;export&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;handler&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;Handler&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;async&lt;/span&gt; (&lt;span style=&#34;color:#a6e22e&#34;&gt;event&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;context&lt;/span&gt;) &lt;span style=&#34;color:#f92672&#34;&gt;=&amp;gt;&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; { &lt;span style=&#34;color:#a6e22e&#34;&gt;name&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;stranger&amp;#39;&lt;/span&gt; } &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;event&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;queryStringParameters&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#a6e22e&#34;&gt;statusCode&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;200&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#a6e22e&#34;&gt;body&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;JSON.stringify&lt;/span&gt;({
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#a6e22e&#34;&gt;message&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;`Hello, &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;name&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;!`&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }),
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;By default, functions are placed under &lt;code&gt;./netlify/functions&lt;/code&gt; directory in your
 site. Once there, they can be called from within your page content. For example,
 let&amp;rsquo;s replace some text with the response from the function when a button is
 pressed:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-html&#34; data-lang=&#34;html&#34;&gt;&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;id&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;static_text&amp;#34;&lt;/span&gt;&amp;gt;static text&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt;&amp;gt;
-&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;button&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;onclick&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;replaceText()&amp;#34;&lt;/span&gt;&amp;gt;Replace static text&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;button&lt;/span&gt;&amp;gt;
-
-&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;script&lt;/span&gt;&amp;gt;
-  &lt;span style=&#34;color:#66d9ef&#34;&gt;async&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;function&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;replaceText&lt;/span&gt;() {
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;response&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;await&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;fetch&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;/.netlify/functions/hello-world?name=stinky&amp;#39;&lt;/span&gt;)
-      .&lt;span style=&#34;color:#a6e22e&#34;&gt;then&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;response&lt;/span&gt; =&amp;gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;response&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;json&lt;/span&gt;());
-
-    document.&lt;span style=&#34;color:#a6e22e&#34;&gt;getElementById&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;static_text&amp;#39;&lt;/span&gt;).&lt;span style=&#34;color:#a6e22e&#34;&gt;innerText&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;response&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;message&lt;/span&gt;;
-  }
-&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;script&lt;/span&gt;&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You can run the site locally with &lt;code&gt;ntl dev&lt;/code&gt; (&lt;code&gt;ntl dev -c &amp;quot;hugo server -D&amp;quot;&lt;/code&gt; to
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-html&#34; data-lang=&#34;html&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;id&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;static_text&amp;#34;&lt;/span&gt;&amp;gt;static text&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;button&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;onclick&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;replaceText()&amp;#34;&lt;/span&gt;&amp;gt;Replace static text&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;button&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;script&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;async&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;function&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;replaceText&lt;/span&gt;() {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;response&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;await&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;fetch&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;/.netlify/functions/hello-world?name=stinky&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      .&lt;span style=&#34;color:#a6e22e&#34;&gt;then&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;response&lt;/span&gt; =&amp;gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;response&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;json&lt;/span&gt;());
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    document.&lt;span style=&#34;color:#a6e22e&#34;&gt;getElementById&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;static_text&amp;#39;&lt;/span&gt;).&lt;span style=&#34;color:#a6e22e&#34;&gt;innerText&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;response&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;message&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;script&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You can run the site locally with &lt;code&gt;ntl dev&lt;/code&gt; (&lt;code&gt;ntl dev -c &amp;quot;hugo server -D&amp;quot;&lt;/code&gt; to
 show draft content). The Netlify CLI detects Hugo and runs that too, so site
 content and functions are updated whenever you change them.&lt;/p&gt;
 &lt;p&gt;Here&amp;rsquo;s the above code in action:&lt;/p&gt;
@@ -148,33 +148,33 @@ call the API from the frontend, but that would mean exposing your API key for
 all to see.&lt;/p&gt;
 &lt;p&gt;A way around this is to create your own API that hides the 3rd party API key
 value. This can be done using Netlify&amp;rsquo;s environment variables:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;ntl env:set EXAMPLE_SECRET my-secret-value
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;I&amp;rsquo;ll create a separate API that loads and returns the secret, using &lt;code&gt;ntl functions:create&lt;/code&gt;. I called the function &lt;code&gt;get-secret&lt;/code&gt;. I modified the function
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ntl env:set EXAMPLE_SECRET my-secret-value
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;I&amp;rsquo;ll create a separate API that loads and returns the secret, using &lt;code&gt;ntl functions:create&lt;/code&gt;. I called the function &lt;code&gt;get-secret&lt;/code&gt;. I modified the function
 to this:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ts&#34; data-lang=&#34;ts&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;import&lt;/span&gt; { &lt;span style=&#34;color:#a6e22e&#34;&gt;Handler&lt;/span&gt; } &lt;span style=&#34;color:#66d9ef&#34;&gt;from&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;@netlify/functions&amp;#39;&lt;/span&gt;
-
-&lt;span style=&#34;color:#66d9ef&#34;&gt;export&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;handler&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;Handler&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;async&lt;/span&gt; (&lt;span style=&#34;color:#a6e22e&#34;&gt;event&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;context&lt;/span&gt;) &lt;span style=&#34;color:#f92672&#34;&gt;=&amp;gt;&lt;/span&gt; {
-  &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;secret&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;process&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;env&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;EXAMPLE_SECRET&lt;/span&gt;;
-
-  &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; {
-    &lt;span style=&#34;color:#a6e22e&#34;&gt;statusCode&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;200&lt;/span&gt;,
-    &lt;span style=&#34;color:#a6e22e&#34;&gt;body&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;`my secret value is: &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;secret&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;`&lt;/span&gt;
-  }
-}
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Here&amp;rsquo;s the same &amp;lsquo;click a button to replace text&amp;rsquo; example as before, but using
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-ts&#34; data-lang=&#34;ts&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;import&lt;/span&gt; { &lt;span style=&#34;color:#a6e22e&#34;&gt;Handler&lt;/span&gt; } &lt;span style=&#34;color:#66d9ef&#34;&gt;from&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;@netlify/functions&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;export&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;handler&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;Handler&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;async&lt;/span&gt; (&lt;span style=&#34;color:#a6e22e&#34;&gt;event&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;context&lt;/span&gt;) &lt;span style=&#34;color:#f92672&#34;&gt;=&amp;gt;&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;secret&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;process&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;env&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;EXAMPLE_SECRET&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#a6e22e&#34;&gt;statusCode&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;200&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#a6e22e&#34;&gt;body&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;`my secret value is: &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;secret&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;`&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Here&amp;rsquo;s the same &amp;lsquo;click a button to replace text&amp;rsquo; example as before, but using
 the environment variable:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-html&#34; data-lang=&#34;html&#34;&gt;&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;id&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;secret_p&amp;#34;&lt;/span&gt;&amp;gt;Shhh....&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt;&amp;gt;
-&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;button&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;onclick&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;showSecretValue()&amp;#34;&lt;/span&gt;&amp;gt;Show the secret!&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;button&lt;/span&gt;&amp;gt;
-
-&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;script&lt;/span&gt;&amp;gt;
-  &lt;span style=&#34;color:#66d9ef&#34;&gt;async&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;function&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;showSecretValue&lt;/span&gt;() {
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;response&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;await&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;fetch&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;/.netlify/functions/get-secret&amp;#39;&lt;/span&gt;)
-      .&lt;span style=&#34;color:#a6e22e&#34;&gt;then&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;response&lt;/span&gt; =&amp;gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;response&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;text&lt;/span&gt;());
-
-    document.&lt;span style=&#34;color:#a6e22e&#34;&gt;getElementById&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;secret_p&amp;#39;&lt;/span&gt;).&lt;span style=&#34;color:#a6e22e&#34;&gt;innerText&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;response&lt;/span&gt;;
-  }
-&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;script&lt;/span&gt;&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p id=&#34;secret_p&#34;&gt;Shhh....&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-html&#34; data-lang=&#34;html&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;id&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;secret_p&amp;#34;&lt;/span&gt;&amp;gt;Shhh....&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;button&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;onclick&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;showSecretValue()&amp;#34;&lt;/span&gt;&amp;gt;Show the secret!&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;button&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;script&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;async&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;function&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;showSecretValue&lt;/span&gt;() {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;response&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;await&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;fetch&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;/.netlify/functions/get-secret&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      .&lt;span style=&#34;color:#a6e22e&#34;&gt;then&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;response&lt;/span&gt; =&amp;gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;response&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;text&lt;/span&gt;());
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    document.&lt;span style=&#34;color:#a6e22e&#34;&gt;getElementById&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;secret_p&amp;#39;&lt;/span&gt;).&lt;span style=&#34;color:#a6e22e&#34;&gt;innerText&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;response&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;script&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p id=&#34;secret_p&#34;&gt;Shhh....&lt;/p&gt;
 &lt;button onclick=&#34;showSecretValue()&#34;&gt;Show the secret!&lt;/button&gt;
 &lt;script&gt;
   async function showSecretValue() {
@@ -281,9 +281,9 @@ required number of senators have been elected.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;figure&gt;
   
-&lt;div style=&#34;position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;&#34;&gt;
-  &lt;iframe src=&#34;https://www.youtube.com/embed/9BqgiUarZDo&#34; style=&#34;position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;&#34; allowfullscreen title=&#34;How proportional voting works in the senate&#34;&gt;&lt;/iframe&gt;
-&lt;/div&gt;
+  &lt;div style=&#34;position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;&#34;&gt;
+    &lt;iframe src=&#34;https://www.youtube.com/embed/9BqgiUarZDo&#34; style=&#34;position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;&#34; allowfullscreen title=&#34;How proportional voting works in the senate&#34;&gt;&lt;/iframe&gt;
+  &lt;/div&gt;
 
   &lt;figcaption&gt;
     A short video describing the above points, but better
@@ -294,10 +294,10 @@ required number of senators have been elected.&lt;/li&gt;
 &lt;li&gt;the above is slightly simplified. The amount your lower preferences contribute
 depends on which state/territory you&amp;rsquo;re in.&lt;/li&gt;
 &lt;li&gt;if voting below the line, you must choose at least 12 candidates. However, aim
-for more, since there&amp;rsquo;s a chance your ballot can become &amp;lsquo;exhausted&amp;rsquo; - i.e.
+for more, since there&amp;rsquo;s a chance your ballot can become &amp;rsquo;exhausted&amp;rsquo; - i.e.
 your preferences don&amp;rsquo;t count towards any winning candidates. Even if you
 dislike some candidates/parties, you should still rank them in order of your
-preference, since this will count towards your &amp;lsquo;least disliked&amp;rsquo; candidates
+preference, since this will count towards your &amp;rsquo;least disliked&amp;rsquo; candidates
 getting elected.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h3 id=&#34;sources&#34;&gt;Sources&lt;/h3&gt;
@@ -337,9 +337,9 @@ those votes flow into the remaining candidates&lt;/li&gt;
 &lt;/ul&gt;
 &lt;figure&gt;
   
-&lt;div style=&#34;position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;&#34;&gt;
-  &lt;iframe src=&#34;https://www.youtube.com/embed/HaE6MigXYdY&#34; style=&#34;position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;&#34; allowfullscreen title=&#34;How preferential voting works in the lower house&#34;&gt;&lt;/iframe&gt;
-&lt;/div&gt;
+  &lt;div style=&#34;position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;&#34;&gt;
+    &lt;iframe src=&#34;https://www.youtube.com/embed/HaE6MigXYdY&#34; style=&#34;position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;&#34; allowfullscreen title=&#34;How preferential voting works in the lower house&#34;&gt;&lt;/iframe&gt;
+  &lt;/div&gt;
 
   &lt;figcaption&gt;
     Another good short video, describing counting of votes for the house of
@@ -398,54 +398,54 @@ can connect a postgres client to a postgres instance.&lt;/p&gt;
   loading=&#34;lazy&#34; /&gt;
   &lt;figcaption&gt;&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Run postgres&lt;/span&gt;
-docker run --rm --name pg -e POSTGRES_PASSWORD&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;pw -d postgres
-
-&lt;span style=&#34;color:#75715e&#34;&gt;# There it is:&lt;/span&gt;
-docker ps
-&amp;gt; CONTAINER ID   IMAGE      COMMAND                  CREATED         STATUS         PORTS      NAMES
-&amp;gt; 6d2a5ad74c8e   postgres   &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;docker-entrypoint.s…&amp;#34;&lt;/span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt; seconds ago   Up &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt; seconds   5432/tcp   pg
-
-&lt;span style=&#34;color:#75715e&#34;&gt;# OK. Can I connect to it with psql?&lt;/span&gt;
-docker run -it --rm postgres psql
-&amp;gt; psql: error: connection to server on socket &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/var/run/postgresql/.s.PGSQL.5432&amp;#34;&lt;/span&gt; failed: No such file or directory
-&amp;gt;       Is the server running locally and accepting connections on that socket?
-
-&lt;span style=&#34;color:#75715e&#34;&gt;# No. Is there anything listening on port 5432?&lt;/span&gt;
-netstat -aon | grep &lt;span style=&#34;color:#ae81ff&#34;&gt;5432&lt;/span&gt;
-&amp;gt;
-
-&lt;span style=&#34;color:#75715e&#34;&gt;# No. Why? Because I didn&amp;#39;t expose the port that postgres serves over when&lt;/span&gt;
-&lt;span style=&#34;color:#75715e&#34;&gt;# running the postgres container. Let&amp;#39;s do that. First, stop the currently&lt;/span&gt;
-&lt;span style=&#34;color:#75715e&#34;&gt;# running postgres container:&lt;/span&gt;
-docker stop pg
-&lt;span style=&#34;color:#75715e&#34;&gt;# Now run it again, exposing port 5432 to the host machine:&lt;/span&gt;
-docker run --rm --name pg -e POSTGRES_PASSWORD&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;pw -d -p 5432:5432 postgres
-
-&lt;span style=&#34;color:#75715e&#34;&gt;# Now there&amp;#39;s stuff listening on port 5432:&lt;/span&gt;
-netstat -aon | grep &lt;span style=&#34;color:#ae81ff&#34;&gt;5432&lt;/span&gt;
-&amp;gt;  TCP    0.0.0.0:5432           0.0.0.0:0              LISTENING       &lt;span style=&#34;color:#ae81ff&#34;&gt;16448&lt;/span&gt;
-&amp;gt;  TCP    &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;::&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;:5432              &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;::&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;:0                 LISTENING       &lt;span style=&#34;color:#ae81ff&#34;&gt;16448&lt;/span&gt;
-&amp;gt;  TCP    &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;::1&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;:5432             &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;::&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;:0                 LISTENING       &lt;span style=&#34;color:#ae81ff&#34;&gt;18520&lt;/span&gt;
-
-&lt;span style=&#34;color:#75715e&#34;&gt;# Try psql again:&lt;/span&gt;
-docker run -it --rm postgres psql
-&amp;gt; psql: error: connection to server on socket &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/var/run/postgresql/.s.PGSQL.5432&amp;#34;&lt;/span&gt; failed: No such file or directory
-&amp;gt;       Is the server running locally and accepting connections on that socket?
-
-&lt;span style=&#34;color:#75715e&#34;&gt;# Still no. This is because I&amp;#39;m running the psql container in an isolated&lt;/span&gt;
-&lt;span style=&#34;color:#75715e&#34;&gt;# (network) environment, where there&amp;#39;s nothing listening on port 5432. I can&lt;/span&gt;
-&lt;span style=&#34;color:#75715e&#34;&gt;# use the special host address &amp;#39;host.docker.internal&amp;#39; which resolves to the IP&lt;/span&gt;
-&lt;span style=&#34;color:#75715e&#34;&gt;# of the host machine (see https://docs.docker.com/desktop/windows/networking/):&lt;/span&gt;
-docker run -it --rm postgres psql -h host.docker.internal -U postgres
-&amp;gt; Password &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; user postgres: &lt;span style=&#34;color:#75715e&#34;&gt;# enter the password &amp;#39;pw&amp;#39; defined above&lt;/span&gt;
-&amp;gt; psql &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;14.1 &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;Debian 14.1-1.pgdg110+1&lt;span style=&#34;color:#f92672&#34;&gt;))&lt;/span&gt;
-&amp;gt; Type &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;help&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; help.
-&amp;gt;
-&amp;gt; postgres&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#&lt;/span&gt;
-
-&lt;span style=&#34;color:#75715e&#34;&gt;# Woo! I&amp;#39;m in!&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;goal-2-connect-psql-to-postgres-via-socat&#34;&gt;Goal #2: connect psql to postgres, via socat&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Run postgres&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;docker run --rm --name pg -e POSTGRES_PASSWORD&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;pw -d postgres
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# There it is:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;docker ps
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;gt; CONTAINER ID   IMAGE      COMMAND                  CREATED         STATUS         PORTS      NAMES
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;gt; 6d2a5ad74c8e   postgres   &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;docker-entrypoint.s…&amp;#34;&lt;/span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt; seconds ago   Up &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt; seconds   5432/tcp   pg
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# OK. Can I connect to it with psql?&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;docker run -it --rm postgres psql
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;gt; psql: error: connection to server on socket &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/var/run/postgresql/.s.PGSQL.5432&amp;#34;&lt;/span&gt; failed: No such file or directory
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;gt;       Is the server running locally and accepting connections on that socket?
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# No. Is there anything listening on port 5432?&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;netstat -aon | grep &lt;span style=&#34;color:#ae81ff&#34;&gt;5432&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# No. Why? Because I didn&amp;#39;t expose the port that postgres serves over when&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# running the postgres container. Let&amp;#39;s do that. First, stop the currently&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# running postgres container:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;docker stop pg
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Now run it again, exposing port 5432 to the host machine:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;docker run --rm --name pg -e POSTGRES_PASSWORD&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;pw -d -p 5432:5432 postgres
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Now there&amp;#39;s stuff listening on port 5432:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;netstat -aon | grep &lt;span style=&#34;color:#ae81ff&#34;&gt;5432&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;gt;  TCP    0.0.0.0:5432           0.0.0.0:0              LISTENING       &lt;span style=&#34;color:#ae81ff&#34;&gt;16448&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;gt;  TCP    &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;::&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;:5432              &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;::&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;:0                 LISTENING       &lt;span style=&#34;color:#ae81ff&#34;&gt;16448&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;gt;  TCP    &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;::1&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;:5432             &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;::&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;:0                 LISTENING       &lt;span style=&#34;color:#ae81ff&#34;&gt;18520&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Try psql again:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;docker run -it --rm postgres psql
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;gt; psql: error: connection to server on socket &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/var/run/postgresql/.s.PGSQL.5432&amp;#34;&lt;/span&gt; failed: No such file or directory
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;gt;       Is the server running locally and accepting connections on that socket?
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Still no. This is because I&amp;#39;m running the psql container in an isolated&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# (network) environment, where there&amp;#39;s nothing listening on port 5432. I can&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# use the special host address &amp;#39;host.docker.internal&amp;#39; which resolves to the IP&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# of the host machine (see https://docs.docker.com/desktop/windows/networking/):&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;docker run -it --rm postgres psql -h host.docker.internal -U postgres
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;gt; Password &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; user postgres: &lt;span style=&#34;color:#75715e&#34;&gt;# enter the password &amp;#39;pw&amp;#39; defined above&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;gt; psql &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;14.1 &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;Debian 14.1-1.pgdg110+1&lt;span style=&#34;color:#f92672&#34;&gt;))&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;gt; Type &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;help&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; help.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;gt; postgres&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Woo! I&amp;#39;m in!&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;goal-2-connect-psql-to-postgres-via-socat&#34;&gt;Goal #2: connect psql to postgres, via socat&lt;/h3&gt;
 &lt;figure&gt;
   &lt;img src=&#34;https://iamwoz.com/blog/20211219_jumping_fences_with_socat/psql_to_socat_to_pg.png&#34;
   alt=&#34;psql in one container, connecting to socat in another container, which
@@ -461,42 +461,42 @@ docker run -it --rm postgres psql -h host.docker.internal -U postgres
 &lt;li&gt;run psql as in goal #1, which will show that it is connecting to postgres via
 socat&lt;/li&gt;
 &lt;/ul&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# stop the currently running postgres db&lt;/span&gt;
-docker stop pg
-&lt;span style=&#34;color:#75715e&#34;&gt;# Start it again, this time hosting on port 6543.&lt;/span&gt;
-docker run --rm --name pg -e POSTGRES_PASSWORD&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;pw -e PGPORT&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;6543&lt;/span&gt; -d -p 6543:6543 postgres
-
-&lt;span style=&#34;color:#75715e&#34;&gt;# Check it is running, by connecting psql directly:&lt;/span&gt;
-docker run -it --rm postgres psql -h host.docker.internal -U postgres -p &lt;span style=&#34;color:#ae81ff&#34;&gt;6543&lt;/span&gt;
-
-&lt;span style=&#34;color:#75715e&#34;&gt;# All good. Now, time for socat. The dockerhub page for socat has nearly the&lt;/span&gt;
-&lt;span style=&#34;color:#75715e&#34;&gt;# use case I want: &amp;#34;Publish a port on an existing container&amp;#34;. In my case, the&lt;/span&gt;
-&lt;span style=&#34;color:#75715e&#34;&gt;# port is already published (6543), but I want to &amp;#34;republish&amp;#34; it on a different&lt;/span&gt;
-&lt;span style=&#34;color:#75715e&#34;&gt;# port (5432).&lt;/span&gt;
-docker run -d --rm --name sc -p 5432:6543 alpine/socat &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    tcp-listen:6543,fork,reuseaddr tcp-connect:target:6543
-
-&lt;span style=&#34;color:#75715e&#34;&gt;# I don&amp;#39;t really understand what all those options are doing, so I&amp;#39;ll just hope&lt;/span&gt;
-&lt;span style=&#34;color:#75715e&#34;&gt;# for the best :) Let&amp;#39;s try connecting psql. Note that psql uses the default&lt;/span&gt;
-&lt;span style=&#34;color:#75715e&#34;&gt;# port (5432) when you don&amp;#39;t tell it to do otherwise.&lt;/span&gt;
-docker run -it --rm postgres psql -h host.docker.internal -U postgres
-&amp;gt; psql: error: connection to server at &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;host.docker.internal&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;192.168.65.2&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;, port &lt;span style=&#34;color:#ae81ff&#34;&gt;5432&lt;/span&gt; failed: server closed the connection unexpectedly
-&amp;gt;         This probably means the server terminated abnormally
-&amp;gt;         before or &lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt; processing the request.
-
-&lt;span style=&#34;color:#75715e&#34;&gt;# d&amp;#39;oh. Why?&lt;/span&gt;
-docker container logs sc
-&amp;gt; 2021/12/18 01:28:47 socat&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;8&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; E getaddrinfo&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;target&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;NULL&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;1,0,1,6&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;, &lt;span style=&#34;color:#f92672&#34;&gt;{})&lt;/span&gt;: Name does not resolve
-
-&lt;span style=&#34;color:#75715e&#34;&gt;# &amp;#34;Does not resolve&amp;#34;. I think means it can&amp;#39;t find the host. Did I need to&lt;/span&gt;
-&lt;span style=&#34;color:#75715e&#34;&gt;# point socat to host.docker.internal?&lt;/span&gt;
-docker stop sc
-docker run -d --rm --name sc -p 5432:6543 alpine/socat &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    tcp-listen:6543,fork,reuseaddr tcp-connect:host.docker.internal:6543
-
-docker run -it --rm postgres psql -h host.docker.internal -U postgres
-&lt;span style=&#34;color:#75715e&#34;&gt;# Yep, I&amp;#39;m in!!&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;endgame&#34;&gt;Endgame&lt;/h2&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# stop the currently running postgres db&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;docker stop pg
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Start it again, this time hosting on port 6543.&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;docker run --rm --name pg -e POSTGRES_PASSWORD&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;pw -e PGPORT&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;6543&lt;/span&gt; -d -p 6543:6543 postgres
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Check it is running, by connecting psql directly:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;docker run -it --rm postgres psql -h host.docker.internal -U postgres -p &lt;span style=&#34;color:#ae81ff&#34;&gt;6543&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# All good. Now, time for socat. The dockerhub page for socat has nearly the&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# use case I want: &amp;#34;Publish a port on an existing container&amp;#34;. In my case, the&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# port is already published (6543), but I want to &amp;#34;republish&amp;#34; it on a different&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# port (5432).&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;docker run -d --rm --name sc -p 5432:6543 alpine/socat &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    tcp-listen:6543,fork,reuseaddr tcp-connect:target:6543
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# I don&amp;#39;t really understand what all those options are doing, so I&amp;#39;ll just hope&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# for the best :) Let&amp;#39;s try connecting psql. Note that psql uses the default&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# port (5432) when you don&amp;#39;t tell it to do otherwise.&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;docker run -it --rm postgres psql -h host.docker.internal -U postgres
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;gt; psql: error: connection to server at &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;host.docker.internal&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;192.168.65.2&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;, port &lt;span style=&#34;color:#ae81ff&#34;&gt;5432&lt;/span&gt; failed: server closed the connection unexpectedly
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;gt;         This probably means the server terminated abnormally
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;gt;         before or &lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt; processing the request.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# d&amp;#39;oh. Why?&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;docker container logs sc
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;gt; 2021/12/18 01:28:47 socat&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;8&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; E getaddrinfo&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;target&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;NULL&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;1,0,1,6&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;, &lt;span style=&#34;color:#f92672&#34;&gt;{})&lt;/span&gt;: Name does not resolve
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# &amp;#34;Does not resolve&amp;#34;. I think means it can&amp;#39;t find the host. Did I need to&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# point socat to host.docker.internal?&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;docker stop sc
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;docker run -d --rm --name sc -p 5432:6543 alpine/socat &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    tcp-listen:6543,fork,reuseaddr tcp-connect:host.docker.internal:6543
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;docker run -it --rm postgres psql -h host.docker.internal -U postgres
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Yep, I&amp;#39;m in!!&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;endgame&#34;&gt;Endgame&lt;/h2&gt;
 &lt;p&gt;Time to try connecting to the database in kubernetes. Here&amp;rsquo;s the goal state
 again:&lt;/p&gt;
 &lt;figure&gt;
@@ -512,37 +512,37 @@ again:&lt;/p&gt;
 &lt;li&gt;socat will essentially just be &amp;lsquo;forwarding&amp;rsquo; postgres&amp;rsquo;s default port&lt;/li&gt;
 &lt;li&gt;I&amp;rsquo;ll need to use &lt;code&gt;kubectl&lt;/code&gt; to forward a local port to the socat pod&lt;/li&gt;
 &lt;/ul&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# This is the host address of where the database is running. This is stored&lt;/span&gt;
-&lt;span style=&#34;color:#75715e&#34;&gt;# in a secret location...&lt;/span&gt;
-DB_HOST&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;asdf
-NAMESPACE&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;my_apps_namespace
-SOCAT_POD_NAME&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;woz-db-proxy
-
-&lt;span style=&#34;color:#75715e&#34;&gt;# Run socat in a pod in kubernetes&lt;/span&gt;
-kubectl run -n &lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;NAMESPACE&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt; --restart&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;Never --image&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;alpine/socat &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;SOCAT_POD_NAME&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt; -- &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    tcp-listen:5432,fork,reuseaddr &lt;span style=&#34;color:#ae81ff&#34;&gt;\
-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    tcp-connect:&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;DB_HOST&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;:5432
-
-&lt;span style=&#34;color:#75715e&#34;&gt;# Wait for the pod to be ready&lt;/span&gt;
-kubectl wait -n &lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;NAMESPACE&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt; --for&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;condition&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;Ready pod/&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;SOCAT_POD_NAME&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;
-
-&lt;span style=&#34;color:#75715e&#34;&gt;# Forward port 5432 to the pod&lt;/span&gt;
-kubectl port-forward -n &lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;NAMESPACE&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt; pod/&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;SOCAT_POD_NAME&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt; 5432:5432
-
-&lt;span style=&#34;color:#75715e&#34;&gt;# The moment of truth ... will it connect?&lt;/span&gt;
-docker run -it --rm postgres psql -h host.docker.internal -U my_user -d my_db
-&amp;gt; Password &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; user postgres:
-&amp;gt; psql &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;14.1 &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;Debian 14.1-1.pgdg110+1&lt;span style=&#34;color:#f92672&#34;&gt;))&lt;/span&gt;
-&amp;gt; Type &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;help&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; help.
-&amp;gt;
-&amp;gt; postgres&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#&lt;/span&gt;
-
-&lt;span style=&#34;color:#75715e&#34;&gt;# Woo #2! I&amp;#39;m in!&lt;/span&gt;
-
-&lt;span style=&#34;color:#75715e&#34;&gt;# Delete the pod when I&amp;#39;m done&lt;/span&gt;
-kubectl delete -n &lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;NAMESPACE&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt; pod/&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;SOCAT_POD_NAME&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt; --grace-period &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; --wait&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;false
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Wahoo! Now I can now do all kinds of silly stuff, like accidentally inserting
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# This is the host address of where the database is running. This is stored&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# in a secret location...&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;DB_HOST&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;asdf
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;NAMESPACE&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;my_apps_namespace
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;SOCAT_POD_NAME&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;woz-db-proxy
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Run socat in a pod in kubernetes&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;kubectl run -n &lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;NAMESPACE&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt; --restart&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;Never --image&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;alpine/socat &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;SOCAT_POD_NAME&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt; -- &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    tcp-listen:5432,fork,reuseaddr &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    tcp-connect:&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;DB_HOST&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;:5432
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Wait for the pod to be ready&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;kubectl wait -n &lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;NAMESPACE&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt; --for&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;condition&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;Ready pod/&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;SOCAT_POD_NAME&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Forward port 5432 to the pod&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;kubectl port-forward -n &lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;NAMESPACE&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt; pod/&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;SOCAT_POD_NAME&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt; 5432:5432
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# The moment of truth ... will it connect?&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;docker run -it --rm postgres psql -h host.docker.internal -U my_user -d my_db
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;gt; Password &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; user postgres:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;gt; psql &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;14.1 &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;Debian 14.1-1.pgdg110+1&lt;span style=&#34;color:#f92672&#34;&gt;))&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;gt; Type &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;help&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; help.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;gt; postgres&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Woo #2! I&amp;#39;m in!&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Delete the pod when I&amp;#39;m done&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;kubectl delete -n &lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;NAMESPACE&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt; pod/&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;SOCAT_POD_NAME&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt; --grace-period &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; --wait&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;false
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Wahoo! Now I can now do all kinds of silly stuff, like accidentally inserting
 test data into production, dropping tables, and overwriting customer data. All
 the fun things in life.&lt;/p&gt;
 &lt;p&gt;I wonder if I could have just used &lt;code&gt;kubectl port-forward&lt;/code&gt; directly to the
@@ -606,7 +606,7 @@ keep the domain model clean, but that was about it. It was only after starting
 work on this post that I realised that DDD covers a huge landscape of software
 development, including many low-level concepts that can be applied even within
 small applications, such as board games!&lt;/p&gt;
-&lt;p&gt;In this post I will focus on some of these low-level &amp;lsquo;tactical&amp;rsquo; aspects of DDD,
+&lt;p&gt;In this post I will focus on some of these low-level &amp;rsquo;tactical&amp;rsquo; aspects of DDD,
 and implementing them in C#. Note that these low level details are only a small
 part of DDD as originally described by Eric Evans in his now famous &lt;a href=&#34;https://www.goodreads.com/book/show/179133.Domain_Driven_Design&#34;&gt;&amp;lsquo;Blue
 book&amp;rsquo;&lt;/a&gt;. See the
@@ -634,7 +634,7 @@ was useful to have as a reference.&lt;/p&gt;
 &lt;h1 id=&#34;applying-ddd-tactics-to-pandemic&#34;&gt;Applying DDD tactics to Pandemic&lt;/h1&gt;
 &lt;p&gt;My stumbling point in the past has been the complex game rules of Pandemic.
 Certain player actions result in chain reactions of side effects. For example,
-if you pick up an &amp;lsquo;epidemic&amp;rsquo; card, a series of events can occur, based on
+if you pick up an &amp;rsquo;epidemic&amp;rsquo; card, a series of events can occur, based on
 certain conditions:&lt;/p&gt;
 &lt;figure&gt;
   &lt;img src=&#34;https://iamwoz.com/blog/20210924_learning_ddd/end_turn_with_epidemic_flow.png&#34;
@@ -695,58 +695,58 @@ down the rules into discrete commands and events will help keep the
 corresponding code manageable.&lt;/p&gt;
 &lt;h2 id=&#34;baby-steps&#34;&gt;Baby steps&lt;/h2&gt;
 &lt;p&gt;Here&amp;rsquo;s my initial aggregate:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cs&#34; data-lang=&#34;cs&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// My one aggregate - the state of the game
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; record PandemicGame
-{
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; Difficulty Difficulty { &lt;span style=&#34;color:#66d9ef&#34;&gt;get&lt;/span&gt;; init; }
-
-    &lt;span style=&#34;color:#75715e&#34;&gt;// Create the game aggregate from an event log
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; PandemicGame FromEvents(IEnumerable&amp;lt;IEvent&amp;gt; events) =&amp;gt;
-        events.Aggregate(&lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; PandemicGame(), Apply);
-
-    &lt;span style=&#34;color:#75715e&#34;&gt;// This is the &amp;#39;set difficulty&amp;#39; command. Commands yield events.
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;// Since I am using event sourcing, there is no need to mutate
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;// the aggregate within the commands. The current state of the
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;// aggregate can be built on demand from the event log.
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; IEnumerable&amp;lt;IEvent&amp;gt; SetDifficulty(
-        List&amp;lt;IEvent&amp;gt; log, Difficulty difficulty)
-    {
-        &lt;span style=&#34;color:#66d9ef&#34;&gt;yield&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; DifficultySet(difficulty);
-    }
-
-    &lt;span style=&#34;color:#75715e&#34;&gt;// Modify the aggregate with an event. Returns an updated copy
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;// of the current aggregate.
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; PandemicGame Apply(
-        PandemicGame pandemicGame, IEvent @event)
-    {
-        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; @event &lt;span style=&#34;color:#66d9ef&#34;&gt;switch&lt;/span&gt;
-        {
-            DifficultySet d =&amp;gt; pandemicGame with {Difficulty = d.Difficulty},
-            _ =&amp;gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;throw&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; ArgumentOutOfRangeException(nameof(@event), @event, &lt;span style=&#34;color:#66d9ef&#34;&gt;null&lt;/span&gt;)
-        };
-    }
-}
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;first-complex-process&#34;&gt;First complex process&lt;/h2&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-cs&#34; data-lang=&#34;cs&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// My one aggregate - the state of the game&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;record&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;PandemicGame&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;{
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; Difficulty Difficulty { &lt;span style=&#34;color:#66d9ef&#34;&gt;get&lt;/span&gt;; &lt;span style=&#34;color:#66d9ef&#34;&gt;init&lt;/span&gt;; }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;// Create the game aggregate from an event log&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; PandemicGame FromEvents(IEnumerable&amp;lt;IEvent&amp;gt; events) =&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        events.Aggregate(&lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; PandemicGame(), Apply);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;// This is the &amp;#39;set difficulty&amp;#39; command. Commands yield events.&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;// Since I am using event sourcing, there is no need to mutate&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;// the aggregate within the commands. The current state of the&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;// aggregate can be built on demand from the event log.&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; IEnumerable&amp;lt;IEvent&amp;gt; SetDifficulty(
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        List&amp;lt;IEvent&amp;gt; log, Difficulty difficulty)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;yield&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; DifficultySet(difficulty);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;// Modify the aggregate with an event. Returns an updated copy&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;// of the current aggregate.&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; PandemicGame Apply(
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        PandemicGame pandemicGame, IEvent @event)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; @event &lt;span style=&#34;color:#66d9ef&#34;&gt;switch&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            DifficultySet d =&amp;gt; pandemicGame with {Difficulty = d.Difficulty},
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            _ =&amp;gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;throw&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; ArgumentOutOfRangeException(nameof(@event), @event, &lt;span style=&#34;color:#66d9ef&#34;&gt;null&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        };
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;first-complex-process&#34;&gt;First complex process&lt;/h2&gt;
 &lt;p&gt;After a few hours of coding simple events, I have reached an interesting point.
 I need to implement the sequence of events that occur when a player does their
 last action. Here&amp;rsquo;s what my current &lt;code&gt;DriveOrFerryPlayer&lt;/code&gt; command looks like:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cs&#34; data-lang=&#34;cs&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; IEnumerable&amp;lt;IEvent&amp;gt; DriveOrFerryPlayer(List&amp;lt;IEvent&amp;gt; log, Role role, &lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt; city)
-{
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (!Board.IsCity(city)) &lt;span style=&#34;color:#66d9ef&#34;&gt;throw&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; InvalidActionException(&lt;span style=&#34;color:#e6db74&#34;&gt;$&amp;#34;Invalid city &amp;#39;{city}&amp;#39;&amp;#34;&lt;/span&gt;);
-
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; state = FromEvents(log);
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; player = state.PlayerByRole(role);
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (!Board.IsAdjacent(player.Location, city))
-    {
-        &lt;span style=&#34;color:#66d9ef&#34;&gt;throw&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; InvalidActionException(
-            &lt;span style=&#34;color:#e6db74&#34;&gt;$&amp;#34;Invalid drive/ferry to non-adjacent city: {player.Location} to {city}&amp;#34;&lt;/span&gt;);
-    }
-
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;yield&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; PlayerMoved(role, city);
-
-    &lt;span style=&#34;color:#75715e&#34;&gt;// todo: handle when this was the player&amp;#39;s last action
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;}
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;To make things easier, I won&amp;rsquo;t consider all the rules as shown in the earlier
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-cs&#34; data-lang=&#34;cs&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; IEnumerable&amp;lt;IEvent&amp;gt; DriveOrFerryPlayer(List&amp;lt;IEvent&amp;gt; log, Role role, &lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt; city)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;{
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (!Board.IsCity(city)) &lt;span style=&#34;color:#66d9ef&#34;&gt;throw&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; InvalidActionException(&lt;span style=&#34;color:#e6db74&#34;&gt;$&amp;#34;Invalid city &amp;#39;{city}&amp;#39;&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; state = FromEvents(log);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; player = state.PlayerByRole(role);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (!Board.IsAdjacent(player.Location, city))
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;throw&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; InvalidActionException(
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#e6db74&#34;&gt;$&amp;#34;Invalid drive/ferry to non-adjacent city: {player.Location} to {city}&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;yield&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; PlayerMoved(role, city);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;// todo: handle when this was the player&amp;#39;s last action&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;To make things easier, I won&amp;rsquo;t consider all the rules as shown in the earlier
 flowchart. Here&amp;rsquo;s a simplified version:&lt;/p&gt;
 &lt;figure&gt;
   &lt;img src=&#34;https://iamwoz.com/blog/20210924_learning_ddd/end_turn_flow_simple.png&#34;
@@ -768,51 +768,51 @@ next to them are issued by the &amp;lsquo;game&amp;rsquo;.&lt;/p&gt;
   Commands are blue, events are orange.&lt;/figcaption&gt;
 &lt;/figure&gt;
 &lt;p&gt;Here&amp;rsquo;s the &lt;code&gt;DriveOrFerryPlayer&lt;/code&gt; command after adding the above events:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cs&#34; data-lang=&#34;cs&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; IEnumerable&amp;lt;IEvent&amp;gt; DriveOrFerryPlayer(
-    List&amp;lt;IEvent&amp;gt; log, Role role, &lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt; city)
-{
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (!Board.IsCity(city))
-        &lt;span style=&#34;color:#66d9ef&#34;&gt;throw&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; InvalidActionException(&lt;span style=&#34;color:#e6db74&#34;&gt;$&amp;#34;Invalid city &amp;#39;{city}&amp;#39;&amp;#34;&lt;/span&gt;);
-
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; state = FromEvents(log);
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; player = state.PlayerByRole(role);
-
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (player.ActionsRemaining == &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;)
-        &lt;span style=&#34;color:#66d9ef&#34;&gt;throw&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; GameRuleViolatedException(
-            &lt;span style=&#34;color:#e6db74&#34;&gt;$&amp;#34;Action not allowed: Player {role} has no actions remaining&amp;#34;&lt;/span&gt;);
-
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (!Board.IsAdjacent(player.Location, city))
-    {
-        &lt;span style=&#34;color:#66d9ef&#34;&gt;throw&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; InvalidActionException(
-            &lt;span style=&#34;color:#e6db74&#34;&gt;$&amp;#34;Invalid drive/ferry to non-adjacent city: {player.Location} to {city}&amp;#34;&lt;/span&gt;);
-    }
-
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;yield&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; PlayerMoved(role, city);
-
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (player.ActionsRemaining == &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;)
-    {
-        &lt;span style=&#34;color:#75715e&#34;&gt;// todo: pick up cards from player draw pile here
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;yield&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; PlayerCardPickedUp(role, &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; PlayerCard(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Atlanta&amp;#34;&lt;/span&gt;));
-        &lt;span style=&#34;color:#66d9ef&#34;&gt;yield&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; PlayerCardPickedUp(role, &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; PlayerCard(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Atlanta&amp;#34;&lt;/span&gt;));
-        &lt;span style=&#34;color:#66d9ef&#34;&gt;foreach&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; @event &lt;span style=&#34;color:#66d9ef&#34;&gt;in&lt;/span&gt; InfectCity(log))
-        {
-            &lt;span style=&#34;color:#66d9ef&#34;&gt;yield&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; @event;
-        }
-        &lt;span style=&#34;color:#66d9ef&#34;&gt;foreach&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; @event &lt;span style=&#34;color:#66d9ef&#34;&gt;in&lt;/span&gt; InfectCity(log))
-        {
-            &lt;span style=&#34;color:#66d9ef&#34;&gt;yield&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; @event;
-        }
-    }
-}
-
-&lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; IEnumerable&amp;lt;IEvent&amp;gt; InfectCity(List&amp;lt;IEvent&amp;gt; log)
-{
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; state = FromEvents(log);
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; infectionCard = state.InfectionDrawPile.Last();
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;yield&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; InfectionCardDrawn(infectionCard.City);
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;yield&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; CubeAddedToCity(infectionCard.City);
-}
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;It&amp;rsquo;s not as bad as I thought it would be! I separated out the private
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-cs&#34; data-lang=&#34;cs&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; IEnumerable&amp;lt;IEvent&amp;gt; DriveOrFerryPlayer(
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    List&amp;lt;IEvent&amp;gt; log, Role role, &lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt; city)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;{
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (!Board.IsCity(city))
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;throw&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; InvalidActionException(&lt;span style=&#34;color:#e6db74&#34;&gt;$&amp;#34;Invalid city &amp;#39;{city}&amp;#39;&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; state = FromEvents(log);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; player = state.PlayerByRole(role);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (player.ActionsRemaining == &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;throw&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; GameRuleViolatedException(
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#e6db74&#34;&gt;$&amp;#34;Action not allowed: Player {role} has no actions remaining&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (!Board.IsAdjacent(player.Location, city))
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;throw&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; InvalidActionException(
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#e6db74&#34;&gt;$&amp;#34;Invalid drive/ferry to non-adjacent city: {player.Location} to {city}&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;yield&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; PlayerMoved(role, city);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (player.ActionsRemaining == &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;// todo: pick up cards from player draw pile here&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;yield&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; PlayerCardPickedUp(role, &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; PlayerCard(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Atlanta&amp;#34;&lt;/span&gt;));
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;yield&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; PlayerCardPickedUp(role, &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; PlayerCard(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Atlanta&amp;#34;&lt;/span&gt;));
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;foreach&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; @event &lt;span style=&#34;color:#66d9ef&#34;&gt;in&lt;/span&gt; InfectCity(log))
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#66d9ef&#34;&gt;yield&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; @event;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;foreach&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; @event &lt;span style=&#34;color:#66d9ef&#34;&gt;in&lt;/span&gt; InfectCity(log))
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#66d9ef&#34;&gt;yield&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; @event;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; IEnumerable&amp;lt;IEvent&amp;gt; InfectCity(List&amp;lt;IEvent&amp;gt; log)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;{
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; state = FromEvents(log);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; infectionCard = state.InfectionDrawPile.Last();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;yield&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; InfectionCardDrawn(infectionCard.City);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;yield&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; CubeAddedToCity(infectionCard.City);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;It&amp;rsquo;s not as bad as I thought it would be! I separated out the private
 &lt;code&gt;InfectCity&lt;/code&gt; command for convenience. It&amp;rsquo;s not a command a player can issue, but
 makes the &lt;code&gt;DriveOrFerryPlayer&lt;/code&gt; code easier to understand from a domain
 perspective. The aggregate is getting large (200 lines so far), but all the code
@@ -832,64 +832,64 @@ purposes, so I will keep emitting events for all modifications of the game
 state. Being able to create the game aggregate in an invalid state is a hazard,
 but for my purposes is very handy for testing. I wonder if there&amp;rsquo;s a way to
 disable the usage of dangerous constructors in production code? I&amp;rsquo;ll put that on
-the &amp;lsquo;to do later&amp;rsquo; pile.&lt;/p&gt;
+the &amp;rsquo;to do later&amp;rsquo; pile.&lt;/p&gt;
 &lt;p&gt;Here&amp;rsquo;s what I have come up with. There are many command and event handlers on
 the aggregate, but they are all following an emerging pattern:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cs&#34; data-lang=&#34;cs&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// Command handlers are public methods on the aggregate. They take parameters
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// relevant to the command, and return a new game aggregate and a collection of
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// events that occurred as a result of the command.
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; (PandemicGame, ICollection&amp;lt;IEvent&amp;gt;) Command(arg1, arg2, ...) {}
-
-&lt;span style=&#34;color:#75715e&#34;&gt;// Event handlers are private static methods (pure functions) that apply a
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// single event to the given aggregate, returning a resultant aggregate.
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; PandemicGame HandleEvent(PandemicGame game, IEvent @event) {}
-
-&lt;span style=&#34;color:#75715e&#34;&gt;// &amp;#39;Internal command handlers&amp;#39; are convenient ways to break down larger
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// commands, that involve many events and conditional logic.
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; PandemicGame InternalCommand(
-    PandemicGame currentState,
-    ICollection&amp;lt;IEvent&amp;gt; events) {}
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Let&amp;rsquo;s see it in action. This is the current state of my &lt;code&gt;DriveOrFerryPlayer&lt;/code&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-cs&#34; data-lang=&#34;cs&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// Command handlers are public methods on the aggregate. They take parameters&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// relevant to the command, and return a new game aggregate and a collection of&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// events that occurred as a result of the command.&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; (PandemicGame, ICollection&amp;lt;IEvent&amp;gt;) Command(arg1, arg2, ...) {}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// Event handlers are private static methods (pure functions) that apply a&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// single event to the given aggregate, returning a resultant aggregate.&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; PandemicGame HandleEvent(PandemicGame game, IEvent @event) {}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// &amp;#39;Internal command handlers&amp;#39; are convenient ways to break down larger&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// commands, that involve many events and conditional logic.&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; PandemicGame InternalCommand(
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    PandemicGame currentState,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    ICollection&amp;lt;IEvent&amp;gt; events) {}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Let&amp;rsquo;s see it in action. This is the current state of my &lt;code&gt;DriveOrFerryPlayer&lt;/code&gt;
 command handler, which needs to perform a number of actions when the player has
 performed the last action for their turn:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cs&#34; data-lang=&#34;cs&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; (PandemicGame, ICollection&amp;lt;IEvent&amp;gt;) DriveOrFerryPlayer(Role role, &lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt; city)
-{
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (!Board.IsCity(city))
-        &lt;span style=&#34;color:#66d9ef&#34;&gt;throw&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; InvalidActionException(&lt;span style=&#34;color:#e6db74&#34;&gt;$&amp;#34;Invalid city &amp;#39;{city}&amp;#39;&amp;#34;&lt;/span&gt;);
-
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; player = PlayerByRole(role);
-
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (player.ActionsRemaining == &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;)
-        &lt;span style=&#34;color:#66d9ef&#34;&gt;throw&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; GameRuleViolatedException(
-            &lt;span style=&#34;color:#e6db74&#34;&gt;$&amp;#34;Action not allowed: Player {role} has no actions remaining&amp;#34;&lt;/span&gt;);
-
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (!Board.IsAdjacent(player.Location, city))
-    {
-        &lt;span style=&#34;color:#66d9ef&#34;&gt;throw&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; InvalidActionException(
-            &lt;span style=&#34;color:#e6db74&#34;&gt;$&amp;#34;Invalid drive/ferry to non-adjacent city: {player.Location} to {city}&amp;#34;&lt;/span&gt;);
-    }
-
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; (currentState, events) = ApplyEvents(&lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; PlayerMoved(role, city));
-
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (currentState.CurrentPlayer.ActionsRemaining == &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;)
-        currentState = DoStuffAfterActions(currentState, events);
-
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; (currentState, events);
-}
-
-&lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; PandemicGame DoStuffAfterActions(
-    PandemicGame currentState,
-    ICollection&amp;lt;IEvent&amp;gt; events)
-{
-    currentState = PickUpCard(currentState, events);
-    currentState = PickUpCard(currentState, events);
-
-    currentState = InfectCity(currentState, events);
-    currentState = InfectCity(currentState, events);
-
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; currentState;
-}
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;code&gt;DriveOrFerryPlayer&lt;/code&gt; is going to continue to grow as I add more game logic. I&amp;rsquo;m
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-cs&#34; data-lang=&#34;cs&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; (PandemicGame, ICollection&amp;lt;IEvent&amp;gt;) DriveOrFerryPlayer(Role role, &lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt; city)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;{
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (!Board.IsCity(city))
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;throw&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; InvalidActionException(&lt;span style=&#34;color:#e6db74&#34;&gt;$&amp;#34;Invalid city &amp;#39;{city}&amp;#39;&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; player = PlayerByRole(role);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (player.ActionsRemaining == &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;throw&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; GameRuleViolatedException(
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#e6db74&#34;&gt;$&amp;#34;Action not allowed: Player {role} has no actions remaining&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (!Board.IsAdjacent(player.Location, city))
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;throw&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; InvalidActionException(
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#e6db74&#34;&gt;$&amp;#34;Invalid drive/ferry to non-adjacent city: {player.Location} to {city}&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; (currentState, events) = ApplyEvents(&lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; PlayerMoved(role, city));
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (currentState.CurrentPlayer.ActionsRemaining == &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        currentState = DoStuffAfterActions(currentState, events);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; (currentState, events);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; PandemicGame DoStuffAfterActions(
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    PandemicGame currentState,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    ICollection&amp;lt;IEvent&amp;gt; events)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;{
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    currentState = PickUpCard(currentState, events);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    currentState = PickUpCard(currentState, events);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    currentState = InfectCity(currentState, events);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    currentState = InfectCity(currentState, events);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; currentState;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;code&gt;DriveOrFerryPlayer&lt;/code&gt; is going to continue to grow as I add more game logic. I&amp;rsquo;m
 a little worried about that. There are more DDD concepts that I may be able to
 use here: &amp;lsquo;sagas&amp;rsquo; or &amp;lsquo;process managers&amp;rsquo;, and &amp;lsquo;services&amp;rsquo;. I don&amp;rsquo;t know if these
 are appropriate, as I believe they are intended to coordinate behaviour between
@@ -901,29 +901,29 @@ and private command handlers.&lt;/p&gt;
 data types. Immutable collection methods return updated copies of the
 collections, as does the &lt;code&gt;with&lt;/code&gt; expression for C# records. This makes it very
 easy to create new states based on events. For example:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cs&#34; data-lang=&#34;cs&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; PandemicGame ApplyPlayerCardDiscarded(
-  PandemicGame game,
-  PlayerCardDiscarded discarded)
-{
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; discardedCard = game
-      .CurrentPlayer
-      .Hand
-      .Single(c =&amp;gt; c.City == discarded.City);
-
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; game with
-    {
-        Players = game
-          .Players
-          .Replace(game.CurrentPlayer, game.CurrentPlayer with
-          {
-              Hand = game
-                .CurrentPlayer
-                .Hand
-                .Remove(discardedCard)
-          })
-    };
-}
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/blockquote&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-cs&#34; data-lang=&#34;cs&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; PandemicGame ApplyPlayerCardDiscarded(
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  PandemicGame game,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  PlayerCardDiscarded discarded)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;{
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; discardedCard = game
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      .CurrentPlayer
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      .Hand
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      .Single(c =&amp;gt; c.City == discarded.City);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; game with
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Players = game
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;          .Players
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;          .Replace(game.CurrentPlayer, game.CurrentPlayer with
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;          {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;              Hand = game
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                .CurrentPlayer
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                .Hand
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                .Remove(discardedCard)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;          })
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    };
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/blockquote&gt;
 &lt;h1 id=&#34;wrapping-up-this-post&#34;&gt;Wrapping up this post&lt;/h1&gt;
 &lt;p&gt;Despite the above concerns, I am confident that I can incrementally add game
 rules until I have a full game implementation. The biggest benefit I have got
@@ -1049,38 +1049,38 @@ I&amp;rsquo;ll make a bot that beats his!&amp;rdquo;. Read on to see how that we
 &lt;p&gt;To get a better understanding of how to use Andoma, I made a random bot that it
 could play against. This way, I could quickly see how Andoma performs against
 a rubbish opponent. As expected, Andoma wins every game.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-py&#34; data-lang=&#34;py&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;andoma_vs_random&lt;/span&gt;():
-    board &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; chess&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Board()
-
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;move&lt;/span&gt;():
-        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; random_move(board) &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; board&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;turn &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; chess&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;WHITE &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt; andoma_move(board)
-
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;not&lt;/span&gt; board&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;is_game_over():
-        board&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;push(move())
-
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;print&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;Random [W] vs Andoma [b]:&amp;#39;&lt;/span&gt;)
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;print&lt;/span&gt;(board)
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;print&lt;/span&gt;(f&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;Result: [W] {board.result()} [b]&amp;#34;&lt;/span&gt;)
-
-&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;andoma_move&lt;/span&gt;(board: chess&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Board) &lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt; chess&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Move:
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; next_move(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, board, debug&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;False)
-
-&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;random_move&lt;/span&gt;(board: chess&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Board) &lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt; chess&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Move:
-    legal_moves &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; list(board&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;legal_moves)
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; random&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;choice(legal_moves)
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The result:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;Random &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;W&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; vs Andoma &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;b&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;:
-r . . . . r k .
-p p p . . p p p
-. . p . . . . .
-. . b . . . . .
-. . . . . . . .
-. . . n p . . .
-. . . q . . . P
-. . . K . . . R
-
-Result: &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;W&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; 0-1 &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;b&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;See &lt;a href=&#34;#notation&#34;&gt;notation&lt;/a&gt; to understand the output.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-py&#34; data-lang=&#34;py&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;andoma_vs_random&lt;/span&gt;():
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    board &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; chess&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Board()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;move&lt;/span&gt;():
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; random_move(board) &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; board&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;turn &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; chess&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;WHITE &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt; andoma_move(board)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;not&lt;/span&gt; board&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;is_game_over():
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        board&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;push(move())
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    print(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;Random [W] vs Andoma [b]:&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    print(board)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    print(&lt;span style=&#34;color:#e6db74&#34;&gt;f&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;Result: [W] &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{&lt;/span&gt;board&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;result()&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt; [b]&amp;#34;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;andoma_move&lt;/span&gt;(board: chess&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Board) &lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt; chess&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Move:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; next_move(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, board, debug&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;False&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;random_move&lt;/span&gt;(board: chess&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Board) &lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt; chess&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Move:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    legal_moves &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; list(board&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;legal_moves)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; random&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;choice(legal_moves)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The result:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Random &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;W&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; vs Andoma &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;b&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;r . . . . r k .
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;p p p . . p p p
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;. . p . . . . .
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;. . b . . . . .
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;. . . . . . . .
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;. . . n p . . .
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;. . . q . . . P
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;. . . K . . . R
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Result: &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;W&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; 0-1 &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;b&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;See &lt;a href=&#34;#notation&#34;&gt;notation&lt;/a&gt; to understand the output.&lt;/p&gt;
 &lt;h1 id=&#34;step-two-make-a-random-bot-with-openspiel&#34;&gt;Step two: make a random bot with OpenSpiel&lt;/h1&gt;
 &lt;p&gt;I&amp;rsquo;ve been playing with &lt;a href=&#34;https://github.com/deepmind/open_spiel&#34;&gt;OpenSpiel&lt;/a&gt;,
 which comes with a bunch of algorithms and environments. It&amp;rsquo;s got an algorithm I
@@ -1088,19 +1088,19 @@ want to use to fight Andoma, but my first baby step is to just make a simple
 bot. OpenSpiel comes with a chess implementation and a generic random bot. All
 games/environments share a common interface, so it&amp;rsquo;s simply a matter of hooking
 up the pieces:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-py&#34; data-lang=&#34;py&#34;&gt;game &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; pyspiel&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;load_game(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;chess&amp;#34;&lt;/span&gt;)
-player_1 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; uniform_random&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;UniformRandomBot(&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, np&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;random&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;RandomState())
-player_2 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; uniform_random&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;UniformRandomBot(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, np&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;random&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;RandomState())
-players &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; [player_1, player_2]
-
-state &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; game&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;new_initial_state()
-
-&lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;not&lt;/span&gt; state&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;is_terminal():
-  current_player_idx &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; state&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;current_player()
-  current_player &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; players[current_player_idx]
-  action &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; current_player&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;step(state)
-  state&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;apply_action(action)
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;If you&amp;rsquo;re interested in using OpenSpiel, my &lt;a href=&#34;https://github.com/uozuAho/open_spiel_playground&#34;&gt;OpenSpiel playground&lt;/a&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-py&#34; data-lang=&#34;py&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;game &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; pyspiel&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;load_game(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;chess&amp;#34;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;player_1 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; uniform_random&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;UniformRandomBot(&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, np&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;random&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;RandomState())
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;player_2 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; uniform_random&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;UniformRandomBot(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, np&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;random&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;RandomState())
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;players &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; [player_1, player_2]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;state &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; game&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;new_initial_state()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;not&lt;/span&gt; state&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;is_terminal():
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  current_player_idx &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; state&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;current_player()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  current_player &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; players[current_player_idx]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  action &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; current_player&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;step(state)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  state&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;apply_action(action)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;If you&amp;rsquo;re interested in using OpenSpiel, my &lt;a href=&#34;https://github.com/uozuAho/open_spiel_playground&#34;&gt;OpenSpiel playground&lt;/a&gt;
 can get you up and running with relative ease. OpenSpiel&amp;rsquo;s &lt;a href=&#34;https://github.com/deepmind/open_spiel/blob/master/docs/intro.md&#34;&gt;documentation&lt;/a&gt;
 is enough to cobble bits together, but you may end up needing to read some of
 the source code for specifics.&lt;/p&gt;
@@ -1147,41 +1147,41 @@ approach for the MCTS algorithm in OpenSpiel.&lt;/p&gt;
 &lt;p&gt;The above images show that MCTS is more akin to depth-first search, while
 alpha-beta pruning is breadth-first.&lt;/p&gt;
 &lt;p&gt;To create a generic MCTS bot with OpenSpiel:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-py&#34; data-lang=&#34;py&#34;&gt;bot &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; mcts&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;MCTSBot(
-    game,
-    uct_c&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;math&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;sqrt(&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;),
-    max_simulations&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;,
-    evaluator&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;mcts&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;RandomRolloutEvaluator(n_rollouts&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;))
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h1 id=&#34;off-to-a-good-start&#34;&gt;Off to a good start&lt;/h1&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-py&#34; data-lang=&#34;py&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;bot &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; mcts&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;MCTSBot(
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    game,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    uct_c&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;math&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;sqrt(&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;),
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    max_simulations&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    evaluator&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;mcts&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;RandomRolloutEvaluator(n_rollouts&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;))
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h1 id=&#34;off-to-a-good-start&#34;&gt;Off to a good start&lt;/h1&gt;
 &lt;p&gt;I wrapped Andoma in an OpenSpiel bot interface (see below). It took a bit of
 learning about chess notation to map &lt;a href=&#34;https://pypi.org/project/chess/&#34;&gt;pychess&lt;/a&gt;&amp;rsquo;s
 moves to the valid moves presented by OpenSpiel&amp;rsquo;s chess implementation. See the
 &lt;a href=&#34;#notation&#34;&gt;appendix&lt;/a&gt; for the notation used in this post. You can
 see the full code from my
 &lt;a href=&#34;https://github.com/uozuAho/open_spiel_playground/blob/fc8903bb71a237150bf6742a24a513ab7b1f02ff/chess/bot_vs_bot.py#L22&#34;&gt;bot_vs_bot.py script&lt;/a&gt;.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-py&#34; data-lang=&#34;py&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;AndomaBot&lt;/span&gt;(pyspiel&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Bot):
-  &lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; __init__(self, search_depth&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;):
-    pyspiel&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Bot&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;__init__(self)
-    self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;search_depth &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; search_depth
-
-  &lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;step&lt;/span&gt;(self, state: pyspiel&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;State) &lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt; int:
-    board &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; chess&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Board(str(state))
-    move &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; movegeneration&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;next_move(self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;search_depth, board, debug&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;False)
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;_pychess_to_spiel_move(move, state)
-
-  &lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;_pychess_to_spiel_move&lt;/span&gt;(self, move: chess&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Move, state: pyspiel&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;State):
-    &lt;span style=&#34;color:#75715e&#34;&gt;# This is necessary, as openspiel&amp;#39;s chess move notation sometimes differs&lt;/span&gt;
-    &lt;span style=&#34;color:#75715e&#34;&gt;# from pychess&amp;#39;s. Details omitted for brevity.&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With that thin wrapper, I had the MCTS and Andoma bots fighting! My MCTS bot was
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-py&#34; data-lang=&#34;py&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;AndomaBot&lt;/span&gt;(pyspiel&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Bot):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; __init__(self, search_depth&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    pyspiel&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Bot&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;__init__(self)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;search_depth &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; search_depth
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;step&lt;/span&gt;(self, state: pyspiel&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;State) &lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt; int:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    board &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; chess&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Board(str(state))
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    move &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; movegeneration&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;next_move(self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;search_depth, board, debug&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;False&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;_pychess_to_spiel_move(move, state)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;_pychess_to_spiel_move&lt;/span&gt;(self, move: chess&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Move, state: pyspiel&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;State):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# This is necessary, as openspiel&amp;#39;s chess move notation sometimes differs&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# from pychess&amp;#39;s. Details omitted for brevity.&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With that thin wrapper, I had the MCTS and Andoma bots fighting! My MCTS bot was
 winning every game, even when Andoma&amp;rsquo;s search depth was set to 3 (slow!), and
 MCTS only doing 2 full game simulations per move. After the few seconds of
 elation at being an instant master game AI programmer, I figured I&amp;rsquo;d made a
 mistake somewhere.&lt;/p&gt;
 &lt;h1 id=&#34;oops&#34;&gt;Oops&lt;/h1&gt;
 &lt;p&gt;Here was my problem:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-py&#34; data-lang=&#34;py&#34;&gt;player_label &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; [&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;mcts&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;andoma&amp;#39;&lt;/span&gt;]
-winner &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; player_label[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;] &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; winner_idx &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt; player_label[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;]
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Derp. Happens to the best of us.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-py&#34; data-lang=&#34;py&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;player_label &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; [&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;mcts&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;andoma&amp;#39;&lt;/span&gt;]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;winner &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; player_label[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;] &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; winner_idx &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt; player_label[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;]
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Derp. Happens to the best of us.&lt;/p&gt;
 &lt;p&gt;With that fixed, I found that Andoma was winning every game, even when its
 search depth was set to 1, and MCTS was doing 10 full game simulations, each
 with 10 rollouts per search node. Each game was taking about a minute to run at
@@ -1199,26 +1199,26 @@ few seconds to run.&lt;/p&gt;
 &lt;p&gt;Rather than simulating games by making random moves, what about using Andoma&amp;rsquo;s
 move evaluation to greedily pick the &amp;lsquo;best&amp;rsquo; move at each game state? This was
 easy to try, as the OpenSpiel MCTS implementation allows for easy swapping of
-&amp;lsquo;evaluator&amp;rsquo; implementations (one being the neural network used by AlphaGo). I
+&amp;rsquo;evaluator&amp;rsquo; implementations (one being the neural network used by AlphaGo). I
 plugged in this evaluator:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-py&#34; data-lang=&#34;py&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;AndomaValuesRolloutEvaluator&lt;/span&gt;:
-  &lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;evaluate&lt;/span&gt;(self, state):
-    &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&amp;#34;&amp;#34; &amp;#39;Rolls out&amp;#39; a complete game, returning the outcome.
-&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;        There&amp;#39;s no need for multiple rollouts, since Andoma&amp;#39;s
-&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;        move choice is deterministic.
-&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    &amp;#34;&amp;#34;&amp;#34;&lt;/span&gt;
-    working_state &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; state&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;clone()
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;not&lt;/span&gt; working_state&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;is_terminal():
-      action &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;_best_action(working_state)
-      working_state&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;apply_action(action)
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; np&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;array(working_state&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;returns())
-
-  &lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;_best_action&lt;/span&gt;(self, state: pyspiel&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;State) &lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt; int:
-    board &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; chess&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Board(str(state))
-    &lt;span style=&#34;color:#75715e&#34;&gt;# return the &amp;#39;best&amp;#39; move decided by Andoma&amp;#39;s move ordering&lt;/span&gt;
-    move &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; get_ordered_moves(board)[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;]
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;_pychess_to_spiel_move(move, state)
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Coupled with this evaluator, MCTS was able to beat a random bot more often.
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-py&#34; data-lang=&#34;py&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;AndomaValuesRolloutEvaluator&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;evaluate&lt;/span&gt;(self, state):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&amp;#34;&amp;#34; &amp;#39;Rolls out&amp;#39; a complete game, returning the outcome.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;        There&amp;#39;s no need for multiple rollouts, since Andoma&amp;#39;s
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;        move choice is deterministic.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    &amp;#34;&amp;#34;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    working_state &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; state&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;clone()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;not&lt;/span&gt; working_state&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;is_terminal():
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      action &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;_best_action(working_state)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      working_state&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;apply_action(action)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; np&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;array(working_state&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;returns())
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;_best_action&lt;/span&gt;(self, state: pyspiel&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;State) &lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt; int:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    board &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; chess&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Board(str(state))
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# return the &amp;#39;best&amp;#39; move decided by Andoma&amp;#39;s move ordering&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    move &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; get_ordered_moves(board)[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;_pychess_to_spiel_move(move, state)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Coupled with this evaluator, MCTS was able to beat a random bot more often.
 However, its performance (execution time) was pretty hopeless. A quick look at
 the profiler results (&lt;code&gt;python -m cProfile -s time my_slow_program.py&lt;/code&gt; FTW!)
 showed that the translation of moves between OpenSpiel and pychess was taking up
@@ -1227,7 +1227,7 @@ was in creating a bot that could play chess with zero knowledge (outside of the
 game rules), and this experiment was just for curiosity&amp;rsquo;s sake.&lt;/p&gt;
 &lt;h1 id=&#34;what-next&#34;&gt;What next?&lt;/h1&gt;
 &lt;p&gt;I&amp;rsquo;ve just finished part one of &lt;a href=&#34;https://www.goodreads.com/book/show/739791.Reinforcement_Learning&#34;&gt;Reinforcement Learning: An Introduction&lt;/a&gt;,
-which is all about &amp;lsquo;tabular&amp;rsquo; methods. These are algorithms that learn by storing
+which is all about &amp;rsquo;tabular&amp;rsquo; methods. These are algorithms that learn by storing
 all observed states and estimating each state&amp;rsquo;s value through many playthroughs
 of the game. These methods are impractical for chess, which apparently has more
 possible game states than there are atoms in the universe!&lt;/p&gt;
@@ -1256,15 +1256,15 @@ There&amp;rsquo;s plenty of descriptions of FEN on the internet. If you want mor
 &lt;p&gt;&lt;code&gt;rnbqk1nr/p1ppppbp/1p4p1/8/2P5/2Q5/PP1PPPPP/RNB1KBNR b KQkq - 0 1&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;The first chunk of characters describes the position of the chess pieces. The
 above string translates to:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;r n b q k . n r
-p . p p p p b p
-. p . . . . p .
-. . . . . . . .
-. . P . . . . .
-. . Q . . . . .
-P P . P P P P P
-R N B . K B N R
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The characters after the piece positions:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;r n b q k . n r
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;p . p p p p b p
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;. p . . . . p .
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;. . . . . . . .
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;. . P . . . . .
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;. . Q . . . . .
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;P P . P P P P P
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;R N B . K B N R
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The characters after the piece positions:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;code&gt;b&lt;/code&gt;: it is currently black&amp;rsquo;s turn to move (w for white&amp;rsquo;s move)&lt;/li&gt;
 &lt;li&gt;&lt;code&gt;KQkq&lt;/code&gt;: castling rights&lt;/li&gt;
@@ -1274,22 +1274,22 @@ get in the way of making my chess bots.&lt;/li&gt;
 the game a draw if this clock reaches 100&lt;/li&gt;
 &lt;li&gt;&lt;code&gt;1&lt;/code&gt;: fullmove counter: increments by one after each black move&lt;/li&gt;
 &lt;/ul&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;rnbqk1nr/p1ppppbp/1p4p1/8/2P5/2Q5/PP1PPPPP/RNB1KBNR b KQkq - &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
-───────────┬───────────   ────────────┬──────────── ▲ ──┬─ ▲ ▲ ▲
-           │                          │             │   │  │ │ └─fullmove counter
-           │                          │             │   │  │ │
-           │                          │             │   │  │ └───halfmove clock
-           │                          │             │   │  │
-           │                          │             │   │  └─────en passant targets
-           │                          │             │   │
-           │                          │             │   └────────castling rights, white, black
-           │                          │             │
-           │                          │             └────────────black&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;&amp;#39;&lt;/span&gt;s move
-           │                          │
-           │                          └──────────────────────────white pieces are uppercase
-           │
-           └─────────────────────────────────────────────────────black pieces are lowercase
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;move-notation&#34;&gt;Move notation&lt;/h2&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;rnbqk1nr/p1ppppbp/1p4p1/8/2P5/2Q5/PP1PPPPP/RNB1KBNR b KQkq - &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;───────────┬───────────   ────────────┬──────────── ▲ ──┬─ ▲ ▲ ▲
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;           │                          │             │   │  │ │ └─fullmove counter
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;           │                          │             │   │  │ │
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;           │                          │             │   │  │ └───halfmove clock
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;           │                          │             │   │  │
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;           │                          │             │   │  └─────en passant targets
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;           │                          │             │   │
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;           │                          │             │   └────────castling rights, white, black
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;           │                          │             │
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;           │                          │             └────────────black&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;&amp;#39;&lt;/span&gt;s move
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;           │                          │
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;           │                          └──────────────────────────white pieces are uppercase
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;           │
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;           └─────────────────────────────────────────────────────black pieces are lowercase
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;move-notation&#34;&gt;Move notation&lt;/h2&gt;
 &lt;p&gt;FEN only describes the current game state, not moves that occur within the game.
 There are multiple notations, but &lt;a href=&#34;https://en.wikipedia.org/wiki/Algebraic_notation_(chess)&#34;&gt;algebraic notation&lt;/a&gt;
 seems to be pretty common.&lt;/p&gt;
@@ -1298,21 +1298,21 @@ seems to be pretty common.&lt;/p&gt;
 &lt;li&gt;rank = row&lt;/li&gt;
 &lt;li&gt;file = column&lt;/li&gt;
 &lt;/ul&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;rank
-   |
-   v
-
-   &lt;span style=&#34;color:#ae81ff&#34;&gt;8&lt;/span&gt;   r n b q k . n r
-   &lt;span style=&#34;color:#ae81ff&#34;&gt;7&lt;/span&gt;   p . p p p p b p
-   &lt;span style=&#34;color:#ae81ff&#34;&gt;6&lt;/span&gt;   . p . . . . p .
-   &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt;   . . . . . . . .
-   &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt;   . . P . . . . .
-   &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;   . . Q . . . . .
-   &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;   P P . P P P P P
-   &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;   R N B . K B N R
-
-       a b c d e f g h   &amp;lt;-- file
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;moves&#34;&gt;Moves&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;rank
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;   |
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;   v
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;8&lt;/span&gt;   r n b q k . n r
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;7&lt;/span&gt;   p . p p p p b p
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;6&lt;/span&gt;   . p . . . . p .
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt;   . . . . . . . .
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt;   . . P . . . . .
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;   . . Q . . . . .
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;   P P . P P P P P
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;   &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;   R N B . K B N R
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;       a b c d e f g h   &amp;lt;-- file
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;moves&#34;&gt;Moves&lt;/h3&gt;
 &lt;p&gt;Moves are denoted by the letter specifying the piece, and the board position it
 moves to. Pawn moves don&amp;rsquo;t use a letter specifier. For example:&lt;/p&gt;
 &lt;ul&gt;
@@ -1414,44 +1414,44 @@ I inevitably try out new stuff.&lt;/p&gt;
 &lt;p&gt;Percy is just a visual comparison tool, not a testing framework. It supports
 many frameworks, including &lt;a href=&#34;https://webdriver.io/&#34;&gt;WebdriverIO&lt;/a&gt; which I&amp;rsquo;m
 familiar with, so let&amp;rsquo;s start with that:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# initialise npm in my blog project (nooo! I didn&amp;#39;t think it would happen so soon :( )&lt;/span&gt;
-npm init
-&lt;span style=&#34;color:#75715e&#34;&gt;# add webdriver&lt;/span&gt;
-npm install @wdio/cli
-npx wdio init
-&lt;span style=&#34;color:#75715e&#34;&gt;# modify package.json to make the test script = wdio ./wdio.conf.js&lt;/span&gt;
-&lt;span style=&#34;color:#75715e&#34;&gt;# check it works:&lt;/span&gt;
-npm test
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;All good. Now replace the example test &lt;code&gt;wdio&lt;/code&gt; created with just opening a few
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# initialise npm in my blog project (nooo! I didn&amp;#39;t think it would happen so soon :( )&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;npm init
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# add webdriver&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;npm install @wdio/cli
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;npx wdio init
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# modify package.json to make the test script = wdio ./wdio.conf.js&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# check it works:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;npm test
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;All good. Now replace the example test &lt;code&gt;wdio&lt;/code&gt; created with just opening a few
 pages on my site running locally:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-js&#34; data-lang=&#34;js&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;baseUrl&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;http://localhost:1313&amp;#39;&lt;/span&gt;;
-
-&lt;span style=&#34;color:#66d9ef&#34;&gt;async&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;function&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;click&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;selector&lt;/span&gt;) {
-  &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;elem&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;await&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;$&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;selector&lt;/span&gt;);
-  &lt;span style=&#34;color:#66d9ef&#34;&gt;await&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;elem&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;waitForDisplayed&lt;/span&gt;();
-  &lt;span style=&#34;color:#66d9ef&#34;&gt;await&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;elem&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;click&lt;/span&gt;();
-}
-
-&lt;span style=&#34;color:#a6e22e&#34;&gt;describe&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;stuff&amp;#39;&lt;/span&gt;, () =&amp;gt; {
-  &lt;span style=&#34;color:#a6e22e&#34;&gt;it&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;goto homepage&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#66d9ef&#34;&gt;async&lt;/span&gt; () =&amp;gt; {
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;await&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;browser&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;url&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;baseUrl&lt;/span&gt;);
-  });
-
-  &lt;span style=&#34;color:#a6e22e&#34;&gt;it&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;goto blog&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#66d9ef&#34;&gt;async&lt;/span&gt; () =&amp;gt; {
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;await&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;browser&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;url&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;baseUrl&lt;/span&gt;);
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;await&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;click&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;=Blog&amp;#39;&lt;/span&gt;);
-  });
-});
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;In one terminal:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;hugo server
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;In another terminal:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;npm test
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;OK. This should be enough to take a couple of snapshots with Percy. Install it:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;npm i @percy/cli @percy/webdriverio
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Add a &lt;code&gt;percySnapshot&lt;/code&gt; at the end of each test, then run:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;export PERCY_TOKEN&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;my_secret_token
-npx percy exec -- wdio ./wdio.conf.js
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;All my pages are new at this point, so there&amp;rsquo;s no changes to compare:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-js&#34; data-lang=&#34;js&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;baseUrl&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;http://localhost:1313&amp;#39;&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;async&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;function&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;click&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;selector&lt;/span&gt;) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;elem&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;await&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;$&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;selector&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;await&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;elem&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;waitForDisplayed&lt;/span&gt;();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;await&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;elem&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;click&lt;/span&gt;();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;describe&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;stuff&amp;#39;&lt;/span&gt;, () =&amp;gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#a6e22e&#34;&gt;it&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;goto homepage&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#66d9ef&#34;&gt;async&lt;/span&gt; () =&amp;gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;await&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;browser&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;url&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;baseUrl&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  });
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#a6e22e&#34;&gt;it&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;goto blog&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#66d9ef&#34;&gt;async&lt;/span&gt; () =&amp;gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;await&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;browser&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;url&lt;/span&gt;(&lt;span style=&#34;color:#a6e22e&#34;&gt;baseUrl&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;await&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;click&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;=Blog&amp;#39;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  });
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;});
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;In one terminal:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;hugo server
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;In another terminal:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;npm test
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;OK. This should be enough to take a couple of snapshots with Percy. Install it:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;npm i @percy/cli @percy/webdriverio
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Add a &lt;code&gt;percySnapshot&lt;/code&gt; at the end of each test, then run:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;export PERCY_TOKEN&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;my_secret_token
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;npx percy exec -- wdio ./wdio.conf.js
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;All my pages are new at this point, so there&amp;rsquo;s no changes to compare:&lt;/p&gt;
 &lt;p&gt;&lt;img
 src=&#34;https://iamwoz.com/blog/20210618_percy/new_snapshot.png&#34;
 alt=&#34;example of a new snapshot display on Percy&#39;s UI&#34; /&gt;&lt;/p&gt;
@@ -1460,40 +1460,40 @@ alt=&#34;example of a new snapshot display on Percy&#39;s UI&#34; /&gt;&lt;/p&gt
 there&amp;rsquo;s an easier process. For static sites like this one, the
 &lt;a href=&#34;https://docs.percy.io/docs/snapshot-cli-command&#34;&gt;Percy CLI&lt;/a&gt; can take snapshots
 of all published content. Let&amp;rsquo;s try that:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# publish everything&lt;/span&gt;
-hugo
-&lt;span style=&#34;color:#75715e&#34;&gt;# snapshot all html files, and send to percy&lt;/span&gt;
-npx percy snapshot public/
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This is much easier than using webdriver! In the bin!&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# publish everything&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;hugo
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# snapshot all html files, and send to percy&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;npx percy snapshot public/
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This is much easier than using webdriver! In the bin!&lt;/p&gt;
 &lt;p&gt;Also, I&amp;rsquo;ve just realised that the only browsers currently supported by Percy are
 Chrome, Edge and Firefox. Derp. So much for using it to detect problems on
 Safari. Ah well, I&amp;rsquo;ve come this far, and it may still come in handy. Let&amp;rsquo;s get
 it running in GitHub instead of locally. Add the Percy token to the GitHub repo:
 Go to the repo, then: settings -&amp;gt; secrets -&amp;gt; new secret.&lt;/p&gt;
 &lt;p&gt;Then, create an action in &lt;code&gt;.github/workflows&lt;/code&gt;:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-yml&#34; data-lang=&#34;yml&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;name&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;Percy&lt;/span&gt;
-&lt;span style=&#34;color:#f92672&#34;&gt;on&lt;/span&gt;: [&lt;span style=&#34;color:#ae81ff&#34;&gt;push]&lt;/span&gt;
-&lt;span style=&#34;color:#f92672&#34;&gt;jobs&lt;/span&gt;:
-  &lt;span style=&#34;color:#f92672&#34;&gt;snapshot&lt;/span&gt;:
-    &lt;span style=&#34;color:#f92672&#34;&gt;runs-on&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;ubuntu-latest&lt;/span&gt;
-    &lt;span style=&#34;color:#f92672&#34;&gt;steps&lt;/span&gt;:
-      - &lt;span style=&#34;color:#f92672&#34;&gt;uses&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;actions/checkout@v2&lt;/span&gt;
-      - &lt;span style=&#34;color:#f92672&#34;&gt;name&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;get Node.js&lt;/span&gt;
-        &lt;span style=&#34;color:#f92672&#34;&gt;uses&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;actions/setup-node@v1&lt;/span&gt;
-        &lt;span style=&#34;color:#f92672&#34;&gt;with&lt;/span&gt;:
-          &lt;span style=&#34;color:#f92672&#34;&gt;node-version&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;12.&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;x&lt;/span&gt;
-      - &lt;span style=&#34;color:#f92672&#34;&gt;run&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;npm ci&lt;/span&gt;
-      &lt;span style=&#34;color:#75715e&#34;&gt;# don&amp;#39;t need to do a hugo build here - I do that locally, for now at least&lt;/span&gt;
-      - &lt;span style=&#34;color:#f92672&#34;&gt;run&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;npx percy snapshot public/&lt;/span&gt;
-        &lt;span style=&#34;color:#f92672&#34;&gt;env&lt;/span&gt;:
-          &lt;span style=&#34;color:#f92672&#34;&gt;PERCY_TOKEN&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;${{ secrets.PERCY_TOKEN }}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Push the changes. If all&amp;rsquo;s gone well, the action will upload the site&amp;rsquo;s
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-yml&#34; data-lang=&#34;yml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;name&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;Percy&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;on&lt;/span&gt;: [&lt;span style=&#34;color:#ae81ff&#34;&gt;push]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;jobs&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;snapshot&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;runs-on&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;ubuntu-latest&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;steps&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      - &lt;span style=&#34;color:#f92672&#34;&gt;uses&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;actions/checkout@v2&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      - &lt;span style=&#34;color:#f92672&#34;&gt;name&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;get Node.js&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#f92672&#34;&gt;uses&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;actions/setup-node@v1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#f92672&#34;&gt;with&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;          &lt;span style=&#34;color:#f92672&#34;&gt;node-version&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;12.&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;x&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      - &lt;span style=&#34;color:#f92672&#34;&gt;run&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;npm ci&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#75715e&#34;&gt;# don&amp;#39;t need to do a hugo build here - I do that locally, for now at least&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      - &lt;span style=&#34;color:#f92672&#34;&gt;run&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;npx percy snapshot public/&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#f92672&#34;&gt;env&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;          &lt;span style=&#34;color:#f92672&#34;&gt;PERCY_TOKEN&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;${{ secrets.PERCY_TOKEN }}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Push the changes. If all&amp;rsquo;s gone well, the action will upload the site&amp;rsquo;s
 snapshots to Percy, where changes can be reviewed:&lt;/p&gt;
 &lt;p&gt;&lt;img
 src=&#34;https://iamwoz.com/blog/20210618_percy/compare_page_versions.png&#34;
 alt=&#34;example of comparing two versions of a page in Percy&#39;s UI&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;The Percy UI shows a list of pages, with visual changes highlighted in red. You
-can toggle the highlighting on/off with the &amp;rsquo;d&#39; key, which makes finding and
+can toggle the highlighting on/off with the &amp;rsquo;d&amp;rsquo; key, which makes finding and
 comparing changes easy.&lt;/p&gt;
 &lt;h1 id=&#34;next-steps&#34;&gt;Next steps&lt;/h1&gt;
 &lt;p&gt;OK. I&amp;rsquo;m tired, and as usual, have learned a bunch of stuff without solving my
@@ -1645,7 +1645,7 @@ for the mice to hold on to on their way up&amp;hellip;&lt;/p&gt;
 &lt;h1 id=&#34;the-following-week&#34;&gt;The following week&lt;/h1&gt;
 &lt;p&gt;The following few nights, I didn&amp;rsquo;t catch any mice on the kitchen bench, but
 they&amp;rsquo;ve still been foraging around on the floor. I&amp;rsquo;ve caught two more since, but
-the &amp;lsquo;last&amp;rsquo; one seems to have caught on that its friends don&amp;rsquo;t come back from the
+the &amp;rsquo;last&amp;rsquo; one seems to have caught on that its friends don&amp;rsquo;t come back from the
 traps. It&amp;rsquo;s been visiting less and less, and I haven&amp;rsquo;t seen it in the last
 couple of days. The battle is over, for now&amp;hellip;&lt;/p&gt;
 </description>
@@ -1730,11 +1730,11 @@ css media query. This site is now dark if your OS/browser is set to dark!&lt;/li
 resulting in smaller page sizes than bundling a JavaScript syntax highlighter
 like &lt;a href=&#34;https://highlightjs.org/&#34;&gt;highlight.js&lt;/a&gt;. For example, writing the
 following markdown results in the syntax snippet below:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;```js
-const main = () =&amp;gt; { console.log(&amp;quot;Hello world!&amp;quot;); }
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;```js
+const main = () =&amp;gt; { console.log(&amp;#34;Hello world!&amp;#34;); }
 ```
-&lt;/code&gt;&lt;/pre&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-js&#34; data-lang=&#34;js&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; () =&amp;gt; { &lt;span style=&#34;color:#a6e22e&#34;&gt;console&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;log&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Hello world!&amp;#34;&lt;/span&gt;); }
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;rss&#34;&gt;RSS&lt;/h3&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-js&#34; data-lang=&#34;js&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; () =&amp;gt; { &lt;span style=&#34;color:#a6e22e&#34;&gt;console&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;log&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Hello world!&amp;#34;&lt;/span&gt;); }
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;rss&#34;&gt;RSS&lt;/h3&gt;
 &lt;p&gt;This took more effort than I expected. By default, Hugo generates an RSS feed
 for your home page, and each &amp;lsquo;section&amp;rsquo; of your site, such as ~/blog, ~/about.
 I couldn&amp;rsquo;t figure out how to disable this, so I ended up deleting these files

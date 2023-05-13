@@ -66,7 +66,6 @@ hr {
   }
   code {
     background-color: rgb(202, 202, 202);
-    padding: 0.3em;
     border-radius: .2em;
   }
   pre code { background: none; }
@@ -75,12 +74,9 @@ hr {
   pre {
     padding: 1em;
     overflow-x: auto;
-    margin-top: 2em;
-    margin-bottom: 2em;
   }
   code {
     background-color: rgb(43, 43, 43);
-    padding: 0.3em;
     border-radius: .2em;
   }
   pre code { background: none; }

@@ -18,7 +18,7 @@
   "homepage": "https://github.com/uozuAho/blog#readme",
   "dependencies": {
     "@netlify/functions": "^0.11.0",
-    "@percy/cli": "^1.24.0",
+    "@percy/cli": "^1.0.0-beta.52",
     "@types/node": "^16.0.0",
     "typescript": "^4.5.5"
   }

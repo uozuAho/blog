@@ -8,6 +8,9 @@ tags:
 - performance
 ---
 
+# todo
+- fix netlify build (percy too new?)
+
 # Contents
 {{< toc >}}
 

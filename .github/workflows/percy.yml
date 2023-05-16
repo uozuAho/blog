@@ -8,7 +8,8 @@ jobs:
       - name: get Node.js
         uses: actions/setup-node@v1
         with:
-          node-version: 12.x
-      - run: npx @percy/cli snapshot public/
+          node-version: 18.x
+      - run: npm i @percy/cli
+      - run: npx percy snapshot public/
         env:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}

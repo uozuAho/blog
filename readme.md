@@ -32,7 +32,6 @@ git push
 
 
 # todo
-- remove percy from package.json?
 - remove netlify functions, make this site totally static
     - removes netlify build & node dependencies
 - display tags

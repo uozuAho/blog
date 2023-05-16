@@ -9,6 +9,6 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 12.x
-      - run: npx percy snapshot public/
+      - run: npx @percy/cli snapshot public/
         env:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}

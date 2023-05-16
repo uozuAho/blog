@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+      <meta name="description" content="A practical example of using Rider&#39;s .NET profilers to increase my app&#39;s performance by 18x"/>
+    
+    <title>Making C# Go Fast | woz</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">Home</a></li>
+      
+      <li><a href="/blog/">Blog</a></li>
+      
+      <li><a href="/index.xml">RSS</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+  <h1 class="page_title"><span class="title">Making C# Go Fast</span></h1>
+  <h2 class="date">2023-05-16</h2>
+</div>
+
+<main>
+<h1 id="contents">Contents</h1>
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#contents">Contents</a></li>
+    <li><a href="#introduction">Introduction</a>
+      <ul>
+        <li><a href="#what-im-optimising">What I&rsquo;m optimising</a></li>
+      </ul>
+    </li>
+    <li><a href="#progress-log">Progress log</a>
+      <ul>
+        <li><a href="#plan">Plan</a></li>
+        <li><a href="#round-1-from-7-to-12-gamessec">Round 1: from 7 to 12 games/sec</a></li>
+        <li><a href="#round-2-from-12-to-20-gamessec">Round 2: from 12 to 20 games/sec</a></li>
+        <li><a href="#round-3-from-20-to-50-gamessec">Round 3: from 20 to 50 games/sec</a></li>
+        <li><a href="#round-4-from-50-to--200-oh">Round 4: from 50 to &hellip; 200!? Oh&hellip;</a></li>
+        <li><a href="#round-5-from-78-to-124">Round 5: from 78 to 124</a></li>
+      </ul>
+    </li>
+    <li><a href="#i_made_it">I made it!</a>
+      <ul>
+        <li><a href="#all-changes-ranked-by--speedup">All changes, ranked by % speedup</a></li>
+        <li><a href="#what-kind-of-changes-improved-performance">What kind of changes improved performance?</a></li>
+        <li><a href="#practical-lessons-learned">Practical lessons learned</a></li>
+      </ul>
+    </li>
+    <li><a href="#references">References</a></li>
+  </ul>
+</nav>
+
+<h1 id="introduction">Introduction</h1>
+<p>I finally finished my implementation of the pandemic board game (<a href="https://iamwoz.com/blog/20210924_learning_ddd_by_implementing_pandemic/">original
+post</a>). I didn&rsquo;t
+focus on making the implementation fast, so it wasn&rsquo;t much of a surprise to see
+that it could only play about 7 games per second. I want to be able to run
+search algorithms to win each game, and there&rsquo;s many trillions of possible
+games. 7 games per second isn&rsquo;t going to get through all of those in a hurry, so
+I took the opportunity to learn more about C# performance and profiling while
+speeding it up.</p>
+<p>In this post I&rsquo;ll show a small diary of my progress, learnings and mistakes. In
+the end, I manage to run over 100 games per second. This won&rsquo;t be a deep dive
+into profiling or C#, but rather a practical example of using profilers to guide
+performance improvements. There are plenty of resources online that cover how to
+use various profilers. See the references at the end of this post for a few. If
+you want to skip the diary and just see a list of performance improvements and
+lessons learned, skip to <a href="#i_made_it">I made it!</a>.</p>
+<p>As part of this project, I read <a href="https://www.writinghighperf.net">Writing High-Performance .NET Code</a>
+<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup> by Ben Watson. It helped me understand what to look for in the profiler
+results. It&rsquo;s a little dated now (C#7 was the latest at the time of writing),
+but I still found a large amount of useful information, which I&rsquo;ll add
+throughout this post.</p>
+<h2 id="what-im-optimising">What I&rsquo;m optimising</h2>
+<h3 id="the-game">The game</h3>
+<p>If you&rsquo;re unfamiliar with <a href="https://en.wikipedia.org/wiki/Pandemic_(board_game)">Pandemic</a>,
+here&rsquo;s a very simplified version of it:</p>
+<figure>
+  <img
+    src="/blog/20230330_making_csharp_go_fast/intro_pandemic_example.png"
+    alt="a little map of some Australian cities, representing a pandemic game board"
+    loading="lazy" />
+</figure>
+<p>The goal of all players is to discover the cure to 4 diseases. Throughout the
+game, disease cases emerge and spread across the world. If the diseases spread
+too widely, the players lose. Therefore, the players must balance their efforts
+between treating disease cases, and discovering their cures.</p>
+<p>The image above demonstrates what the game board looks like. A player is
+currently in Melbourne. There is a high level of &lsquo;red&rsquo; disease in Hobart,
+represented by the three disease cubes there. There&rsquo;s a research station in
+Sydney. Diseases are cured by players at research stations, by spending cards
+that they pick up at the end of each turn.</p>
+<p>You can find all the rules online, and play online at
+<a href="https://boardgamearena.com/gamepanel?game=pandemic">https://boardgamearena.com/gamepanel?game=pandemic</a>.</p>
+<h3 id="my-code">My code</h3>
+<p>The code I&rsquo;m optimising starts at
+<a href="https://github.com/uozuAho/pandemic_ddd/commit/3a5ff0a">this commit</a>,
+where I&rsquo;ve just added a
+<a href="https://github.com/uozuAho/pandemic_ddd/blob/3a5ff0afafcfaa823098ca3b8792eae0ede5bae6/pandemic.perftest/Program.cs#L5">benchmarking and profiling app</a>.</p>
+<p>The pseudocode of what I&rsquo;m trying to optimise:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-py" data-lang="py"><span style="display:flex;"><span><span style="color:#66d9ef">while</span> <span style="color:#66d9ef">True</span>:
+</span></span><span style="display:flex;"><span>  game <span style="color:#f92672">=</span> newGame()
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">while</span> game <span style="color:#f92672">not</span> over:
+</span></span><span style="display:flex;"><span>    move <span style="color:#f92672">=</span> agent<span style="color:#f92672">.</span>next_move(game)
+</span></span><span style="display:flex;"><span>    game <span style="color:#f92672">=</span> game<span style="color:#f92672">.</span>do(move)
+</span></span></code></pre></div><p>The agent I want to optimise is a <a href="https://github.com/uozuAho/pandemic_ddd/blob/3a5ff0afafcfaa823098ca3b8792eae0ede5bae6/pandemic.agents/GreedyAgent.cs#L7">greedy agent</a>,
+which tries all legal moves from each state, and picks the move that results in
+the best game state. &lsquo;Best&rsquo; is determined by a <a href="https://github.com/uozuAho/pandemic_ddd/blob/3a5ff0afafcfaa823098ca3b8792eae0ede5bae6/pandemic.agents/GameEvaluator.cs#L17">score</a>
+that I coded. The greedy agent looks a bit like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-py" data-lang="py"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">GreedyAgent</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">move</span>(game):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> move <span style="color:#f92672">in</span> game<span style="color:#f92672">.</span>legal_moves():
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">if</span> score(game, move) <span style="color:#f92672">&gt;</span> best:
+</span></span><span style="display:flex;"><span>        best <span style="color:#f92672">=</span> move
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> best
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">score</span>(game, move):
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34; A combination of things, including:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      - How many disease cubes are on cities?
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      - How many diseases have been cured?
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      - Does any player have enough cards to cure a disease?
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      - How far are players away from important cities?
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">...</span>
+</span></span></code></pre></div><h1 id="progress-log">Progress log</h1>
+<h2 id="plan">Plan</h2>
+<p>The performance book <sup id="fnref1:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup> has a short chapter that can be used as a run sheet on
+how to improve performance, which I decided to follow as a starting point. My
+adaptation of the run sheet:</p>
+<ol>
+<li>define a performance goal &amp; metrics
+<ul>
+<li>my goal: 100 games per second, on my regular development machine,
+according to benchmarks</li>
+</ul>
+</li>
+<li>create an environment that allows you to run repeatable benchmarks &amp; profiles
+<ul>
+<li>I created a quick console app that could do fixed-time runs for profiling,
+and run benchmarks using <a href="https://benchmarkdotnet.org/">BenchmarkDotNet</a>:
+<a href="https://github.com/uozuAho/pandemic_ddd/blob/3a5ff0afafcfaa823098ca3b8792eae0ede5bae6/pandemic.perftest/Program.cs#L5">my benchmarking app</a></li>
+</ul>
+</li>
+<li>profile and analyse (I&rsquo;ll use Rider&rsquo;s profiling tools <sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>)
+<ul>
+<li>CPU usage</li>
+<li>memory usage, time spent by the garbage collector (GC)</li>
+<li>time spent in JIT</li>
+<li>async/threads</li>
+</ul>
+</li>
+<li>look for the biggest time consumers, use the performance book&rsquo;s advice to
+reduce them</li>
+<li>repeat 3 &amp; 4 until your performance goal is achieved</li>
+</ol>
+<p>My benchmark gives a single mean time per game figure when it&rsquo;s done. To
+measure the performance gain from each change, I&rsquo;ll compare the time per game
+before and after the change.
+Percent improvement = <code>100 * (time per game before change / time after) - 100</code>.</p>
+<h2 id="round-1-from-7-to-12-gamessec">Round 1: from 7 to 12 games/sec</h2>
+<p>The performance book <sup id="fnref2:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup> starts by describing the importance of understanding
+how memory allocation and the garbage collector (GC) <sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup> work in .NET. Therefore I started this round by
+looking at allocations. The most allocations by size were <code>(city, distance)</code>
+tuples, in the
+<a href="https://github.com/uozuAho/pandemic_ddd/blob/3a5ff0afafcfaa823098ca3b8792eae0ede5bae6/pandemic.agents/GameEvaluator.cs#L178">ClosestResearchStationTo</a>
+method. This method does a breadth-first search from the given city, until
+it finds a city with a research station. It uses a hash set to store visited
+cities, and a queue to enqueue the next neighbouring cities to visit.</p>
+<figure>
+  <img
+    src="/blog/20230330_making_csharp_go_fast/round_1_mem_profile.png"
+    alt="a screenshot of Rider's memory profiler"
+    loading="lazy" />
+  <figcaption>Memory profiler analysis. Time spent in GC is shown at the bottom right.</figcaption>
+</figure>
+<p>Given there&rsquo;s a constant 48 cities in the game, it was straightforward to
+<a href="https://github.com/uozuAho/pandemic_ddd/commit/02d44b3a5c65260fb9d33af429e2f5e7aff5fee2">convert this method to use simple integer arrays</a>.
+This resulted in a 23% improvement. The biggest saving was actually from removing
+the <code>HashSet</code>, as the app was spending about 20% of its time looking for items
+in the set. Look up &ldquo;Contains&rdquo; in the <a href="https://source.dot.net/#q=hashset">HashSet implementation</a>
+to see why. Although array and hash set lookup is constant time (<code>O(1)</code>),
+there&rsquo;s a large constant in the hash set implementation being hidden by that Big
+O notation.</p>
+<p>There were no more <code>(city, distance)</code> tuples being allocated, however the time
+spent in GC was still about 10%. I think the reason for this is due to the .NET
+GC design - as long as the memory you allocate is out of scope by the next GC,
+it won&rsquo;t affect the time the GC takes to run. The lesson here, as mentioned in
+the performance book, is to keep object lifetimes as short as possible, ensuring
+they are collected while still in <a href="https://learn.microsoft.com/en-us/dotnet/standard/garbage-collection/fundamentals#generations">generation 0</a> <sup id="fnref1:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup>.</p>
+<p>The next highest allocations were of
+<code>System.Collections.Immutable.ImmutableDictionary+&lt;get_Values&gt;d__27&lt;Colour, Int32&gt;</code>,
+coming from the
+<a href="https://github.com/uozuAho/pandemic_ddd/blob/3239ab12ade8a2a118e74b9243699336a7837735/pandemic/Values/City.cs#L16">MaxNumCubes</a>
+method. My understanding of what&rsquo;s happening here is that each call to
+<code>ImmutableDictionary.Values</code> instantiates a new iterator that traverses all items
+in the dictionary. This is due to <code>Values</code> being a <a href="https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/iterators">iterator method</a>.
+(<a href="https://source.dot.net/#System.Collections.Immutable/System/Collections/Immutable/ImmutableDictionary_2.cs,fcef75d0d45c76eb,references">ImmutableDictionary.Values implementation</a>).</p>
+<p>I tried to find the naming convention for generated code like this, but I
+couldn&rsquo;t find an authoritative source. This
+<a href="https://blog.jetbrains.com/dotnet/2019/01/23/c-classes-memory-snapshots/">JetBrains article</a>
+talks about code that gets generated from lambdas and closures, but doesn&rsquo;t
+mention where the names of the generated code classes/methods come from. It
+seems to be something like <code>SomeClass+&lt;method that generates code&gt;x__id&lt;types&gt;</code>.
+<code>x</code> appears to indicate the type, eg. <code>c</code> for class, <code>d</code> for delegate (?). The
+id is a number to distinguish it from other generated code.</p>
+<p>In
+<a href="https://github.com/uozuAho/pandemic_ddd/commit/f172f390696ea7be93a65ffa89849710dfb47da6">f172f390</a>,
+I access each dictionary element directly, instead of iterating over all
+elements. I also remove the use of the LINQ <code>Max</code> method. These changes gave a
+36% speedup.</p>
+<h2 id="round-2-from-12-to-20-gamessec">Round 2: from 12 to 20 games/sec</h2>
+<p>I was on a roll with following memory allocations, so I continued in this round.</p>
+<p>I made 60% improvement by removing LINQ in hot paths:</p>
+<ul>
+<li><a href="https://github.com/uozuAho/pandemic_ddd/commit/d664cea8846c005655f891d20fb08427e6d26258">PlayerHandScore: group, filter, sum</a></li>
+<li><a href="https://github.com/uozuAho/pandemic_ddd/commit/4c6a8b188cccb11495cbeb59f97d81c989098c67">PenaliseDiscards: filter, cast, group</a></li>
+<li><a href="https://github.com/uozuAho/pandemic_ddd/commit/08a63cdb9a051c2f2c82b635d0f49e49d04915c8">IsCured: search</a></li>
+<li><a href="https://github.com/uozuAho/pandemic_ddd/commit/6055aedbbcdc365bef31d583dc4e690401548ac3">HasEnoughToCure: group, count, search</a></li>
+</ul>
+<p>The last change alone gave a 40% speedup in benchmarks, but only about 10%
+during profiling runs. Running <code>RunSamples</code> for longer didn&rsquo;t affect the average
+game time. There must be something different about how the benchmark app is
+coded/built/run that produces a bigger improvement than the &lsquo;samples&rsquo; run. I
+couldn&rsquo;t figure it out :(. For now, here&rsquo;s how to reproduce the difference:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>git checkout 08a63cd
+</span></span><span style="display:flex;"><span>./runBenchmarks.sh    <span style="color:#75715e"># 68.67 ms/game</span>
+</span></span><span style="display:flex;"><span>./runSamples.sh       <span style="color:#75715e"># 12.40/sec (80.65ms/game)</span>
+</span></span><span style="display:flex;"><span>git checkout 6055aed
+</span></span><span style="display:flex;"><span>./runBenchmarks.sh    <span style="color:#75715e"># 50.72 ms/game (35.4% speedup)</span>
+</span></span><span style="display:flex;"><span>./runSamples.sh       <span style="color:#75715e"># 13.15/sec (76.05ms/game, 6% speedup)</span>
+</span></span></code></pre></div><h3 id="facepalm-1-different-programs-profiles-can-look-the-same">Facepalm #1: different programs&rsquo; profiles can look the same</h3>
+<p>For a while I was confused as to why playing random games was so much faster
+than greedy games. Greedy games were spending about 50% of their CPU time making
+moves, and the other 50% searching for the best move. I thought this meant that
+greedy games should be running at ~50% of random speed. They actually ran at
+less than 1% of the speed. I&rsquo;d had my head stuck in the profiler for too long -
+the two agents work quite differently, which isn&rsquo;t immediately obvious in the
+profiler results. The greedy agent tries all possible moves before choosing the
+best one, while the random agent immediately plays a random move. The greedy
+agent thus spends a lot less time progressing the game than the random agent.</p>
+<p>This can be seen by profiling with tracing. Tracing counts calls to every method
+in the program:</p>
+<ul>
+<li>greedy agent calls to <code>Do(action)</code>: 4358. Random agent: 9550.</li>
+<li>greedy agent calls to <code>CreateNewGame()</code>: 2. Random agent: 226</li>
+</ul>
+<p>The random agent makes on average 42 calls to <code>Do(action)</code> per game, whereas the
+greedy agent makes over 2000.</p>
+<h2 id="round-3-from-20-to-50-gamessec">Round 3: from 20 to 50 games/sec</h2>
+<p>I tried making a few more changes to reduce allocations, but these didn&rsquo;t have
+much of an effect. For this round, I decided to focus on CPU time instead.</p>
+<p>45%: <a href="https://github.com/uozuAho/pandemic_ddd/commit/1066696">1066696</a>: looking
+up cities by array index instead of from a name:city dictionary. Similar to the
+hash set in round 1, looking up cities with a dictionary is much more expensive
+than an array.</p>
+<p>40%: <a href="https://github.com/uozuAho/pandemic_ddd/compare/ee6443f..b600a04">Storing cubes counts as integer fields rather than colour:int dictionaries</a>.
+Yet again, getting rid of expensive dictionary lookups.</p>
+<p>25%: <a href="https://github.com/uozuAho/pandemic_ddd/commit/15261296d03ae40bf4711ae0b746b4b55bfc88b3">use ImmutableArray instead of ImmutableList for Players</a>.
+ImmutableArray is more targeted at performance than ImmutableList. There&rsquo;s advice in
+<a href="https://devblogs.microsoft.com/dotnet/please-welcome-immutablearrayt">this post</a>
+on when to use each. In this case, the top reason appears to be better performance
+when iterating over the array in performance critical sections. A before &amp; after
+profile shows that the list consumes more time dealing with enumerators than the
+array:</p>
+<figure>
+  <img
+    src="/blog/20230330_making_csharp_go_fast/round_3_immutable_list.png"
+    alt="a screenshot of Rider's profiler, showing ImmutableList method calls"
+    width="784"
+    loading="lazy" />
+  <figcaption>ImmutableList operations, before switching to ImmutableArray</figcaption>
+</figure>
+<figure>
+  <img
+    src="/blog/20230330_making_csharp_go_fast/round_3_immutable_array.png"
+    alt="a screenshot of Rider's profiler, showing ImmutableArray method calls"
+    width="737"
+    loading="lazy" />
+  <figcaption>ImmutableArray operations</figcaption>
+</figure>
+<h3 id="facepalm-2---what-made-it-go-faster">Facepalm #2 - what made it go faster?</h3>
+<p>This feels really dumb to have to explain, but I was stumped for an
+embarrassingly long time by it. This section is for future me.</p>
+<p>I was having trouble explaining where the performance gains were coming from
+when comparing the benchmarks and the profile results.</p>
+<p>I was measuring performance improvement by benchmark results, which gave me a
+throughput figure (games per second). However, when running the profiler, I ran
+the app for a fixed amount of time. This made it seem as though the benchmark
+was giving better results than the profiler run. I&rsquo;ll try to explain with
+pictures.</p>
+<p>Say your app repeatedly calls two methods, A and B. You benchmark the app, and
+find that its throughput is 10 per second. To profile it, you run the app for 1
+second:</p>
+<figure>
+  <img
+    src="/blog/20230330_making_csharp_go_fast/derp_profile_1.png"
+    alt="a mockup of a CPU profiler run, showing functions A and B taking 500ms each"
+    width="622"
+    loading="lazy" />
+  <figcaption></figcaption>
+</figure>
+<p>You then optimise A, and measure again. The benchmark shows a 33% improvement -
+throughput is now 13.3 per second. However, the profile looks like this:</p>
+<figure>
+  <img
+    src="/blog/20230330_making_csharp_go_fast/derp_profile_2.png"
+    alt="a mockup of a CPU profiler run, showing function A taking 333ms and B taking 666ms"
+    width="622"
+    loading="lazy" />
+  <figcaption></figcaption>
+</figure>
+<p>It looks as though you&rsquo;ve made A 167ms faster, which is 16.7% of the time the
+app runs. Where&rsquo;s the rest of the 33% improvement?</p>
+<p>It&rsquo;s there, but profiling the app for a fixed amount of time makes it harder to
+see. You can find the throughput improvement by looking at the change of time spent in B,
+since B&rsquo;s code has not been modified.</p>
+<p>Let the initial number of calls to B = <code>x</code>. Then:</p>
+<pre><code>xB = 0.5s
+</code></pre>
+<p>The optimisation of A resulted in some change in throughput of the whole
+application, which I&rsquo;ll call <code>y</code>. The app now spends 0.666s in B. So:</p>
+<pre><code>yxB = 0.666s
+</code></pre>
+<p>We want to know <code>y</code>, so divide both sides by <code>xB</code>, which we know is 0.5s:</p>
+<pre><code>yxB / xB = y = 0.666 / 0.5 = 1.33
+</code></pre>
+<p>There&rsquo;s the 33% increase in throughput.</p>
+<p>It&rsquo;s easier to see where the performance gain was made by running the app for a
+certain number of iterations. Say you run it for 10 iterations. Before the
+optimisation, the run takes 1 second. Afterwards, it takes 750ms. The 33%
+increase in throughput of the app is immediately obvious (1000 / 750 = 1.33),
+and the 250ms saved all comes from A.</p>
+<figure>
+  <img
+    src="/blog/20230330_making_csharp_go_fast/derp_profile_3.png"
+    alt="a mockup of a CPU profiler run, showing A taking 250ms and B taking 500ms"
+    width="622"
+    loading="lazy" />
+  <figcaption></figcaption>
+</figure>
+<p>There are still times when benchmarking may give quite different results to the
+profiling run, as happened in round 2.</p>
+<h2 id="round-4-from-50-to--200-oh">Round 4: from 50 to &hellip; 200!? Oh&hellip;</h2>
+<p>I gained an easy 22% from:</p>
+<ul>
+<li><a href="https://github.com/uozuAho/pandemic_ddd/commit/3a5d3e98e025f59107245527e862fe2591dcfd7f">Player.HasEnoughToCure: iterate over cards directly instead of using iterator method</a></li>
+<li><a href="https://github.com/uozuAho/pandemic_ddd/commit/183fb212c6010154e7078eb820912d8ab01982e6">Deck: use pre-sized array instead of list</a></li>
+</ul>
+<p>Then, <a href="https://github.com/uozuAho/pandemic_ddd/commit/b9de07996671770f1ea4ed43f7fed9c07e94fa1f">yielding available commands instead returning a list</a>
+caused a massive 310% improvement! Or, so I thought&hellip;</p>
+<h3 id="mistake-facepalm-3">Mistake! (facepalm #3)</h3>
+<p>I felt very satisfied with the great leap in performance, and assumed that it
+all came from removing the repeated construction of the list. Later, I just
+happened to notice that I had changed the way the greedy agent was playing
+games. It was now making players pass their turn. It&rsquo;s a completely valid move,
+but hardly ever useful. As a result, it was losing games much faster than
+before.</p>
+<p>Lesson learned - have tests in place that ensure your app behaves as expected,
+before making performance changes. Be wary of large performance changes that you
+can&rsquo;t explain. Also, don&rsquo;t put me in charge of a <a href="https://en.wikipedia.org/wiki/Instrumental_convergence#Paperclip_maximizer">paperclip factory</a>.</p>
+<h2 id="round-5-from-78-to-124">Round 5: from 78 to 124</h2>
+<p>The biggest improvement in this round came from improving an algorithm, rather
+than micro-optimisations. When computing the score for research stations, I was
+originally running a breadth-first search for the closest stations to the &lsquo;best&rsquo;
+cities, scoring higher the closer they were. Instead of running this search, I
+<a href="https://github.com/uozuAho/pandemic_ddd/commit/2a5ecc3">pre-computed the scores that cities would contribute</a>.
+This gave a 27% boost.</p>
+<p>Finally, a couple more quick wins to finish off:</p>
+<ul>
+<li>10%: <a href="https://github.com/uozuAho/pandemic_ddd/commit/e38df63">cubes on city score: inline loop &amp; method call</a></li>
+<li>6%: <a href="https://github.com/uozuAho/pandemic_ddd/commit/de3eced">remove LINQ <code>Sum</code>, compute manually</a></li>
+</ul>
+<h1 id="i_made_it">I made it!</h1>
+<p>I achieved my goal of 100 games per second! I could have kept going - I had
+become addicted to the hit of seeing the benchmark score go up. That&rsquo;s a good
+reason to set a goal beforehand.</p>
+<h2 id="all-changes-ranked-by--speedup">All changes, ranked by % speedup</h2>
+<ul>
+<li>45% <a href="https://github.com/uozuAho/pandemic_ddd/commit/1066696">look up cities by array index instead of name:city dictionary</a></li>
+<li>40% <a href="https://github.com/uozuAho/pandemic_ddd/compare/ee6443f..b600a04">store cubes counts as integer fields rather than colour:int dictionaries</a></li>
+<li>40% <a href="https://github.com/uozuAho/pandemic_ddd/commit/6055aedbbcdc365bef31d583dc4e690401548ac3">remove LINQ: HasEnoughToCure: group, count, search</a></li>
+<li>36% <a href="https://github.com/uozuAho/pandemic_ddd/commit/f172f390696ea7be93a65ffa89849710dfb47da6">remove iterator and LINQ: MaxNumCubes</a></li>
+<li>27% <a href="https://github.com/uozuAho/pandemic_ddd/commit/2a5ecc3">replace search with pre-computed scores per city</a></li>
+<li>25% <a href="https://github.com/uozuAho/pandemic_ddd/commit/15261296d03ae40bf4711ae0b746b4b55bfc88b3">use ImmutableArray instead of ImmutableList for Players</a></li>
+<li>23% <a href="https://github.com/uozuAho/pandemic_ddd/commit/02d44b3a5c65260fb9d33af429e2f5e7aff5fee2">use integer array instead of HashSet</a></li>
+<li>22%:
+<ul>
+<li><a href="https://github.com/uozuAho/pandemic_ddd/commit/3a5d3e98e025f59107245527e862fe2591dcfd7f">iterate over cards directly instead of using iterator method</a></li>
+<li><a href="https://github.com/uozuAho/pandemic_ddd/commit/183fb212c6010154e7078eb820912d8ab01982e6">use pre-sized array instead of list</a></li>
+</ul>
+</li>
+<li>20%
+<ul>
+<li><a href="https://github.com/uozuAho/pandemic_ddd/commit/d664cea8846c005655f891d20fb08427e6d26258">remove LINQ: PlayerHandScore: group, filter, sum</a></li>
+<li><a href="https://github.com/uozuAho/pandemic_ddd/commit/4c6a8b188cccb11495cbeb59f97d81c989098c67">remove LINQ: PenaliseDiscards: filter, cast, group</a></li>
+<li><a href="https://github.com/uozuAho/pandemic_ddd/commit/08a63cdb9a051c2f2c82b635d0f49e49d04915c8">remove LINQ: IsCured</a></li>
+</ul>
+</li>
+<li>20% <a href="https://github.com/uozuAho/pandemic_ddd/commit/b9de07996671770f1ea4ed43f7fed9c07e94fa1f">use an iterator method instead of building and returning a list</a></li>
+<li>10% <a href="https://github.com/uozuAho/pandemic_ddd/commit/e38df63">inline loop &amp; method call</a></li>
+<li>6%  <a href="https://github.com/uozuAho/pandemic_ddd/commit/de3eced">remove LINQ: sum</a></li>
+</ul>
+<h2 id="what-kind-of-changes-improved-performance">What kind of changes improved performance?</h2>
+<p>The changes above boil down to a few simple dot points of advice. Measure your
+application first before blindly applying these changes! The profiler will tell
+you where making these changes will have the biggest benefit.</p>
+<ul>
+<li>replace LINQ with simple loops and arrays</li>
+<li>where possible, replace collections with arrays</li>
+<li>use ImmutableArray instead of ImmutableList</li>
+<li>pre-size arrays and collections</li>
+<li>pre-compute values that are known before runtime</li>
+</ul>
+<h2 id="practical-lessons-learned">Practical lessons learned</h2>
+<p>In addition learning some technicalities of profiling and optimising C# code,
+I learned a few valuable practical lessons while working on this project:</p>
+<ul>
+<li>Profile and benchmark in using the same build &amp; run config
+<ul>
+<li>there can be large differences in performance between Release and Debug
+modes - benchmark and profile in Release mode!</li>
+<li>benchmark.net doesn&rsquo;t allow you to bench in Debug</li>
+</ul>
+</li>
+<li>If you get a massive increase in performance that looks too good to be true,
+it might be. Make sure you&rsquo;ve got tests in place that catch any unintended
+changes in application behaviour. See facepalm #3.</li>
+<li>If you haven&rsquo;t focused on performance, then there will likely be many
+significant gains to be made with little effort. Set yourself a deadline, and
+just follow the profiler.</li>
+<li>Different profilers yield slightly different results, since they are more/less
+intrusive on your application. For example, the timeline profile may show less
+time spend in GC than the memory profiler.</li>
+<li>Rider&rsquo;s profilers show all threads by default, including runtime threads. If
+your app is single threaded, select the main thread to reduce noise in the
+profiling results.</li>
+<li>From the perf book <sup id="fnref3:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>: C# libraries are usually made with robustness and
+convenience in mind, not performance. For example, LINQ. If you need
+performance, you&rsquo;ll likely have to use different libraries, or write your own
+(usually more verbose) code.</li>
+<li>Stay aware of what you&rsquo;re profiling - different programs can look similar in a
+profiler, but behave very differently. See facepalm #1.</li>
+</ul>
+<h1 id="references">References</h1>
+<div class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1">
+<p>Writing High-Performance .NET Code, 2nd ed. <a href="https://www.writinghighperf.net">https://www.writinghighperf.net</a>&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a>&#160;<a href="#fnref1:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a>&#160;<a href="#fnref2:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a>&#160;<a href="#fnref3:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2">
+<p><a href="https://www.jetbrains.com/dotnet/guide/tutorials/rider-profiling/">JetBrains Rider profiling tutorial series</a>: a small introduction to profiling in Rider, with demo apps&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:3">
+<p><a href="https://learn.microsoft.com/en-us/dotnet/standard/garbage-collection/fundamentals">Fundamentals of garbage collection</a>&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a>&#160;<a href="#fnref1:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</div>
+
+</main>
+
+  <footer>
+    <hr/>
+    <nav>
+      <ul class="menu">
+        
+        <li><a href="/">Home</a></li>
+        
+        <li><a href="/blog/">Blog</a></li>
+        
+        <li><a href="/index.xml">RSS</a></li>
+        
+      </ul>
+    </nav>
+  </footer>
+  </body>
+</html>
+

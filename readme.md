@@ -31,6 +31,8 @@ git push
 
 
 # todo
+- how to prevent words being hyphenated across lines?
+- remove percy from package.json?
 - display tags
   - in post
   - in post list
@@ -39,3 +41,4 @@ git push
 - how to find links to my posts?
 - find dead links
 - any SEO I should be doing?
+- hello

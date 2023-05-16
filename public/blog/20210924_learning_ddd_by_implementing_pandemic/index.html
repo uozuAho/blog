@@ -81,7 +81,7 @@ keep the domain model clean, but that was about it. It was only after starting
 work on this post that I realised that DDD covers a huge landscape of software
 development, including many low-level concepts that can be applied even within
 small applications, such as board games!</p>
-<p>In this post I will focus on some of these low-level &lsquo;tactical&rsquo; aspects of DDD,
+<p>In this post I will focus on some of these low-level &rsquo;tactical&rsquo; aspects of DDD,
 and implementing them in C#. Note that these low level details are only a small
 part of DDD as originally described by Eric Evans in his now famous <a href="https://www.goodreads.com/book/show/179133.Domain_Driven_Design">&lsquo;Blue
 book&rsquo;</a>. See the
@@ -109,7 +109,7 @@ was useful to have as a reference.</p>
 <h1 id="applying-ddd-tactics-to-pandemic">Applying DDD tactics to Pandemic</h1>
 <p>My stumbling point in the past has been the complex game rules of Pandemic.
 Certain player actions result in chain reactions of side effects. For example,
-if you pick up an &lsquo;epidemic&rsquo; card, a series of events can occur, based on
+if you pick up an &rsquo;epidemic&rsquo; card, a series of events can occur, based on
 certain conditions:</p>
 <figure>
   <img src="/blog/20210924_learning_ddd/end_turn_with_epidemic_flow.png"
@@ -170,58 +170,58 @@ down the rules into discrete commands and events will help keep the
 corresponding code manageable.</p>
 <h2 id="baby-steps">Baby steps</h2>
 <p>Here&rsquo;s my initial aggregate:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cs" data-lang="cs"><span style="color:#75715e">// My one aggregate - the state of the game
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> record PandemicGame
-{
-    <span style="color:#66d9ef">public</span> Difficulty Difficulty { <span style="color:#66d9ef">get</span>; init; }
-
-    <span style="color:#75715e">// Create the game aggregate from an event log
-</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> PandemicGame FromEvents(IEnumerable&lt;IEvent&gt; events) =&gt;
-        events.Aggregate(<span style="color:#66d9ef">new</span> PandemicGame(), Apply);
-
-    <span style="color:#75715e">// This is the &#39;set difficulty&#39; command. Commands yield events.
-</span><span style="color:#75715e"></span>    <span style="color:#75715e">// Since I am using event sourcing, there is no need to mutate
-</span><span style="color:#75715e"></span>    <span style="color:#75715e">// the aggregate within the commands. The current state of the
-</span><span style="color:#75715e"></span>    <span style="color:#75715e">// aggregate can be built on demand from the event log.
-</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> IEnumerable&lt;IEvent&gt; SetDifficulty(
-        List&lt;IEvent&gt; log, Difficulty difficulty)
-    {
-        <span style="color:#66d9ef">yield</span> <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> DifficultySet(difficulty);
-    }
-
-    <span style="color:#75715e">// Modify the aggregate with an event. Returns an updated copy
-</span><span style="color:#75715e"></span>    <span style="color:#75715e">// of the current aggregate.
-</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> PandemicGame Apply(
-        PandemicGame pandemicGame, IEvent @event)
-    {
-        <span style="color:#66d9ef">return</span> @event <span style="color:#66d9ef">switch</span>
-        {
-            DifficultySet d =&gt; pandemicGame with {Difficulty = d.Difficulty},
-            _ =&gt; <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> ArgumentOutOfRangeException(nameof(@event), @event, <span style="color:#66d9ef">null</span>)
-        };
-    }
-}
-</code></pre></div><h2 id="first-complex-process">First complex process</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cs" data-lang="cs"><span style="display:flex;"><span><span style="color:#75715e">// My one aggregate - the state of the game</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">record</span> <span style="color:#a6e22e">PandemicGame</span>
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> Difficulty Difficulty { <span style="color:#66d9ef">get</span>; <span style="color:#66d9ef">init</span>; }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Create the game aggregate from an event log</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> PandemicGame FromEvents(IEnumerable&lt;IEvent&gt; events) =&gt;
+</span></span><span style="display:flex;"><span>        events.Aggregate(<span style="color:#66d9ef">new</span> PandemicGame(), Apply);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// This is the &#39;set difficulty&#39; command. Commands yield events.</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Since I am using event sourcing, there is no need to mutate</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// the aggregate within the commands. The current state of the</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// aggregate can be built on demand from the event log.</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> IEnumerable&lt;IEvent&gt; SetDifficulty(
+</span></span><span style="display:flex;"><span>        List&lt;IEvent&gt; log, Difficulty difficulty)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">yield</span> <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> DifficultySet(difficulty);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Modify the aggregate with an event. Returns an updated copy</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// of the current aggregate.</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> PandemicGame Apply(
+</span></span><span style="display:flex;"><span>        PandemicGame pandemicGame, IEvent @event)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> @event <span style="color:#66d9ef">switch</span>
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            DifficultySet d =&gt; pandemicGame with {Difficulty = d.Difficulty},
+</span></span><span style="display:flex;"><span>            _ =&gt; <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> ArgumentOutOfRangeException(nameof(@event), @event, <span style="color:#66d9ef">null</span>)
+</span></span><span style="display:flex;"><span>        };
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="first-complex-process">First complex process</h2>
 <p>After a few hours of coding simple events, I have reached an interesting point.
 I need to implement the sequence of events that occur when a player does their
 last action. Here&rsquo;s what my current <code>DriveOrFerryPlayer</code> command looks like:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cs" data-lang="cs"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> IEnumerable&lt;IEvent&gt; DriveOrFerryPlayer(List&lt;IEvent&gt; log, Role role, <span style="color:#66d9ef">string</span> city)
-{
-    <span style="color:#66d9ef">if</span> (!Board.IsCity(city)) <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> InvalidActionException(<span style="color:#e6db74">$&#34;Invalid city &#39;{city}&#39;&#34;</span>);
-
-    <span style="color:#66d9ef">var</span> state = FromEvents(log);
-    <span style="color:#66d9ef">var</span> player = state.PlayerByRole(role);
-    <span style="color:#66d9ef">if</span> (!Board.IsAdjacent(player.Location, city))
-    {
-        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> InvalidActionException(
-            <span style="color:#e6db74">$&#34;Invalid drive/ferry to non-adjacent city: {player.Location} to {city}&#34;</span>);
-    }
-
-    <span style="color:#66d9ef">yield</span> <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> PlayerMoved(role, city);
-
-    <span style="color:#75715e">// todo: handle when this was the player&#39;s last action
-</span><span style="color:#75715e"></span>}
-</code></pre></div><p>To make things easier, I won&rsquo;t consider all the rules as shown in the earlier
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cs" data-lang="cs"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> IEnumerable&lt;IEvent&gt; DriveOrFerryPlayer(List&lt;IEvent&gt; log, Role role, <span style="color:#66d9ef">string</span> city)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (!Board.IsCity(city)) <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> InvalidActionException(<span style="color:#e6db74">$&#34;Invalid city &#39;{city}&#39;&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> state = FromEvents(log);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> player = state.PlayerByRole(role);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (!Board.IsAdjacent(player.Location, city))
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> InvalidActionException(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">$&#34;Invalid drive/ferry to non-adjacent city: {player.Location} to {city}&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">yield</span> <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> PlayerMoved(role, city);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// todo: handle when this was the player&#39;s last action</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>To make things easier, I won&rsquo;t consider all the rules as shown in the earlier
 flowchart. Here&rsquo;s a simplified version:</p>
 <figure>
   <img src="/blog/20210924_learning_ddd/end_turn_flow_simple.png"
@@ -243,51 +243,51 @@ next to them are issued by the &lsquo;game&rsquo;.</p>
   Commands are blue, events are orange.</figcaption>
 </figure>
 <p>Here&rsquo;s the <code>DriveOrFerryPlayer</code> command after adding the above events:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cs" data-lang="cs"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> IEnumerable&lt;IEvent&gt; DriveOrFerryPlayer(
-    List&lt;IEvent&gt; log, Role role, <span style="color:#66d9ef">string</span> city)
-{
-    <span style="color:#66d9ef">if</span> (!Board.IsCity(city))
-        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> InvalidActionException(<span style="color:#e6db74">$&#34;Invalid city &#39;{city}&#39;&#34;</span>);
-
-    <span style="color:#66d9ef">var</span> state = FromEvents(log);
-    <span style="color:#66d9ef">var</span> player = state.PlayerByRole(role);
-
-    <span style="color:#66d9ef">if</span> (player.ActionsRemaining == <span style="color:#ae81ff">0</span>)
-        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> GameRuleViolatedException(
-            <span style="color:#e6db74">$&#34;Action not allowed: Player {role} has no actions remaining&#34;</span>);
-
-    <span style="color:#66d9ef">if</span> (!Board.IsAdjacent(player.Location, city))
-    {
-        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> InvalidActionException(
-            <span style="color:#e6db74">$&#34;Invalid drive/ferry to non-adjacent city: {player.Location} to {city}&#34;</span>);
-    }
-
-    <span style="color:#66d9ef">yield</span> <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> PlayerMoved(role, city);
-
-    <span style="color:#66d9ef">if</span> (player.ActionsRemaining == <span style="color:#ae81ff">1</span>)
-    {
-        <span style="color:#75715e">// todo: pick up cards from player draw pile here
-</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">yield</span> <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> PlayerCardPickedUp(role, <span style="color:#66d9ef">new</span> PlayerCard(<span style="color:#e6db74">&#34;Atlanta&#34;</span>));
-        <span style="color:#66d9ef">yield</span> <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> PlayerCardPickedUp(role, <span style="color:#66d9ef">new</span> PlayerCard(<span style="color:#e6db74">&#34;Atlanta&#34;</span>));
-        <span style="color:#66d9ef">foreach</span> (<span style="color:#66d9ef">var</span> @event <span style="color:#66d9ef">in</span> InfectCity(log))
-        {
-            <span style="color:#66d9ef">yield</span> <span style="color:#66d9ef">return</span> @event;
-        }
-        <span style="color:#66d9ef">foreach</span> (<span style="color:#66d9ef">var</span> @event <span style="color:#66d9ef">in</span> InfectCity(log))
-        {
-            <span style="color:#66d9ef">yield</span> <span style="color:#66d9ef">return</span> @event;
-        }
-    }
-}
-
-<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> IEnumerable&lt;IEvent&gt; InfectCity(List&lt;IEvent&gt; log)
-{
-    <span style="color:#66d9ef">var</span> state = FromEvents(log);
-    <span style="color:#66d9ef">var</span> infectionCard = state.InfectionDrawPile.Last();
-    <span style="color:#66d9ef">yield</span> <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> InfectionCardDrawn(infectionCard.City);
-    <span style="color:#66d9ef">yield</span> <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> CubeAddedToCity(infectionCard.City);
-}
-</code></pre></div><p>It&rsquo;s not as bad as I thought it would be! I separated out the private
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cs" data-lang="cs"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> IEnumerable&lt;IEvent&gt; DriveOrFerryPlayer(
+</span></span><span style="display:flex;"><span>    List&lt;IEvent&gt; log, Role role, <span style="color:#66d9ef">string</span> city)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (!Board.IsCity(city))
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> InvalidActionException(<span style="color:#e6db74">$&#34;Invalid city &#39;{city}&#39;&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> state = FromEvents(log);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> player = state.PlayerByRole(role);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (player.ActionsRemaining == <span style="color:#ae81ff">0</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> GameRuleViolatedException(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">$&#34;Action not allowed: Player {role} has no actions remaining&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (!Board.IsAdjacent(player.Location, city))
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> InvalidActionException(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">$&#34;Invalid drive/ferry to non-adjacent city: {player.Location} to {city}&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">yield</span> <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> PlayerMoved(role, city);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (player.ActionsRemaining == <span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// todo: pick up cards from player draw pile here</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">yield</span> <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> PlayerCardPickedUp(role, <span style="color:#66d9ef">new</span> PlayerCard(<span style="color:#e6db74">&#34;Atlanta&#34;</span>));
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">yield</span> <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> PlayerCardPickedUp(role, <span style="color:#66d9ef">new</span> PlayerCard(<span style="color:#e6db74">&#34;Atlanta&#34;</span>));
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">foreach</span> (<span style="color:#66d9ef">var</span> @event <span style="color:#66d9ef">in</span> InfectCity(log))
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">yield</span> <span style="color:#66d9ef">return</span> @event;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">foreach</span> (<span style="color:#66d9ef">var</span> @event <span style="color:#66d9ef">in</span> InfectCity(log))
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">yield</span> <span style="color:#66d9ef">return</span> @event;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> IEnumerable&lt;IEvent&gt; InfectCity(List&lt;IEvent&gt; log)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> state = FromEvents(log);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> infectionCard = state.InfectionDrawPile.Last();
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">yield</span> <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> InfectionCardDrawn(infectionCard.City);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">yield</span> <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> CubeAddedToCity(infectionCard.City);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>It&rsquo;s not as bad as I thought it would be! I separated out the private
 <code>InfectCity</code> command for convenience. It&rsquo;s not a command a player can issue, but
 makes the <code>DriveOrFerryPlayer</code> code easier to understand from a domain
 perspective. The aggregate is getting large (200 lines so far), but all the code
@@ -307,64 +307,64 @@ purposes, so I will keep emitting events for all modifications of the game
 state. Being able to create the game aggregate in an invalid state is a hazard,
 but for my purposes is very handy for testing. I wonder if there&rsquo;s a way to
 disable the usage of dangerous constructors in production code? I&rsquo;ll put that on
-the &lsquo;to do later&rsquo; pile.</p>
+the &rsquo;to do later&rsquo; pile.</p>
 <p>Here&rsquo;s what I have come up with. There are many command and event handlers on
 the aggregate, but they are all following an emerging pattern:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cs" data-lang="cs"><span style="color:#75715e">// Command handlers are public methods on the aggregate. They take parameters
-</span><span style="color:#75715e">// relevant to the command, and return a new game aggregate and a collection of
-</span><span style="color:#75715e">// events that occurred as a result of the command.
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> (PandemicGame, ICollection&lt;IEvent&gt;) Command(arg1, arg2, ...) {}
-
-<span style="color:#75715e">// Event handlers are private static methods (pure functions) that apply a
-</span><span style="color:#75715e">// single event to the given aggregate, returning a resultant aggregate.
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> PandemicGame HandleEvent(PandemicGame game, IEvent @event) {}
-
-<span style="color:#75715e">// &#39;Internal command handlers&#39; are convenient ways to break down larger
-</span><span style="color:#75715e">// commands, that involve many events and conditional logic.
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> PandemicGame InternalCommand(
-    PandemicGame currentState,
-    ICollection&lt;IEvent&gt; events) {}
-</code></pre></div><p>Let&rsquo;s see it in action. This is the current state of my <code>DriveOrFerryPlayer</code>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cs" data-lang="cs"><span style="display:flex;"><span><span style="color:#75715e">// Command handlers are public methods on the aggregate. They take parameters</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// relevant to the command, and return a new game aggregate and a collection of</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// events that occurred as a result of the command.</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> (PandemicGame, ICollection&lt;IEvent&gt;) Command(arg1, arg2, ...) {}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Event handlers are private static methods (pure functions) that apply a</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// single event to the given aggregate, returning a resultant aggregate.</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> PandemicGame HandleEvent(PandemicGame game, IEvent @event) {}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// &#39;Internal command handlers&#39; are convenient ways to break down larger</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// commands, that involve many events and conditional logic.</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> PandemicGame InternalCommand(
+</span></span><span style="display:flex;"><span>    PandemicGame currentState,
+</span></span><span style="display:flex;"><span>    ICollection&lt;IEvent&gt; events) {}
+</span></span></code></pre></div><p>Let&rsquo;s see it in action. This is the current state of my <code>DriveOrFerryPlayer</code>
 command handler, which needs to perform a number of actions when the player has
 performed the last action for their turn:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cs" data-lang="cs"><span style="color:#66d9ef">public</span> (PandemicGame, ICollection&lt;IEvent&gt;) DriveOrFerryPlayer(Role role, <span style="color:#66d9ef">string</span> city)
-{
-    <span style="color:#66d9ef">if</span> (!Board.IsCity(city))
-        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> InvalidActionException(<span style="color:#e6db74">$&#34;Invalid city &#39;{city}&#39;&#34;</span>);
-
-    <span style="color:#66d9ef">var</span> player = PlayerByRole(role);
-
-    <span style="color:#66d9ef">if</span> (player.ActionsRemaining == <span style="color:#ae81ff">0</span>)
-        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> GameRuleViolatedException(
-            <span style="color:#e6db74">$&#34;Action not allowed: Player {role} has no actions remaining&#34;</span>);
-
-    <span style="color:#66d9ef">if</span> (!Board.IsAdjacent(player.Location, city))
-    {
-        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> InvalidActionException(
-            <span style="color:#e6db74">$&#34;Invalid drive/ferry to non-adjacent city: {player.Location} to {city}&#34;</span>);
-    }
-
-    <span style="color:#66d9ef">var</span> (currentState, events) = ApplyEvents(<span style="color:#66d9ef">new</span> PlayerMoved(role, city));
-
-    <span style="color:#66d9ef">if</span> (currentState.CurrentPlayer.ActionsRemaining == <span style="color:#ae81ff">0</span>)
-        currentState = DoStuffAfterActions(currentState, events);
-
-    <span style="color:#66d9ef">return</span> (currentState, events);
-}
-
-<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> PandemicGame DoStuffAfterActions(
-    PandemicGame currentState,
-    ICollection&lt;IEvent&gt; events)
-{
-    currentState = PickUpCard(currentState, events);
-    currentState = PickUpCard(currentState, events);
-
-    currentState = InfectCity(currentState, events);
-    currentState = InfectCity(currentState, events);
-
-    <span style="color:#66d9ef">return</span> currentState;
-}
-</code></pre></div><p><code>DriveOrFerryPlayer</code> is going to continue to grow as I add more game logic. I&rsquo;m
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cs" data-lang="cs"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> (PandemicGame, ICollection&lt;IEvent&gt;) DriveOrFerryPlayer(Role role, <span style="color:#66d9ef">string</span> city)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (!Board.IsCity(city))
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> InvalidActionException(<span style="color:#e6db74">$&#34;Invalid city &#39;{city}&#39;&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> player = PlayerByRole(role);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (player.ActionsRemaining == <span style="color:#ae81ff">0</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> GameRuleViolatedException(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">$&#34;Action not allowed: Player {role} has no actions remaining&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (!Board.IsAdjacent(player.Location, city))
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> InvalidActionException(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">$&#34;Invalid drive/ferry to non-adjacent city: {player.Location} to {city}&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> (currentState, events) = ApplyEvents(<span style="color:#66d9ef">new</span> PlayerMoved(role, city));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (currentState.CurrentPlayer.ActionsRemaining == <span style="color:#ae81ff">0</span>)
+</span></span><span style="display:flex;"><span>        currentState = DoStuffAfterActions(currentState, events);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> (currentState, events);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> PandemicGame DoStuffAfterActions(
+</span></span><span style="display:flex;"><span>    PandemicGame currentState,
+</span></span><span style="display:flex;"><span>    ICollection&lt;IEvent&gt; events)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    currentState = PickUpCard(currentState, events);
+</span></span><span style="display:flex;"><span>    currentState = PickUpCard(currentState, events);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    currentState = InfectCity(currentState, events);
+</span></span><span style="display:flex;"><span>    currentState = InfectCity(currentState, events);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> currentState;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>DriveOrFerryPlayer</code> is going to continue to grow as I add more game logic. I&rsquo;m
 a little worried about that. There are more DDD concepts that I may be able to
 use here: &lsquo;sagas&rsquo; or &lsquo;process managers&rsquo;, and &lsquo;services&rsquo;. I don&rsquo;t know if these
 are appropriate, as I believe they are intended to coordinate behaviour between
@@ -376,29 +376,29 @@ and private command handlers.</p>
 data types. Immutable collection methods return updated copies of the
 collections, as does the <code>with</code> expression for C# records. This makes it very
 easy to create new states based on events. For example:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cs" data-lang="cs"><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> PandemicGame ApplyPlayerCardDiscarded(
-  PandemicGame game,
-  PlayerCardDiscarded discarded)
-{
-    <span style="color:#66d9ef">var</span> discardedCard = game
-      .CurrentPlayer
-      .Hand
-      .Single(c =&gt; c.City == discarded.City);
-
-    <span style="color:#66d9ef">return</span> game with
-    {
-        Players = game
-          .Players
-          .Replace(game.CurrentPlayer, game.CurrentPlayer with
-          {
-              Hand = game
-                .CurrentPlayer
-                .Hand
-                .Remove(discardedCard)
-          })
-    };
-}
-</code></pre></div></blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cs" data-lang="cs"><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> PandemicGame ApplyPlayerCardDiscarded(
+</span></span><span style="display:flex;"><span>  PandemicGame game,
+</span></span><span style="display:flex;"><span>  PlayerCardDiscarded discarded)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> discardedCard = game
+</span></span><span style="display:flex;"><span>      .CurrentPlayer
+</span></span><span style="display:flex;"><span>      .Hand
+</span></span><span style="display:flex;"><span>      .Single(c =&gt; c.City == discarded.City);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> game with
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        Players = game
+</span></span><span style="display:flex;"><span>          .Players
+</span></span><span style="display:flex;"><span>          .Replace(game.CurrentPlayer, game.CurrentPlayer with
+</span></span><span style="display:flex;"><span>          {
+</span></span><span style="display:flex;"><span>              Hand = game
+</span></span><span style="display:flex;"><span>                .CurrentPlayer
+</span></span><span style="display:flex;"><span>                .Hand
+</span></span><span style="display:flex;"><span>                .Remove(discardedCard)
+</span></span><span style="display:flex;"><span>          })
+</span></span><span style="display:flex;"><span>    };
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div></blockquote>
 <h1 id="wrapping-up-this-post">Wrapping up this post</h1>
 <p>Despite the above concerns, I am confident that I can incrementally add game
 rules until I have a full game implementation. The biggest benefit I have got

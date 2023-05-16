@@ -7,6 +7,7 @@ This is the source of my site: https://iamwoz.com
 # Local dev
 Install:
 - [Hugo](https://gohugo.io/)
+- node 12 (this is the version netlify uses)
 - (optional) [Spell Right VS Code plugin](https://github.com/bartosz-antosik/vscode-spellright)
 - start a new post `./newpost.sh my_super_duper_post`
 

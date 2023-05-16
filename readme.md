@@ -32,8 +32,9 @@ git push
 
 
 # todo
-- how to prevent words being hyphenated across lines?
 - remove percy from package.json?
+- remove netlify functions, make this site totally static
+    - removes netlify build & node dependencies
 - display tags
   - in post
   - in post list

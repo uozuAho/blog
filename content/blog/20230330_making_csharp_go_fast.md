@@ -1,15 +1,12 @@
 ---
 title: "Making C# Go Fast"
-date: 2023-03-30T12:20:53+11:00
+date: 2023-05-16T12:20:53+11:00
 draft: false
 summary: "A practical example of using Rider's .NET profilers to increase my app's performance by 18x"
 tags:
 - csharp
 - performance
 ---
-
-# todo
-- fix netlify build (percy too new?)
 
 # Contents
 {{< toc >}}

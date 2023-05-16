@@ -6,11 +6,11 @@
     <description>Recent content in csharp on woz</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-GB</language>
-    <lastBuildDate>Thu, 30 Mar 2023 12:20:53 +1100</lastBuildDate><atom:link href="https://iamwoz.com/tags/csharp/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 16 May 2023 12:20:53 +1100</lastBuildDate><atom:link href="https://iamwoz.com/tags/csharp/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Making C# Go Fast</title>
       <link>https://iamwoz.com/blog/20230330_making_csharp_go_fast/</link>
-      <pubDate>Thu, 30 Mar 2023 12:20:53 +1100</pubDate>
+      <pubDate>Tue, 16 May 2023 12:20:53 +1100</pubDate>
       
       <guid>https://iamwoz.com/blog/20230330_making_csharp_go_fast/</guid>
       <description>A practical example of using Rider&amp;rsquo;s .NET profilers to increase my app&amp;rsquo;s performance by 18x</description>

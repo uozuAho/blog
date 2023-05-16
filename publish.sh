@@ -19,8 +19,8 @@
 # - check with original authors if using any content
 
 # final steps
-# - merge to main
 # - set the article date to today's date
+# - merge to main
 # - publish (run this script)
 # - push
 # - goto https://github.com/uozuAho/blog -> check percy

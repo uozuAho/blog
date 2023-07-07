@@ -2,6 +2,7 @@
 
 ## Links, references
 Create a heading with a custom id:     `# Appendix: chess notation {#notation}`
+    - todo: try this: https://sam.hooke.me/note/2022/09/hugo-anchors-next-to-headers/
 Link to that heading in the same page: `[notation]({{< ref "#notation" >}})`
 Link to another post:                  `[this post]({{< ref "20210613_mouse" >}})`
 TOC:                                   `{{< toc >}}`

@@ -9,9 +9,10 @@ Install:
 - [Hugo](https://gohugo.io/)
 - node 12 (this is the version netlify uses)
 - (optional) [Spell Right VS Code plugin](https://github.com/bartosz-antosik/vscode-spellright)
-- start a new post `./newpost.sh my_super_duper_post`
 
 ```sh
+# start a new post
+./newpost.sh my_super_duper_post
 # run local dev server (-D to show drafts)
 hugo server -D
 # or, run local dev server, accessible on the local network

@@ -2,255 +2,327 @@
 title: "Why Is C Faster Than C#?"
 date: 2023-11-05T15:42:51+11:00
 draft: true
-summary: ""
+summary: "A deep dive into why a small piece of equivalent code in C and C# perform differently"
 tags:
+- c
+- csharp
+- performance
 ---
 
 # todo
-- **sticky** ignore 2opt for now
-- inline todos
-- obvious questions
-    - what does the assembly look like for `double x = -1.0 + 2.0 * (i & 0x1)` vs `x *= -1`
-    - [[cs_c_rust_perf.project]]: why is C 2opt 10x faster? Try C# unsafe?
-- extract 2opt to another post?
-- put this somewhere: some reading notes
-  - https://stackoverflow.com/a/5331574/2670469
-    - line by line copy of C# <-> C is pretty meaningless. Language features are
-      different
-    - JIT is a tradeoff: best optimisations are time consuming
-    - conclusion: you can almost always write C/C++ that's faster than C#, but
-      not the other way around
-  - https://stackoverflow.com/a/37103437/2670469 and links
-    - links deep dive into C++ optimisation
-    - C# version was a line by line copy of the original C++ code
-    - summary: C/C++ can go faster, with effort, if you know what you're doing
-  - https://blog.codinghorror.com/the-bloated-world-of-managed-code/
-    - managed:
-      - con: slower, uses more memory
-      - pro: faster dev
-  - https://blog.codinghorror.com/on-managed-code-performance/
-    - quake 2 .net port was 15% slower after C targeted host CPU
-      - 30% slower than hand-optimised assembly version
-    - doesn't cater for GC, which is bad for games
-- page summary
-- page tags
+- proof read, spell check
+- later
+    - make inline code like `this` prettier
 
-# maybe
+# Contents
+{{< toc >}}
+
+# This blog post in a paragraph
+Why is [this C code](https://github.com/niklas-heer/speed-comparison/blob/master/src/leibniz.c)
+5x faster than [this C# code](https://github.com/niklas-heer/speed-comparison/blob/master/src/cs/Program.cs)?
+On my machine, the C program completes in 32ms versus 150ms for the C# program.
+30ms of the difference is due to C# startup/shutdown overhead. The other 90ms is
+due to `gcc` vectorising the loop, after being allowed to ignore some IEEE
+compliance rules. This is a very specific case of numerically-intensive code:
+it's not guaranteed that C will always by 5x faster than C#!
+
+# intro
+OK, now for the long story. After [Making C# go fast]({{< ref "20230330_making_csharp_go_fast" >}}),
+I wondered if I could do much better using a non-managed language like C.
+Rewriting my game in C is a large project, so I went hunting for smaller
+examples. Before long, I came accross [speed comparison](https://niklas-heer.github.io/speed-comparison/),
+which compares many languages performing the same small calculation of pi. It's
+a trivially small piece of code which only compares a tiny portion of what each
+language is capable of, bit it's a good starting point for a learning exercise.
+
+C comes in at 3 times faster than C# in the above comparison. Why? Read on to
+find out! Note that I'm no C or performance expert, so this post will mainly be
+a log of my learnings on the path to answering that question.
+
+Also note that this question has been around since at least the start of Java
+and C#, and many smarter people have written about it online. I'll post some
+interesting links later. The generic reasons given are VM/runtime overhead,
+garbage collection (GC), just-in-time compilationg (JIT), array bounds checking
+and more. It was still very interesting and informative to dive into a
+particular program and find out what specifically made C faster.
 
 
-# draft
+# Running the speed comparison, poking around
+[Speed comparison](https://github.com/niklas-heer/speed-comparison) is relatively
+straightforward to run on a linux-like environment. On my machine, C performed
+even better than reported, averaging 35ms per run, versus 155ms for C#.
 
-## S: intro
-- I recently did a course on discrete optimisation ([coursera course here](https://www.coursera.org/learn/discrete-optimization), it's great fun!).
-- focus is on approx techniques for large NP-complete problems
-- however, fast code is still important
-- I used C# for my 'fast code'
-- Wondered, would C or rust be faster?
-- The general consensus from searching is 'yes', with hand-wavey reasons like GC,
-  JIT, runtime overhead etc. etc., but I wasn't satisfied. I wanted to understand
-  exactly why two comparable programs performed differently.
-- I'm no expert in C, low level code, CLR internals etc. The aim of this post is
-  to learn about this stuff by doing it, document my findings, show my workings,
-  and share.
-- side note: this has been done before, by ppl smarter than me: https://stackoverflow.com/a/37103437/2670469
-    - from ~2005
-    - non-trivial code
-    - line by line copy of the original C++ to C# ended up 13x faster than C++
-    - C++ was eventually faster, after a lot of effort
+The code:
+- reads a number `rounds` from a file
+- iteratively calculates the value of pi, looping as many times as `rounds`
+  specifies
+- prints the value of pi
 
-## T: what i wanted to achieve
-- find out exactly why C is 3 times as fast as C# here: https://github.com/niklas-heer/speed-comparison
-- see if I can make my 2-opt implementation faster with C
+I tinkered with the code a bit to get an understanding of where the time was
+being spent. Eliminating file I/O by hard coding `rounds` saved a few
+milliseconds in both C and C#. Setting `rounds` to 1 reduced C's run time to
+effectively zero, while C# still took 30ms. I assume this time is
+startup/shutdown time of the runtime, which I don't particularly care about.
 
-## A: what i did: speed comparison
-- run C and C# on my machine, following readme
-- C was even faster on my machine, 35ms vs 155 (4x faster)
-- removing fileio and setting `rounds` directly saved 3ms in C, 5ms in C#
-- setting `rounds` to 1: C = 64us, C# 30ms. C# has startup (and shutdown?) overhead,
-  which I don't really care about.
-- disappointingly, AOT for C# had only a small impact. I couldn't get it working
-  on linux, but it reduced the run time on Windows from 170ms to 142ms.
-- so, C completed the pi calculation in 30ms, while C# took 120ms. Why? I compared
-  the assembly
-- to see C disassembly, remove the flags `-s -static` and add `-g`. `static`
-  generates lots of assembly, making finding your code hard. Then use objdump,
-  eg. `objdump -drwlCS -Mintel exe > exe.asm`. Then, figure out what it means!
-  I found this [quick introduction to x64 assembly](https://www.intel.com/content/dam/develop/external/us/en/documents/introduction-to-x64-assembly-181178.pdf)
-  (pdf) a good primer. Then, [x86 reference](https://www.felixcloutier.com/x86/)
-  was a super handy online reference. Easier than reading a pdf.
-- to see C# machine code: VS -> debug program -> debug menu -> windows -> disassembly
-  The assembly looks slightly different between Debug/Release modes, but not significantly.
-  CalcPi was about 44 instructions in Debug, and 42 in Release
-- see the disassembly in the appendix
-- I played around with the gcc flags to understand what made the speed differences.
-  The top contributors were `-O3 -march=native -fassociative-math -fno-signed-zeros -fno-trapping-math`
-    - `O3`: highest optimisation setting
-    - `-march=native`: compile for the host CPU, using all available instructions
-        - note about `march=native`: less portable, usually only big speedups for numerically intensive code: https://stackoverflow.com/questions/52653025/why-is-march-native-used-so-rarely
-    - `-fassociative-math`: can reorder floating point operations, possibly causing under/overflow/NaNs
-    - `-fno-signed-zeros`: ignore the sign of zeros
-    - `-fno-trapping-math` assume that there will be no "division by zero, overflow, underflow, inexact result and invalid operation"
-    - i got similar results with `-Ofast -march=native`
-    - note that the math flags are 'unsage' - they don't comply with IEEE/ANSI
-      standards on floating point math. Indeed they produced a different value
-      of pi: still accurate to 7 decimal places, but different.
-    - with just `-O3`, C took 120ms, same as C#, `-march=native` didn't make
-      a big difference unless unsafe math was enabled. Looking at the generated
-      assembly, unsafe math appears to allow reordering of the calculations, and
-      native arch enables using ymm registers, which are 256 bits (otherwise
-      only 128 bit xmm registers are used).
-    - the assembly of `Ofast native` is 20 instructions, vs 11 for `O3 native`. However,
-      the fast version only loops 12.5M times, 8x less than the O3 version. It packs
-      more into each loop by using the 256 bit registers.
-    - note that this line was critical: `double x = -1.0 + 2.0 * (i & 0x1)`
-        - tried changing to `x = -x`
-        - resulted in 4x slowdown, 32ms -> 120
-        - the [comment on this line of C code](https://github.com/niklas-heer/speed-comparison/blob/fbe72677a25df85e1bcc6386c6069dd163f04962/src/leibniz.c#L24)
-          says 'allows vectorisation'. I'm assuming this is due to removing the self-reference of x.
-        - the assembly for `x = -x` loops 100M times, and doesn't use ymm registers
-    - details can be found here: https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html
-- so there we have it! C# is as fast as standards-compliant C. You can break
-  some rules in C to go 4x faster (or whatever your hardware allows), and still
-  get correct results.
-- what else is taking C# time?
-    - what are the hand wavey reasons? do they apply here?
-        - array bounds checking: no
-        - null pointer checks: no
-        - GC, JIT, runtime 'stuff': hmm prob not. Maybe that's what the mystery
-          call is every 1000 iterations? If so, it's having negligible impact,
-          given it's still running as fast as C.
-    - what is that call every 1000 iterations? hard to find answers to this via
-      searching. ChatGPT suggests GC, JIT, debugging/profiling tools. I wonder
-      if AOT still has it. If not, maybe it's the debugger/profiler running in
-      VS.
+Out of curiosity, I quickly checked out ahead-of-time compilation [(AOT)](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/?tabs=net7%2Cwindows)
+for C#. It only had a small impact on overall runtime, and startup time was
+still around 20ms (measured by setting `rounds` = 1). I didn't investigate any
+further.
 
-## A: what i did: 2-opt
-- used chatGPT to rewrite my C# code in C
-- it's 3x slower than C#! I assumed ChatGPT had done something silly
-- using callgrind, I found a lot of cycles were being spent in clock():
+So: ignoring file I/O and startup time, C completes the pi calculation in 30ms,
+while C# takes 120ms. The code for the calculation is almost identical:
+
+C:
+```c
+for (unsigned i=2u; i < rounds; ++i) {
+    double x = -1.0 + 2.0 * (i & 0x1);
+    pi += (x / (2u * i - 1u));
+}
+```
+
+C#:
+```cs
+for (int i = 2; i < rounds + 2; i++) {
+    x *= -1;
+    pi += (x / (2 * i - 1));
+}
+```
+
+Changing the signed-ness of variables and the time at which to increment `i`
+made no difference. The line `double x = -1.0 + 2.0 * (i & 0x1);` has the same
+result on `x` as `x *= -1`, but is important for reasons I'll talk about later.
+First, let's take a look at the machine code that is generated by C and C#.
+
+
+# Digging into the machine code
+
+## C
+To see C disassembly, we can use a tool called [objdump](https://en.wikipedia.org/wiki/Objdump).
+To make our lives easier, we can bypass Earthly and run `gcc` and `objdump` directly.
+The [C compilation command in the Earthfile](https://github.com/niklas-heer/speed-comparison/blob/fbe72677a25df85e1bcc6386c6069dd163f04962/Earthfile#L116)
+is:
 
 ```sh
-valgrind --tool=callgrind ./some-program
-# creates a file like callgrind.out.1234
-
-# see results with:
-callgrind_annotate --auto=yes callgrind.out.1234 > some_file.txt
+gcc leibniz.c -o leibniz -O3 -s -static -flto -march=native \
+    -mtune=native -fomit-frame-pointer -fno-signed-zeros \
+    -fno-trapping-math -fassociative-math
 ```
 
-some_file.txt example:
+We'll modify this slightly to make the objdump output easier to understand:
+- remove `-s` to keep symbol information
+- remove `-static`, so that external library code is not included in the executable
+- add `-g` to add debugging information
+
+```sh
+# compile the program
+gcc leibniz.c -o leibniz -O3 -g -flto -march=native \
+    -mtune=native -fomit-frame-pointer -fno-signed-zeros \
+    -fno-trapping-math -fassociative-math
+
+# extract the machine code in intel assembly format, along with other useful
+# details to help us understand which part of the code the assembly is for
+objdump -drwlCS -Mintel leibniz > leibniz.asm
 ```
------------------------------------
-Ir                    file:function
------------------------------------
-209,307,770 (54.04%)  twoopt.c:main
-123,943,848 (32.00%)  ???:clock
 
-...
+More details on the `gcc` options here: [gcc options summary](https://gcc.gnu.org/onlinedocs/gcc/Option-Summary.html)
+And `objdump` here: [objdump man page](https://www.man7.org/linux/man-pages/man1/objdump.1.html)
 
-         .           double distance_squared(Point2D* p1, Point2D* p2) {
-23,241,449 ( 6.00%)      double xdiff = p1->x - p2->x;
-570 ( 0.00%)  => ???:fopen (1x)
-87,793,474 (22.67%)  => ???:clock (2,582,161x)
-```
+## C#
+Accessing C# disassembly has a much more 'Microsoft-y' feel to it. You need to
+use Visual Studio, pause the program at a breakpoint, then access the
+disassembly via a menu: Debug menu -> Windows -> Disassembly.
 
-- Ir = "instruction read" = count of (assembly) instructions executed
-- Simple way to speed things up: I reduced the number of calls to clock()
-  **todo** show code, and got an 80x speedup. C now 10x faster than C#. There's
-  probably plenty more I could do.
-- why clock() so slow? For some reason, I knew about system calls, and had a hunch
-  that clock was one.
-    - explain system calls
-- easy way to check: `strace`:
-- `strace -c ./twoopt ../../data/tsp/tsp_85900_1`
-    - before clock call reduction:
-    ```
-    % time     seconds  usecs/call     calls    errors syscall
-    ------ ----------- ----------- --------- --------- ----------------
-    99.03    1.990292          35     56783           clock_gettime
-    ```
-    - after
-    ```
-    % time     seconds  usecs/call     calls    errors syscall
-    ------ ----------- ----------- --------- --------- ----------------
-    90.18    0.131388           6     19013           clock_gettime
-    ```
-- there is a _lot_ more here than I want to dive into, eg. thinking about
-  instruction & data caching
-- side note: ChatGPT wasn't able to tell me that clock() was having such a huge
-  performance impact. It saved me typing the code, but didn't stop me needing to
-  understand what was happening :)
+<figure>
+  <img src="/blog/20231105_why_is_c_faster_than_c/vs_disassembly.png"
+  alt=""
+  width="933"
+  loading="lazy" />
+  <figcaption>How to show native disassembly of your C# program</figcaption>
+</figure>
+
+This process makes sense, as .NET executables are distributed in .NET's
+intermediate language format (IL), and IL is only compiled to native code by the
+JIT as needed. [^1] [^2]
+
+## What does it all mean?
+Having the machine code generated from the C and C# code lets us do a like for
+like comparison of each program. I've put the assembly code of just the for
+loops in an [appendix]({{< ref "#assembly" >}}) at the end of this post.
+
+The first challenge was understanding what all the intstructions meant! This
+[quick introduction to x64 assembly](https://www.intel.com/content/dam/develop/external/us/en/documents/introduction-to-x64-assembly-181178.pdf)
+(pdf) was a good primer. This [x86 reference](https://www.felixcloutier.com/x86/)
+got me the rest of the way to a basic understanding of what was happening.
+Rather than decode every instruction and figure out which variables were being
+stored in which registers, I thought I'd just play around with the C compilation
+options to get a feel for what changes.
+
+Gcc has many flags to control the generated machine code. I'll summarise the relevant
+flags here. For more details, see [gcc's optimize options](https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html).
+
+I found that the top contributors were
+`-O3 -march=native -fassociative-math -fno-signed-zeros -fno-trapping-math`.
+
+- `O1`, `O2`, `O3` are shorthand for a collection of optimisation settings, `O3`
+  being the highest setting
+- `-march=native`: compile for the host CPU, any instructions it supports.
+  This is generally only done for numerically intensive code, at the cost of
+  portability. Most widely distributed C programs won't use this option, as it
+  limits the number of CPUs the program can run on. For more details see this
+  stack overflow question: [Why is -march=native used so rarely?](https://stackoverflow.com/questions/52653025/why-is-march-native-used-so-rarely)
+- `-fassociative-math`: reorders floating point operations for efficiency,
+  possibly causing under/overflow/NaNs
+- `-fno-signed-zeros`: ignore the sign of zeros
+- `-fno-trapping-math` assume that there will be no "division by zero, overflow,
+  underflow, inexact result and invalid operation"
+
+The last three options may cause violations of IEEE or ANSI standards. I assume
+this is not necessarily a bad thing, if you know what you're doing. Indeed, the
+value of pi calculated with these options varied slightly from the value
+calculated without them (and by the C# code), but all calculated pi values were
+still accurate to 7 decimal places.
+
+Using just the `-O3` flag, the C program took 120ms, which is the same as C#
+program, ignoring startup time. `-march=native` didn't make a big difference
+unless unsafe math flags were enabled. If you compare the assembly of the 'fast'
+and the 'safe' options, the fast assembly uses `ymm` registers (256 bit
+registers), allowing more calculations to be done per CPU instruction. It also
+only loops 12.5 million times, versus the 100 million times for the safe
+assembly. Intuitively, this explains the speedup to me: The fast assembly runs
+8x fewer loops, but runs about twice as many instructions per loop, resulting in
+a 4x speedup. I don't know if that's the exact reason, but I'm happy to stop
+here for this blog post.
+
+## Vectorisation
+What gcc is doing with the fast compilation options above is vectorising the
+loop. There's a great explanation of vectorisation here: [Stack Overflow: What is "vectorization"?](https://stackoverflow.com/questions/1422149/what-is-vectorization).
+In this case, it's the compiler generating code that loops fewer times, doing
+more per loop.
+
+Gcc was able to automatically vectorise the C code, albeit with the unsafe math
+relaxations. The C programmer also needed to know that writing
+`double x = -1.0 + 2.0 * (i & 0x1)` allows vectorisation, while `x *= -1`
+doesn't. I didn't investigate why, but I assume it's due to the first code
+determining the value of `x` using only the loop counter, while the second code
+determines `x` from the value of `x` in the previous loop.
+
+It's also possible to write vectorised code yourself, as demonstrated by the
+[leibniz_avx2.cpp](https://github.com/niklas-heer/speed-comparison/blob/master/src/leibniz_avx2.cpp)
+code in speed-comparison. On my machine, this beat the auto-vectorised C by a
+couple of milliseconds, without needing the unsafe math flags. Java and C# also
+support manual vectorisation, however the result in speed-comparison is underwhelming:
+[this vectorised java code](https://github.com/niklas-heer/speed-comparison/blob/master/src/leibnizVecOps.java)
+performs 3 times worse than its [non-vectorised counterpart](https://github.com/niklas-heer/speed-comparison/blob/master/src/leibniz.java)!
+It'd be interesting to see if C# fares any better. [Microsoft remarks](https://learn.microsoft.com/en-us/dotnet/standard/simd):
+
+> SIMD [vectorisation] is more likely to remove one bottleneck and expose the
+> next, for example memory throughput. In general the performance benefit of
+> using SIMD varies depending on the specific scenario, and in some cases it can
+> even perform worse than simpler non-SIMD equivalent code.
 
 
-# Appendix: assembly
-Assembler for C and C#. Just the looping section of 'CalcPi' is shown.
+# The end
+So there we have it! For this particular code, C goes 5x faster than C# by
+relaxing some strict IEEE calculation rules, autovectorising the loop, and
+having a very low startup time.
 
-C (-Ofast -march=native):
+C# is as fast as standards-compliant C, unless you go to the effort to manually
+vectorise your C/C++ code. It may be possible to manually vectorise the C# code,
+but I'll leave that for a later post.
+
+
+# Appendix A: assembly {#assembly}
+Assembly for C and C#. Only the pi calculation loop is shown.
+
+Fast C (`-O3 -march=native -fassociative-math -fno-signed-zeros -fno-trapping-math`, 30ms):
 ```asm
-1130:	c5 fd 6f c2          	vmovdqa ymm0,ymm2                           # ymm0 = ymm2
-1134:	ff c0                	inc    eax                                  # eax += 1
-1136:	c5 ed fe d7          	vpaddd ymm2,ymm2,ymm7                       # ymm2 += (4xi64)ymm7
-113a:	c5 fd db ce          	vpand  ymm1,ymm0,ymm6                       # ymm1 = (4xi64)ymm0 & ymm6
-113e:	c5 fd 72 f0 01       	vpslld ymm0,ymm0,0x1                        # ymm0 <<= 1, ymm0 *= 2
-1143:	c5 fd fe c5          	vpaddd ymm0,ymm0,ymm5                       # ymm0 += ymm5     (ymm5 = -1?, see 1117)
-1147:	c5 7e e6 c9          	vcvtdq2pd ymm9,xmm1                         # (4xi64) ymm9 = (4x double?)xmm1 ... https://www.felixcloutier.com/x86/cvtdq2pd
-114b:	c4 e3 7d 39 c9 01    	vextracti128 xmm1,ymm1,0x1                  # xmm1 = ymm1[255:128]
-1151:	c5 fe e6 c9          	vcvtdq2pd ymm1,xmm1                         # (4xi64) ymm1 = (4x double?)xmm1
-1155:	c5 7e e6 d0          	vcvtdq2pd ymm10,xmm0                        # (4xi64) ymm10 = (4x double?)xmm0
-1159:	c4 e3 7d 39 c0 01    	vextracti128 xmm0,ymm0,0x1                  # xmm0 = ymm0[255:128]
-115f:	c4 62 e5 98 cc       	vfmadd132pd ymm9,ymm3,ymm4                  # (4x double): ymm9 = ymm9 * ymm4 + ymm3
-1164:	c5 fe e6 c0          	vcvtdq2pd ymm0,xmm0                         # (4xi64) ymm0 = (4x double?)xmm0
-1168:	c4 e2 e5 98 cc       	vfmadd132pd ymm1,ymm3,ymm4                  # (4x double): ymm1 = ymm1 * ymm4 + ymm3
-116d:	c4 41 35 5e ca       	vdivpd ymm9,ymm9,ymm10                      # ymm9 /= ymm10
-1172:	c5 f5 5e c0          	vdivpd ymm0,ymm1,ymm0                       # ymm0 = ymm1/ymm0
-1176:	c5 b5 58 c0          	vaddpd ymm0,ymm9,ymm0                       # ymm0 += ymm9
-117a:	c5 3d 58 c0          	vaddpd ymm8,ymm8,ymm0                       # ymm8 += ymm0
-117e:	3d 20 bc be 00       	cmp    eax,0xbebc20                         # if eax != 12500000 (=100M/8)
-1183:	75 ab                	jne    1130 <main+0x90>                     # goto 1130
+;address:  instruction (bytes)   instruction (assembly)        # my understanding of what's happening
+1130:      c5 fd 6f c2           vmovdqa ymm0,ymm2             # ymm0 = ymm2
+1134:      ff c0                 inc    eax                    # eax += 1
+1136:      c5 ed fe d7           vpaddd ymm2,ymm2,ymm7         # ymm2 += (4xi64)ymm7
+113a:      c5 fd db ce           vpand  ymm1,ymm0,ymm6         # ymm1 = (4xi64)ymm0 & ymm6
+113e:      c5 fd 72 f0 01        vpslld ymm0,ymm0,0x1          # ymm0 <<= 1, ie. ymm0 *= 2
+1143:      c5 fd fe c5           vpaddd ymm0,ymm0,ymm5         # ymm0 += ymm5     (ymm5 = -1?, see 1117)
+1147:      c5 7e e6 c9           vcvtdq2pd ymm9,xmm1           # (4xi64) ymm9 = (4x double?)xmm1 ... https://www.felixcloutier.com/x86/cvtdq2pd
+114b:      c4 e3 7d 39 c9 01     vextracti128 xmm1,ymm1,0x1    # xmm1 = ymm1[255:128]
+1151:      c5 fe e6 c9           vcvtdq2pd ymm1,xmm1           # (4xi64) ymm1 = (4x double?)xmm1
+1155:      c5 7e e6 d0           vcvtdq2pd ymm10,xmm0          # (4xi64) ymm10 = (4x double?)xmm0
+1159:      c4 e3 7d 39 c0 01     vextracti128 xmm0,ymm0,0x1    # xmm0 = ymm0[255:128]
+115f:      c4 62 e5 98 cc        vfmadd132pd ymm9,ymm3,ymm4    # (4x double): ymm9 = ymm9 * ymm4 + ymm3
+1164:      c5 fe e6 c0           vcvtdq2pd ymm0,xmm0           # (4xi64) ymm0 = (4x double?)xmm0
+1168:      c4 e2 e5 98 cc        vfmadd132pd ymm1,ymm3,ymm4    # (4x double): ymm1 = ymm1 * ymm4 + ymm3
+116d:      c4 41 35 5e ca        vdivpd ymm9,ymm9,ymm10        # ymm9 /= ymm10
+1172:      c5 f5 5e c0           vdivpd ymm0,ymm1,ymm0         # ymm0 = ymm1/ymm0
+1176:      c5 b5 58 c0           vaddpd ymm0,ymm9,ymm0         # ymm0 += ymm9
+117a:      c5 3d 58 c0           vaddpd ymm8,ymm8,ymm0         # ymm8 += ymm0
+117e:      3d 20 bc be 00        cmp    eax,0xbebc20           # if eax != 12500000 (=100M/8)
+1183:      75 ab                 jne    1130 <main+0x90>       # goto 1130
 ```
 
-C (-O3 -march=native, same speed as C# in Release mode)
+Safe C (`-O3 -march=native`, 120ms):
 ```asm
-1120:	89 c1                	mov    ecx,eax                # ecx = eax
-1122:	c5 e3 2a d2          	vcvtsi2sd xmm2,xmm3,edx       # xmm2 = (double)edx?  https://www.felixcloutier.com/x86/cvtsi2sd
-1126:	ff c0                	inc    eax                    # eax += 1
-1128:	83 c2 02             	add    edx,0x2                # edx += 2
-112b:	83 e1 01             	and    ecx,0x1                # ecx &= 1
-112e:	c5 e3 2a c9          	vcvtsi2sd xmm1,xmm3,ecx       # xmm1 = (double)ecx?
-1132:	c4 e2 d9 99 cd       	vfmadd132sd xmm1,xmm4,xmm5    # xmm1 = xmm1 * xmm5 + xmm4
-1137:	c5 f3 5e ca          	vdivsd xmm1,xmm1,xmm2         # xmm1 /= xmm2
-113b:	c5 fb 58 c1          	vaddsd xmm0,xmm0,xmm1         # xmm0 += xmm1
-113f:	3d 02 e1 f5 05       	cmp    eax,0x5f5e102          # if eax != 100M+2
-1144:	75 da                	jne    1120 <main+0x80>       # goto 1120
+;address:  instruction (bytes)   instruction (assembly)        # my understanding of what's happening
+1120:      89 c1                 mov    ecx,eax                # ecx = eax
+1122:      c5 e3 2a d2           vcvtsi2sd xmm2,xmm3,edx       # xmm2 = (double)edx?  https://www.felixcloutier.com/x86/cvtsi2sd
+1126:      ff c0                 inc    eax                    # eax += 1
+1128:      83 c2 02              add    edx,0x2                # edx += 2
+112b:      83 e1 01              and    ecx,0x1                # ecx &= 1
+112e:      c5 e3 2a c9           vcvtsi2sd xmm1,xmm3,ecx       # xmm1 = (double)ecx?
+1132:      c4 e2 d9 99 cd        vfmadd132sd xmm1,xmm4,xmm5    # xmm1 = xmm1 * xmm5 + xmm4
+1137:      c5 f3 5e ca           vdivsd xmm1,xmm1,xmm2         # xmm1 /= xmm2
+113b:      c5 fb 58 c1           vaddsd xmm0,xmm0,xmm1         # xmm0 += xmm1
+113f:      3d 02 e1 f5 05        cmp    eax,0x5f5e102          # if eax != 100M+2
+1144:      75 da                 jne    1120 <main+0x80>       # goto 1120
 ```
 
-C# (Debug/Release? dunno):
-```
-00007FFF1835417B  vmovsd      xmm0,qword ptr [rbp-48h]       # xmm0 = *(rbp-48h)
-00007FFF18354180  vmulsd      xmm0,xmm0,                     # xmm0 = xmm0 * *(07FFF18354210)    mmword ptr [Program.<<Main>$>g__CalcPi|0_0()+0E0h (07FFF18354210h)]
-00007FFF18354188  vmovsd      qword ptr [rbp-48h],xmm0       # *(rbp-48h) = xmm0
-00007FFF1835418D  vmovsd      xmm0,qword ptr [rbp-48h]       # xmm0 = *(rbp-48h)
-00007FFF18354192  mov         eax,dword ptr [rbp-4Ch]        # eax = *(rbp-4Ch)
-00007FFF18354195  lea         eax,[rax*2-1]                  # eax = *(rax*2-1)
-00007FFF1835419C  vxorps      xmm1,xmm1,xmm1                 # xmm1 = 0
-00007FFF183541A0  vcvtsi2sd   xmm1,xmm1,eax                  # xmm1 = (double)eax?  https://www.felixcloutier.com/x86/cvtsi2sd
-00007FFF183541A4  vdivsd      xmm0,xmm0,xmm1                 # xmm0 /= xmm1
-00007FFF183541A8  vaddsd      xmm0,xmm0,mmword ptr [rbp-40h] # xmm0 += *(rbp-40h)
-00007FFF183541AD  vmovsd      qword ptr [rbp-40h],xmm0       # *(rbp-40h) = xmm0
-00007FFF183541B2  mov         eax,dword ptr [rbp-4Ch]        # eax = *(rbp-4Ch)
-00007FFF183541B5  inc         eax                            # eax += 1
-00007FFF183541B7  mov         dword ptr [rbp-4Ch],eax        # *(rbp-4Ch) = eax
-00007FFF183541BA  mov         ecx,dword ptr [rbp-58h]        # ecx = *(rbp-58h)
-00007FFF183541BD  dec         ecx                            # ecx -= 1
-00007FFF183541BF  mov         dword ptr [rbp-58h],ecx        # *(rbp-58h) = ecx
-00007FFF183541C2  cmp         dword ptr [rbp-58h],0          # if *(rbp-58h) > 0
-00007FFF183541C6  jg                                         # goto 07FFF183541D6   Program.<<Main>$>g__CalcPi|0_0()+0A6h (07FFF183541D6h)
-00007FFF183541C8  lea         rcx,[rbp-58h]                  # rcx = *(rbp-58h)
-00007FFF183541CC  mov         edx,33h                        # edx = 51
-00007FFF183541D1  call        00007FFF77D8C9B0               # call mystery function
-00007FFF183541D6  cmp         dword ptr [rbp-4Ch],5F5E102h   # if *(rbp-4Ch) < 100M +2
-00007FFF183541DD  jl                                         # goto 07FFF1835417B
+C# (120ms):
+```asm
+;address          instruction (assembly)                      # my understanding of what's happening
+00007FFF1835417B  vmovsd      xmm0,qword ptr [rbp-48h]        # xmm0 = *(rbp-48h)
+00007FFF18354180  vmulsd      xmm0,xmm0,                      # xmm0 = xmm0 * *(07FFF18354210)    mmword ptr [Program.<<Main>$>g__CalcPi|0_0()+0E0h (07FFF18354210h)]
+00007FFF18354188  vmovsd      qword ptr [rbp-48h],xmm0        # *(rbp-48h) = xmm0
+00007FFF1835418D  vmovsd      xmm0,qword ptr [rbp-48h]        # xmm0 = *(rbp-48h)
+00007FFF18354192  mov         eax,dword ptr [rbp-4Ch]         # eax = *(rbp-4Ch)
+00007FFF18354195  lea         eax,[rax*2-1]                   # eax = *(rax*2-1)
+00007FFF1835419C  vxorps      xmm1,xmm1,xmm1                  # xmm1 = 0
+00007FFF183541A0  vcvtsi2sd   xmm1,xmm1,eax                   # xmm1 = (double)eax?  https://www.felixcloutier.com/x86/cvtsi2sd
+00007FFF183541A4  vdivsd      xmm0,xmm0,xmm1                  # xmm0 /= xmm1
+00007FFF183541A8  vaddsd      xmm0,xmm0,mmword ptr [rbp-40h]  # xmm0 += *(rbp-40h)
+00007FFF183541AD  vmovsd      qword ptr [rbp-40h],xmm0        # *(rbp-40h) = xmm0
+00007FFF183541B2  mov         eax,dword ptr [rbp-4Ch]         # eax = *(rbp-4Ch)
+00007FFF183541B5  inc         eax                             # eax += 1
+00007FFF183541B7  mov         dword ptr [rbp-4Ch],eax         # *(rbp-4Ch) = eax
+00007FFF183541BA  mov         ecx,dword ptr [rbp-58h]         # ecx = *(rbp-58h)
+00007FFF183541BD  dec         ecx                             # ecx -= 1
+00007FFF183541BF  mov         dword ptr [rbp-58h],ecx         # *(rbp-58h) = ecx
+00007FFF183541C2  cmp         dword ptr [rbp-58h],0           # if *(rbp-58h) > 0
+00007FFF183541C6  jg                                          # goto 07FFF183541D6   Program.<<Main>$>g__CalcPi|0_0()+0A6h (07FFF183541D6h)
+00007FFF183541C8  lea         rcx,[rbp-58h]                   # rcx = *(rbp-58h)
+00007FFF183541CC  mov         edx,33h                         # edx = 51
+00007FFF183541D1  call        00007FFF77D8C9B0                # call mystery function. C# runtime 'stuff'? GC?
+00007FFF183541D6  cmp         dword ptr [rbp-4Ch],5F5E102h    # if *(rbp-4Ch) < 100M +2
+00007FFF183541DD  jl                                          # goto 07FFF1835417B
 ```
 
-# further reading / study
-**todo**
-- plent ymore to do, see [[cs_c_rust_perf.project]]
+# Appendix B: Interesting reading
+- [Is C# slower than say C++?](https://stackoverflow.com/questions/5326269/is-c-sharp-really-slower-than-say-c)
+    - [detailed generic answer](https://stackoverflow.com/a/5331574/2670469)
+        - covers language features, VM, GC, benchmarks
+        - conclusion: you can almost always write C/C++ that's faster than C#,
+          but not the other way around
+    - [specific case answer](https://stackoverflow.com/a/37103437/2670469)
+        - yes, but it may take a C++ expert significant time to make it run
+          faster than C#
+- [Jeff Atwood: The bloated world of Managed Code](https://blog.codinghorror.com/the-bloated-world-of-managed-code/)
+    - C# cons: slower, uses more memory
+    - C# pros: faster development
+- [Jeff Atwood: On Managed Code Performance](https://blog.codinghorror.com/on-managed-code-performance/)
+    - C# pro: security: buffer overruns possible in C/C++ can't happen in C#
+    - quake 2 .NET port was initially faster than the C version, but 15% slower
+      after C targeted the host CPU, and 30% slower than the hand-optimised
+      assembly version
+
+
+# References
+[^1]: [.NET assembly file format](https://learn.microsoft.com/en-us/dotnet/standard/assembly/file-format)
+[^2]: [Compiling MSIL to Native Code](https://learn.microsoft.com/en-us/dotnet/standard/managed-execution-process#compiling-msil-to-native-code)

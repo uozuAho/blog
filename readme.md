@@ -35,6 +35,7 @@ git push
 # todo
 - remove netlify functions, make this site totally static
     - removes netlify build & node dependencies
+- make inline code like `this` prettier
 - display tags
   - in post
   - in post list

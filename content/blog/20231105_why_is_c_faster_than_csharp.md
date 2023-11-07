@@ -9,47 +9,47 @@ tags:
 - performance
 ---
 
-# todo
-- proof read, spell check
-- later
-    - make inline code like `this` prettier
+# to do
+- move assembly appendix into machine code section, remove assembly links
+- answer/do later: why is O3 C the same speed as C#, even though the C assembly is much smaller?
 
 # Contents
 {{< toc >}}
 
 # This blog post in a paragraph
 Why is [this C code](https://github.com/niklas-heer/speed-comparison/blob/master/src/leibniz.c)
-5x faster than [this C# code](https://github.com/niklas-heer/speed-comparison/blob/master/src/cs/Program.cs)?
+5x faster than [this equivalent C# code](https://github.com/niklas-heer/speed-comparison/blob/master/src/cs/Program.cs)?
 On my machine, the C program completes in 32ms versus 150ms for the C# program.
-30ms of the difference is due to C# startup/shutdown overhead. The other 90ms is
-due to `gcc` vectorising the loop, after being allowed to ignore some IEEE
+30ms of the difference is due to C# start-up/shutdown overhead. The other 90ms is
+due to `gcc` vectorizing the loop, after being allowed to ignore some IEEE
 compliance rules. This is a very specific case of numerically-intensive code:
-it's not guaranteed that C will always by 5x faster than C#!
+it's not guaranteed that C will always be 5x faster than C#!
 
-# intro
-OK, now for the long story. After [Making C# go fast]({{< ref "20230330_making_csharp_go_fast" >}}),
+# The long story
+After [making C# go fast]({{< ref "20230330_making_csharp_go_fast" >}}),
 I wondered if I could do much better using a non-managed language like C.
 Rewriting my game in C is a large project, so I went hunting for smaller
-examples. Before long, I came accross [speed comparison](https://niklas-heer.github.io/speed-comparison/),
+examples. Before long, I came across [speed comparison](https://niklas-heer.github.io/speed-comparison/),
 which compares many languages performing the same small calculation of pi. It's
 a trivially small piece of code which only compares a tiny portion of what each
-language is capable of, bit it's a good starting point for a learning exercise.
+language is capable of, but it's a good starting point for a learning exercise.
 
-C comes in at 3 times faster than C# in the above comparison. Why? Read on to
-find out! Note that I'm no C or performance expert, so this post will mainly be
-a log of my learnings on the path to answering that question.
+C comes in at 3 times faster than C# in the above comparison. In this blog post,
+I'll investigate why, as someone with a rather patchy understanding of low level
+code and performance (me).
 
-Also note that this question has been around since at least the start of Java
-and C#, and many smarter people have written about it online. I'll post some
-interesting links later. The generic reasons given are VM/runtime overhead,
-garbage collection (GC), just-in-time compilationg (JIT), array bounds checking
-and more. It was still very interesting and informative to dive into a
-particular program and find out what specifically made C faster.
+The questions of which language is the fastest, and whether managed languages
+like C# are slow have been around forever, and many people smarter than me have
+written about it online. See [appendix B]({{< ref "#readings" >}}) for some
+interesting reads. The generic reasons given are VM/runtime overhead, garbage
+collection (GC), just-in-time compilation (JIT), array bounds checking and more.
+I wasn't satisfied with generic reasons, and wanted to know specifically why two
+pieces of comparable code differed.
 
 
 # Running the speed comparison, poking around
 [Speed comparison](https://github.com/niklas-heer/speed-comparison) is relatively
-straightforward to run on a linux-like environment. On my machine, C performed
+straightforward to run on a Linux-like environment. On my machine, C performed
 even better than reported, averaging 35ms per run, versus 155ms for C#.
 
 The code:
@@ -62,14 +62,15 @@ I tinkered with the code a bit to get an understanding of where the time was
 being spent. Eliminating file I/O by hard coding `rounds` saved a few
 milliseconds in both C and C#. Setting `rounds` to 1 reduced C's run time to
 effectively zero, while C# still took 30ms. I assume this time is
-startup/shutdown time of the runtime, which I don't particularly care about.
+start-up/shutdown time of the C# runtime (CLR), which I don't particularly care
+about.
 
-Out of curiosity, I quickly checked out ahead-of-time compilation [(AOT)](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/?tabs=net7%2Cwindows)
-for C#. It only had a small impact on overall runtime, and startup time was
-still around 20ms (measured by setting `rounds` = 1). I didn't investigate any
-further.
+Out of curiosity, I quickly checked out ahead-of-time compilation
+[(AOT)](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/?tabs=net7%2Cwindows)
+for C#. It only had a small impact on overall runtime, and start-up time was
+still around 20ms. I didn't investigate any further.
 
-So: ignoring file I/O and startup time, C completes the pi calculation in 30ms,
+So: ignoring file I/O and start-up time, C completes the pi calculation in 30ms,
 while C# takes 120ms. The code for the calculation is almost identical:
 
 C:
@@ -89,16 +90,17 @@ for (int i = 2; i < rounds + 2; i++) {
 ```
 
 Changing the signed-ness of variables and the time at which to increment `i`
-made no difference. The line `double x = -1.0 + 2.0 * (i & 0x1);` has the same
-result on `x` as `x *= -1`, but is important for reasons I'll talk about later.
-First, let's take a look at the machine code that is generated by C and C#.
+made no difference. The line `double x = -1.0 + 2.0 * (i & 0x1);` produces the
+same value as `x` as `x *= -1`, but is important for reasons I'll talk about
+later. First, let's take a look at the machine code that is generated by C and
+C#.
 
 
 # Digging into the machine code
 
 ## C
-To see C disassembly, we can use a tool called [objdump](https://en.wikipedia.org/wiki/Objdump).
-To make our lives easier, we can bypass Earthly and run `gcc` and `objdump` directly.
+To see C disassembly, I used a tool called [objdump](https://en.wikipedia.org/wiki/Objdump).
+I bypassed Earthly and ran `gcc` and `objdump` directly.
 The [C compilation command in the Earthfile](https://github.com/niklas-heer/speed-comparison/blob/fbe72677a25df85e1bcc6386c6069dd163f04962/Earthfile#L116)
 is:
 
@@ -108,10 +110,12 @@ gcc leibniz.c -o leibniz -O3 -s -static -flto -march=native \
     -fno-trapping-math -fassociative-math
 ```
 
-We'll modify this slightly to make the objdump output easier to understand:
-- remove `-s` to keep symbol information
-- remove `-static`, so that external library code is not included in the executable
-- add `-g` to add debugging information
+I modified this slightly to make the objdump output easier to understand:
+- removed `-s` to keep symbol information
+- removed `-static`, so that external library code was excluded from the executable
+- added `-g` to add debugging information
+
+This didn't affect the speed of the program.
 
 ```sh
 # compile the program
@@ -119,13 +123,14 @@ gcc leibniz.c -o leibniz -O3 -g -flto -march=native \
     -mtune=native -fomit-frame-pointer -fno-signed-zeros \
     -fno-trapping-math -fassociative-math
 
-# extract the machine code in intel assembly format, along with other useful
-# details to help us understand which part of the code the assembly is for
+# extract the machine code in intel assembly format,
+# along with other useful details to help understand
+# which part of the code the assembly is for
 objdump -drwlCS -Mintel leibniz > leibniz.asm
 ```
 
-More details on the `gcc` options here: [gcc options summary](https://gcc.gnu.org/onlinedocs/gcc/Option-Summary.html)
-And `objdump` here: [objdump man page](https://www.man7.org/linux/man-pages/man1/objdump.1.html)
+I'll cover the `gcc` options in more detail later. The `objdump` options are
+described here: [objdump man page](https://www.man7.org/linux/man-pages/man1/objdump.1.html).
 
 ## C#
 Accessing C# disassembly has a much more 'Microsoft-y' feel to it. You need to
@@ -145,11 +150,11 @@ intermediate language format (IL), and IL is only compiled to native code by the
 JIT as needed. [^1] [^2]
 
 ## What does it all mean?
-Having the machine code generated from the C and C# code lets us do a like for
+Having the machine code generated from the C and C# code let me do a like for
 like comparison of each program. I've put the assembly code of just the for
 loops in an [appendix]({{< ref "#assembly" >}}) at the end of this post.
 
-The first challenge was understanding what all the intstructions meant! This
+The first challenge was understanding what all the instructions meant! This
 [quick introduction to x64 assembly](https://www.intel.com/content/dam/develop/external/us/en/documents/introduction-to-x64-assembly-181178.pdf)
 (pdf) was a good primer. This [x86 reference](https://www.felixcloutier.com/x86/)
 got me the rest of the way to a basic understanding of what was happening.
@@ -157,15 +162,16 @@ Rather than decode every instruction and figure out which variables were being
 stored in which registers, I thought I'd just play around with the C compilation
 options to get a feel for what changes.
 
-Gcc has many flags to control the generated machine code. I'll summarise the relevant
-flags here. For more details, see [gcc's optimize options](https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html).
+Gcc has many options to control the generated machine code. I'll summarise the
+relevant options here. For more details, see [gcc's optimize options](https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html)
+and [gcc options summary](https://gcc.gnu.org/onlinedocs/gcc/Option-Summary.html).
 
-I found that the top contributors were
+I found that the top contributors to program run time were
 `-O3 -march=native -fassociative-math -fno-signed-zeros -fno-trapping-math`.
 
 - `O1`, `O2`, `O3` are shorthand for a collection of optimisation settings, `O3`
   being the highest setting
-- `-march=native`: compile for the host CPU, any instructions it supports.
+- `-march=native`: compile for the host CPU, using any instructions it supports.
   This is generally only done for numerically intensive code, at the cost of
   portability. Most widely distributed C programs won't use this option, as it
   limits the number of CPUs the program can run on. For more details see this
@@ -173,68 +179,74 @@ I found that the top contributors were
 - `-fassociative-math`: reorders floating point operations for efficiency,
   possibly causing under/overflow/NaNs
 - `-fno-signed-zeros`: ignore the sign of zeros
-- `-fno-trapping-math` assume that there will be no "division by zero, overflow,
+- `-fno-trapping-math`: assume that there will be no "division by zero, overflow,
   underflow, inexact result and invalid operation"
 
-The last three options may cause violations of IEEE or ANSI standards. I assume
-this is not necessarily a bad thing, if you know what you're doing. Indeed, the
-value of pi calculated with these options varied slightly from the value
-calculated without them (and by the C# code), but all calculated pi values were
-still accurate to 7 decimal places.
+The last three options may cause violations of IEEE or ANSI standards, and are
+referred to as [unsafe math optimizations](https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html#index-funsafe-math-optimizations).
+I assume this is not necessarily a bad thing, if you know what you're doing.
+Indeed, the value of pi calculated with these options varied slightly from the
+value calculated without them (and by the C# code), but all calculated pi values
+were still accurate to 7 decimal places.
 
-Using just the `-O3` flag, the C program took 120ms, which is the same as C#
-program, ignoring startup time. `-march=native` didn't make a big difference
-unless unsafe math flags were enabled. If you compare the assembly of the 'fast'
-and the 'safe' options, the fast assembly uses `ymm` registers (256 bit
-registers), allowing more calculations to be done per CPU instruction. It also
-only loops 12.5 million times, versus the 100 million times for the safe
-assembly. Intuitively, this explains the speedup to me: The fast assembly runs
-8x fewer loops, but runs about twice as many instructions per loop, resulting in
-a 4x speedup. I don't know if that's the exact reason, but I'm happy to stop
-here for this blog post.
+Using just the `-O3` option, the C program took 120ms, which is the same as C#
+program, ignoring start-up time. `-march=native` didn't make a big difference
+unless the unsafe math options were enabled. If you compare the assembly of the
+'unsafe' and the 'safe' options, you can see that the unsafe assembly uses `ymm`
+registers (256 bit registers), allowing more calculations to be done per CPU
+instruction. It also only loops 12.5 million times, versus the 100 million times
+for the safe assembly. Intuitively, this explains the speedup to me: The unsafe
+assembly runs 8x fewer loops, but runs about twice as many instructions per
+loop, resulting in a 4x speedup. I don't know if that's the exact reason, but
+I'm satisfied enough with that answer for now.
 
-## Vectorisation
-What gcc is doing with the fast compilation options above is vectorising the
-loop. There's a great explanation of vectorisation here: [Stack Overflow: What is "vectorization"?](https://stackoverflow.com/questions/1422149/what-is-vectorization).
-In this case, it's the compiler generating code that loops fewer times, doing
-more per loop.
+## Vectorization
+What gcc is doing with the unsafe compilation options above is vectorizing the
+loop. There's a great explanation of vectorization here: [Stack Overflow: What is "vectorization"?](https://stackoverflow.com/questions/1422149/what-is-vectorization).
+In a sentence, it's the compiler generating machine code that loops fewer times,
+doing more per loop, and more per CPU instruction.
 
-Gcc was able to automatically vectorise the C code, albeit with the unsafe math
-relaxations. The C programmer also needed to know that writing
-`double x = -1.0 + 2.0 * (i & 0x1)` allows vectorisation, while `x *= -1`
+Gcc was able to automatically vectorize the C code, albeit with the unsafe math
+options. The C programmer also needed to know that writing
+`double x = -1.0 + 2.0 * (i & 0x1)` allows the compiler to vectorize, while `x *= -1`
 doesn't. I didn't investigate why, but I assume it's due to the first code
 determining the value of `x` using only the loop counter, while the second code
 determines `x` from the value of `x` in the previous loop.
 
-It's also possible to write vectorised code yourself, as demonstrated by the
+It's also possible to write vectorized code yourself, as demonstrated by the
 [leibniz_avx2.cpp](https://github.com/niklas-heer/speed-comparison/blob/master/src/leibniz_avx2.cpp)
-code in speed-comparison. On my machine, this beat the auto-vectorised C by a
-couple of milliseconds, without needing the unsafe math flags. Java and C# also
-support manual vectorisation, however the result in speed-comparison is underwhelming:
-[this vectorised java code](https://github.com/niklas-heer/speed-comparison/blob/master/src/leibnizVecOps.java)
-performs 3 times worse than its [non-vectorised counterpart](https://github.com/niklas-heer/speed-comparison/blob/master/src/leibniz.java)!
+code in speed-comparison. On my machine, this beat the auto-vectorized C by a
+couple of milliseconds, without needing the unsafe math options. Java and C# also
+support manual vectorization, however the result in speed-comparison is underwhelming:
+[this vectorized Java code](https://github.com/niklas-heer/speed-comparison/blob/master/src/leibnizVecOps.java)
+performs 3 times worse than its [non-vectorized counterpart](https://github.com/niklas-heer/speed-comparison/blob/master/src/leibniz.java)!
 It'd be interesting to see if C# fares any better. [Microsoft remarks](https://learn.microsoft.com/en-us/dotnet/standard/simd):
 
-> SIMD [vectorisation] is more likely to remove one bottleneck and expose the
+> SIMD [vectorization] is more likely to remove one bottleneck and expose the
 > next, for example memory throughput. In general the performance benefit of
 > using SIMD varies depending on the specific scenario, and in some cases it can
 > even perform worse than simpler non-SIMD equivalent code.
 
 
 # The end
-So there we have it! For this particular code, C goes 5x faster than C# by
-relaxing some strict IEEE calculation rules, autovectorising the loop, and
-having a very low startup time.
+So there we have it! For this particular code, C runs 5x faster than C# by
+relaxing some strict IEEE calculation rules, auto-vectorizing the loop, and
+having a very low start-up time.
 
-C# is as fast as standards-compliant C, unless you go to the effort to manually
-vectorise your C/C++ code. It may be possible to manually vectorise the C# code,
-but I'll leave that for a later post.
+Ignoring start-up time, C# was as fast as standards-compliant C, but vastly
+outperformed by manually vectorized C++ code. It may be possible to manually
+vectorize the C# code, but I'll leave that for a later post.
+
+It's important to note that the code compared in this post is by no means a fair
+comparison of the performance of C and C# in general, and there are many more
+factors to consider when choosing a programming language. Have a look at the
+links in [appendix B]({{< ref "#readings" >}}) for some more perspective.
 
 
 # Appendix A: assembly {#assembly}
 Assembly for C and C#. Only the pi calculation loop is shown.
 
-Fast C (`-O3 -march=native -fassociative-math -fno-signed-zeros -fno-trapping-math`, 30ms):
+C with unsafe math optimizations: (`-O3 -march=native -fassociative-math -fno-signed-zeros -fno-trapping-math`, 30ms):
 ```asm
 ;address:  instruction (bytes)   instruction (assembly)        # my understanding of what's happening
 1130:      c5 fd 6f c2           vmovdqa ymm0,ymm2             # ymm0 = ymm2
@@ -304,7 +316,7 @@ C# (120ms):
 00007FFF183541DD  jl                                          # goto 07FFF1835417B
 ```
 
-# Appendix B: Interesting reading
+# Appendix B: Interesting reading {#readings}
 - [Is C# slower than say C++?](https://stackoverflow.com/questions/5326269/is-c-sharp-really-slower-than-say-c)
     - [detailed generic answer](https://stackoverflow.com/a/5331574/2670469)
         - covers language features, VM, GC, benchmarks

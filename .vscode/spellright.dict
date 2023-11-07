@@ -14,3 +14,6 @@ unix
 psql
 youtube
 Fargate
+csharp
+objdump
+gcc

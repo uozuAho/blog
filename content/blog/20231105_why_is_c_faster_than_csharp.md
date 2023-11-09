@@ -1,7 +1,7 @@
 ---
 title: "Why Is C Faster Than C#?"
 date: 2023-11-05T15:42:51+11:00
-draft: true
+draft: false
 summary: "A deep dive into why a small piece of equivalent code in C and C# perform differently"
 tags:
 - c

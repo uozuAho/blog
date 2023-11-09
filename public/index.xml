@@ -7,7 +7,383 @@
     <atom:icon>https://iamwoz.com/favicon.ico</atom:icon>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-GB</language>
-    <lastBuildDate>Tue, 16 May 2023 12:20:53 +1100</lastBuildDate><atom:link href="https://iamwoz.com/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 05 Nov 2023 15:42:51 +1100</lastBuildDate><atom:link href="https://iamwoz.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Why Is C Faster Than C#?</title>
+      <link>https://iamwoz.com/blog/20231105_why_is_c_faster_than_csharp/</link>
+      <pubDate>Sun, 05 Nov 2023 15:42:51 +1100</pubDate>
+      
+      <guid>https://iamwoz.com/blog/20231105_why_is_c_faster_than_csharp/</guid>
+      <description>&lt;h1 id=&#34;contents&#34;&gt;Contents&lt;/h1&gt;
+&lt;nav id=&#34;TableOfContents&#34;&gt;
+  &lt;ul&gt;
+    &lt;li&gt;&lt;a href=&#34;#contents&#34;&gt;Contents&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&#34;#this-blog-post-in-a-paragraph&#34;&gt;This blog post in a paragraph&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&#34;#the-long-story&#34;&gt;The long story&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&#34;#running-the-speed-comparison-poking-around&#34;&gt;Running the speed comparison, poking around&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&#34;#digging-into-the-machine-code&#34;&gt;Digging into the machine code&lt;/a&gt;
+      &lt;ul&gt;
+        &lt;li&gt;&lt;a href=&#34;#c&#34;&gt;C&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&#34;#c-1&#34;&gt;C#&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&#34;#what-does-it-all-mean&#34;&gt;What does it all mean?&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&#34;#vectorization&#34;&gt;Vectorization&lt;/a&gt;&lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/li&gt;
+    &lt;li&gt;&lt;a href=&#34;#the-end&#34;&gt;The end&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&#34;#assembly&#34;&gt;Appendix A: assembly&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&#34;#readings&#34;&gt;Appendix B: Interesting reading&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&#34;#references&#34;&gt;References&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/nav&gt;
+
+&lt;h1 id=&#34;this-blog-post-in-a-paragraph&#34;&gt;This blog post in a paragraph&lt;/h1&gt;
+&lt;p&gt;Why is &lt;a href=&#34;https://github.com/niklas-heer/speed-comparison/blob/master/src/leibniz.c&#34;&gt;this C code&lt;/a&gt;
+5x faster than &lt;a href=&#34;https://github.com/niklas-heer/speed-comparison/blob/master/src/cs/Program.cs&#34;&gt;this equivalent C# code&lt;/a&gt;?
+On my machine, the C program completes in 32ms versus 150ms for the C# program.
+30ms of the difference is due to C# start-up/shutdown overhead. The other 90ms
+is due to &lt;code&gt;gcc&lt;/code&gt; vectorizing the loop, after being allowed to ignore some
+standards around floating-point calculations. This is a very specific case of
+numerically-intensive code: it&amp;rsquo;s not guaranteed that C will always be 5x faster
+than C#!&lt;/p&gt;
+&lt;h1 id=&#34;the-long-story&#34;&gt;The long story&lt;/h1&gt;
+&lt;p&gt;After &lt;a href=&#34;https://iamwoz.com/blog/20230330_making_csharp_go_fast/&#34;&gt;making C# go fast&lt;/a&gt;,
+I wondered if I could do much better using a non-managed language like C.
+Rewriting my game in C is a large project, so I went hunting for smaller
+examples. Before long, I came across &lt;a href=&#34;https://niklas-heer.github.io/speed-comparison/&#34;&gt;speed comparison&lt;/a&gt;,
+which compares many languages performing the same small calculation of pi. It&amp;rsquo;s
+a trivially small piece of code which only compares a tiny portion of what each
+language is capable of, but it&amp;rsquo;s a good starting point for a learning exercise.&lt;/p&gt;
+&lt;p&gt;C comes in at 3 times faster than C# in the above comparison. In this blog post,
+I&amp;rsquo;ll investigate why, as someone with a rather patchy understanding of low level
+code and performance (me).&lt;/p&gt;
+&lt;p&gt;The questions of which language is the fastest, and whether managed languages
+like C# are slow have been around forever, and many people smarter than me have
+written about it online. See &lt;a href=&#34;#readings&#34;&gt;appendix B&lt;/a&gt; for some
+interesting reads. The generic reasons given are VM/runtime overhead, garbage
+collection (GC), just-in-time compilation (JIT), array bounds checking and more.
+I wasn&amp;rsquo;t satisfied with generic reasons, and wanted to know specifically why two
+pieces of comparable code differed.&lt;/p&gt;
+&lt;h1 id=&#34;running-the-speed-comparison-poking-around&#34;&gt;Running the speed comparison, poking around&lt;/h1&gt;
+&lt;p&gt;&lt;a href=&#34;https://github.com/niklas-heer/speed-comparison&#34;&gt;Speed comparison&lt;/a&gt; is relatively
+straightforward to run on a Linux-like environment. On my machine, C performed
+even better than reported, averaging 35ms per run, versus 155ms for C#.&lt;/p&gt;
+&lt;p&gt;The code:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;reads a number &lt;code&gt;rounds&lt;/code&gt; from a file&lt;/li&gt;
+&lt;li&gt;iteratively calculates the value of pi, looping as many times as &lt;code&gt;rounds&lt;/code&gt;
+specifies&lt;/li&gt;
+&lt;li&gt;prints the value of pi&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;I tinkered with the code a bit to get an understanding of where the time was
+being spent. Eliminating file I/O by hard coding &lt;code&gt;rounds&lt;/code&gt; saved a few
+milliseconds in both C and C#. Setting &lt;code&gt;rounds&lt;/code&gt; to 1 reduced C&amp;rsquo;s run time to
+effectively zero, while C# still took 30ms. I assume this time is
+start-up/shutdown time of the C# runtime (CLR), which I don&amp;rsquo;t particularly care
+about.&lt;/p&gt;
+&lt;p&gt;Out of curiosity, I quickly checked out ahead-of-time compilation
+&lt;a href=&#34;https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/?tabs=net7%2Cwindows&#34;&gt;(AOT)&lt;/a&gt;
+for C#. It only had a small impact on overall run time, and start-up time was
+still around 20ms. I didn&amp;rsquo;t investigate any further.&lt;/p&gt;
+&lt;p&gt;So: ignoring file I/O and start-up time, C completes the pi calculation in 30ms,
+while C# takes 120ms. The code for the calculation is almost identical:&lt;/p&gt;
+&lt;p&gt;C:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; i&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;2u&lt;/span&gt;; i &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt; rounds; &lt;span style=&#34;color:#f92672&#34;&gt;++&lt;/span&gt;i) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;double&lt;/span&gt; x &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1.0&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;2.0&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; (i &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0x1&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    pi &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; (x &lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt; (&lt;span style=&#34;color:#ae81ff&#34;&gt;2u&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; i &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1u&lt;/span&gt;));
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;C#:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-cs&#34; data-lang=&#34;cs&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; i = &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;; i &amp;lt; rounds + &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;; i++) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    x *= -&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    pi += (x / (&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt; * i - &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;));
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Changing the signed-ness of variables and the time at which to increment &lt;code&gt;i&lt;/code&gt;
+made no difference. The line &lt;code&gt;double x = -1.0 + 2.0 * (i &amp;amp; 0x1);&lt;/code&gt; produces the
+same value of &lt;code&gt;x&lt;/code&gt; as &lt;code&gt;x *= -1&lt;/code&gt;, but is important for reasons I&amp;rsquo;ll talk about
+later. First, let&amp;rsquo;s take a look at the machine code that is generated by C and
+C#.&lt;/p&gt;
+&lt;h1 id=&#34;digging-into-the-machine-code&#34;&gt;Digging into the machine code&lt;/h1&gt;
+&lt;h2 id=&#34;c&#34;&gt;C&lt;/h2&gt;
+&lt;p&gt;To see C disassembly, I used a tool called &lt;a href=&#34;https://en.wikipedia.org/wiki/Objdump&#34;&gt;objdump&lt;/a&gt;.
+I bypassed Earthly and ran &lt;code&gt;gcc&lt;/code&gt; and &lt;code&gt;objdump&lt;/code&gt; directly.
+The &lt;a href=&#34;https://github.com/niklas-heer/speed-comparison/blob/fbe72677a25df85e1bcc6386c6069dd163f04962/Earthfile#L116&#34;&gt;C compilation command in the Earthfile&lt;/a&gt;
+is:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;gcc leibniz.c -o leibniz -O3 -s -static -flto -march&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;native &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    -mtune&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;native -fomit-frame-pointer -fno-signed-zeros &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    -fno-trapping-math -fassociative-math
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;I modified this slightly to make the objdump output easier to understand:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;removed &lt;code&gt;-s&lt;/code&gt; to keep symbol information&lt;/li&gt;
+&lt;li&gt;removed &lt;code&gt;-static&lt;/code&gt;, so that external library code was excluded from the executable&lt;/li&gt;
+&lt;li&gt;added &lt;code&gt;-g&lt;/code&gt; to add debugging information&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This didn&amp;rsquo;t affect the speed of the program.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# compile the program&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;gcc leibniz.c -o leibniz -O3 -g -flto -march&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;native &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    -mtune&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;native -fomit-frame-pointer -fno-signed-zeros &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;    -fno-trapping-math -fassociative-math
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# extract the machine code in intel assembly format,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# along with other useful details to help understand&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# which part of the code the assembly is for&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;objdump -drwlCS -Mintel leibniz &amp;gt; leibniz.asm
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;I&amp;rsquo;ve put all the assembly together in an &lt;a href=&#34;#assembly&#34;&gt;appendix&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;I&amp;rsquo;ll cover the &lt;code&gt;gcc&lt;/code&gt; options in more detail later. The &lt;code&gt;objdump&lt;/code&gt; options are
+described here: &lt;a href=&#34;https://www.man7.org/linux/man-pages/man1/objdump.1.html&#34;&gt;objdump man page&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 id=&#34;c-1&#34;&gt;C#&lt;/h2&gt;
+&lt;p&gt;Accessing C# disassembly has a much more &amp;lsquo;Windows-y&amp;rsquo; feel to it. The most common
+advice is to use Visual Studio, pause the program at a breakpoint, then access
+the disassembly via a menu: Debug menu -&amp;gt; Windows -&amp;gt; Disassembly. To make sure
+you&amp;rsquo;re looking at optimised code, before running the debugger, you need to
+disable &amp;lsquo;Suppress JIT optimization on module load&amp;rsquo; and &amp;lsquo;Enable Just My Code&amp;rsquo;
+within the menus Tools -&amp;gt; Options -&amp;gt; Debugging -&amp;gt; General.&lt;/p&gt;
+&lt;figure&gt;
+  &lt;img src=&#34;https://iamwoz.com/blog/20231105_why_is_c_faster_than_c/vs_disassembly.png&#34;
+  alt=&#34;A screenshot of Visual Studio, showing the disassembly menu item being selected&#34;
+  width=&#34;933&#34;
+  loading=&#34;lazy&#34; /&gt;
+  &lt;figcaption&gt;How to show native disassembly of your C# program&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;p&gt;This process makes sense, as .NET executables are distributed in .NET&amp;rsquo;s
+intermediate language format (IL), and IL is only compiled to native code by the
+JIT as needed. &lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt; &lt;sup id=&#34;fnref:2&#34;&gt;&lt;a href=&#34;#fn:2&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;However&lt;/strong&gt;, the assembly shown by Visual Studio was suspiciously long compared
+to the C program&amp;rsquo;s assembly. With certain compilation settings (more on this
+later), the C program completed in a similar time to the C# program, yet the C
+assembly code was less than half as long as the C# disassembly. It didn&amp;rsquo;t make
+sense that they could run at the same speed.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://stackoverflow.com/a/38159398/2670469&#34;&gt;This stack overflow answer&lt;/a&gt; says
+that the JIT behaves differently when run under the debugger. I had a feeling
+that this was the case even with the Visual Studio option set to allow JIT
+optimization. I tried using &lt;code&gt;vsjitdebugger&lt;/code&gt;, spending hours manually stepping
+through all the C# runtime start-up until eventually reaching my code, only to
+find that it was still the same long set of instructions. If you ever find
+yourself needing to use &lt;code&gt;vsjitdebugger&lt;/code&gt;, I found that I could only get it to
+work by running Visual Studio as admin, then running &lt;code&gt;vsjitdebugger&lt;/code&gt; from the
+Powershell terminal within Visual Studio.&lt;/p&gt;
+&lt;p&gt;Eventually, I came across this &lt;a href=&#34;https://mijailovic.net/2018/07/05/generated-code/&#34;&gt;post about viewing code generated by the JIT&lt;/a&gt;.
+It outlines a number of ways to view the disassembly, one being to use &lt;a href=&#34;https://benchmarkdotnet.org/&#34;&gt;BenchmarkDotNet&lt;/a&gt;
+with &lt;a href=&#34;https://benchmarkdotnet.org/articles/features/disassembler.html&#34;&gt;DisassemblyDiagnoser&lt;/a&gt;.
+I extracted out the pi calculation to a method, put a benchmark around it, and
+finally got some assembly code that was comparable to the C program&amp;rsquo;s assembly.&lt;/p&gt;
+&lt;p&gt;See the &lt;a href=&#34;#assembly&#34;&gt;appendix&lt;/a&gt; for the C# disassembly.&lt;/p&gt;
+&lt;h2 id=&#34;what-does-it-all-mean&#34;&gt;What does it all mean?&lt;/h2&gt;
+&lt;p&gt;Having the machine code generated from the C and C# code let me do a like for
+like comparison of each program. I&amp;rsquo;ve put the assembly code of just the for
+loops in an &lt;a href=&#34;#assembly&#34;&gt;appendix&lt;/a&gt; at the end of this post.&lt;/p&gt;
+&lt;p&gt;The first challenge was understanding what all the instructions meant! This
+&lt;a href=&#34;https://www.intel.com/content/dam/develop/external/us/en/documents/introduction-to-x64-assembly-181178.pdf&#34;&gt;quick introduction to x64 assembly&lt;/a&gt;
+(pdf) &lt;sup id=&#34;fnref:3&#34;&gt;&lt;a href=&#34;#fn:3&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;3&lt;/a&gt;&lt;/sup&gt; was a good primer. This &lt;a href=&#34;https://www.felixcloutier.com/x86/&#34;&gt;x86 reference&lt;/a&gt; &lt;sup id=&#34;fnref:4&#34;&gt;&lt;a href=&#34;#fn:4&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;4&lt;/a&gt;&lt;/sup&gt;
+got me the rest of the way to a basic understanding of what was happening.
+Rather than decode every instruction and figure out which variables were being
+stored in which registers, I thought I&amp;rsquo;d just play around with the C compilation
+options to get a feel for what changes.&lt;/p&gt;
+&lt;p&gt;Gcc has many options to control the generated machine code. I&amp;rsquo;ll summarise the
+relevant options here. For more details, see &lt;a href=&#34;https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html&#34;&gt;gcc&amp;rsquo;s optimize options&lt;/a&gt; &lt;sup id=&#34;fnref:5&#34;&gt;&lt;a href=&#34;#fn:5&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;5&lt;/a&gt;&lt;/sup&gt;
+and &lt;a href=&#34;https://gcc.gnu.org/onlinedocs/gcc/Option-Summary.html&#34;&gt;gcc options summary&lt;/a&gt;.&lt;sup id=&#34;fnref:6&#34;&gt;&lt;a href=&#34;#fn:6&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;6&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+&lt;p&gt;I found that the top contributors to program run time were
+&lt;code&gt;-O3 -march=native -fassociative-math -fno-signed-zeros -fno-trapping-math&lt;/code&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;O1&lt;/code&gt;, &lt;code&gt;O2&lt;/code&gt;, &lt;code&gt;O3&lt;/code&gt; are shorthand for a collection of optimisation settings, &lt;code&gt;O3&lt;/code&gt;
+being the highest setting&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-march=native&lt;/code&gt;: compile for the host CPU, using any instructions it supports.
+This is generally only done for numerically intensive code, at the cost of
+portability. Most widely distributed C programs won&amp;rsquo;t use this option, as it
+limits the number of CPUs the program can run on. For more details see this
+stack overflow question: &lt;a href=&#34;https://stackoverflow.com/questions/52653025/why-is-march-native-used-so-rarely&#34;&gt;Why is -march=native used so rarely?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-fassociative-math&lt;/code&gt;: reorders floating point operations for efficiency,
+possibly causing underflow / overflow / NaNs&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-fno-signed-zeros&lt;/code&gt;: ignore the sign of zeros&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-fno-trapping-math&lt;/code&gt;: assume that there will be no &amp;ldquo;division by zero, overflow,
+underflow, inexact result and invalid operation&amp;rdquo;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The last three options may cause violations of IEEE or ANSI standards, and are
+referred to as &lt;a href=&#34;https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html#index-funsafe-math-optimizations&#34;&gt;unsafe math optimizations&lt;/a&gt;.
+I assume this is not necessarily a bad thing, if you know what you&amp;rsquo;re doing.
+Indeed, the value of pi calculated with these options varied slightly from the
+value calculated without them (and by the C# code), but all calculated pi values
+were still accurate to 7 decimal places.&lt;/p&gt;
+&lt;p&gt;Using just the &lt;code&gt;-O3&lt;/code&gt; option, the C program took 120ms, which is the same as C#
+program, ignoring start-up time. &lt;code&gt;-march=native&lt;/code&gt; didn&amp;rsquo;t make a big difference
+unless the unsafe math options were enabled. If you compare the assembly of the
+&amp;lsquo;unsafe&amp;rsquo; and the &amp;lsquo;safe&amp;rsquo; options, you can see that the unsafe assembly uses &lt;code&gt;ymm&lt;/code&gt;
+registers (256 bit registers), allowing more calculations to be done per CPU
+instruction. It also only loops 12.5 million times, versus the 100 million times
+for the safe assembly. Intuitively, this explains the speedup to me: The unsafe
+assembly runs 8x fewer loops, but runs about twice as many instructions per
+loop, resulting in a 4x speedup. I don&amp;rsquo;t know if that&amp;rsquo;s the exact reason, but
+I&amp;rsquo;m satisfied enough with that answer for now.&lt;/p&gt;
+&lt;h2 id=&#34;vectorization&#34;&gt;Vectorization&lt;/h2&gt;
+&lt;p&gt;What gcc is doing with the unsafe compilation options above is vectorizing the
+loop. There&amp;rsquo;s a great explanation of vectorization here: &lt;a href=&#34;https://stackoverflow.com/questions/1422149/what-is-vectorization&#34;&gt;Stack Overflow: What is &amp;ldquo;vectorization&amp;rdquo;?&lt;/a&gt;.
+In a sentence, it&amp;rsquo;s the compiler generating code that executes multiple loop
+iterations at once, using more efficient CPU instructions.&lt;/p&gt;
+&lt;p&gt;Gcc was able to automatically vectorize the C code, albeit with the unsafe math
+options. The C programmer also needed to know that writing
+&lt;code&gt;double x = -1.0 + 2.0 * (i &amp;amp; 0x1)&lt;/code&gt; allows the compiler to vectorize, while &lt;code&gt;x *= -1&lt;/code&gt;
+doesn&amp;rsquo;t. I didn&amp;rsquo;t investigate why, but I assume it&amp;rsquo;s due to the first code
+determining the value of &lt;code&gt;x&lt;/code&gt; using only the loop counter, while the second code
+determines &lt;code&gt;x&lt;/code&gt; from the value of &lt;code&gt;x&lt;/code&gt; in the previous loop.&lt;/p&gt;
+&lt;p&gt;It&amp;rsquo;s also possible to write vectorized code yourself, as demonstrated by the
+&lt;a href=&#34;https://github.com/niklas-heer/speed-comparison/blob/master/src/leibniz_avx2.cpp&#34;&gt;leibniz_avx2.cpp&lt;/a&gt;
+code in speed-comparison. On my machine, this beat the auto-vectorized C by a
+couple of milliseconds, without needing the unsafe math options. Java and C# also
+support manual vectorization, however the result in speed-comparison is underwhelming:
+&lt;a href=&#34;https://github.com/niklas-heer/speed-comparison/blob/master/src/leibnizVecOps.java&#34;&gt;this vectorized Java code&lt;/a&gt;
+performs 3 times worse than its &lt;a href=&#34;https://github.com/niklas-heer/speed-comparison/blob/master/src/leibniz.java&#34;&gt;non-vectorized counterpart&lt;/a&gt;!
+It&amp;rsquo;d be interesting to see if C# fares any better. &lt;a href=&#34;https://learn.microsoft.com/en-us/dotnet/standard/simd&#34;&gt;Microsoft remarks&lt;/a&gt;:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;SIMD [vectorization] is more likely to remove one bottleneck and expose the
+next, for example memory throughput. In general the performance benefit of
+using SIMD varies depending on the specific scenario, and in some cases it can
+even perform worse than simpler non-SIMD equivalent code.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h1 id=&#34;the-end&#34;&gt;The end&lt;/h1&gt;
+&lt;p&gt;So there we have it! For this particular code, C runs 5x faster than C# by
+relaxing some strict IEEE calculation rules, auto-vectorizing the loop, and
+having a very low start-up time.&lt;/p&gt;
+&lt;p&gt;Ignoring start-up time, C# was as fast as standards-compliant C, but vastly
+outperformed by manually vectorized C++ code. It may be possible to manually
+vectorize the C# code, but I&amp;rsquo;ll leave that for a later post.&lt;/p&gt;
+&lt;p&gt;It&amp;rsquo;s important to note that the code compared in this post is by no means a fair
+comparison of the performance of C and C# in general, and there are many more
+factors to consider when choosing a programming language. Have a look at the
+links in &lt;a href=&#34;#readings&#34;&gt;appendix B&lt;/a&gt; for some more perspective.&lt;/p&gt;
+&lt;h1 id=&#34;assembly&#34;&gt;Appendix A: assembly&lt;/h1&gt;
+&lt;p&gt;Assembly for C and C#. Only the pi calculation loop is shown.&lt;/p&gt;
+&lt;p&gt;C with unsafe math optimizations: (&lt;code&gt;-O3 -march=native -fassociative-math -fno-signed-zeros -fno-trapping-math&lt;/code&gt;, 30ms):&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-asm&#34; data-lang=&#34;asm&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;;address:  instruction (bytes)   instruction (assembly)        # my understanding of what&amp;#39;s happening
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;1130:&lt;/span&gt;      &lt;span style=&#34;color:#a6e22e&#34;&gt;c5&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;fd&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;6&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;f&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;c2&lt;/span&gt;           &lt;span style=&#34;color:#66d9ef&#34;&gt;vmovdqa&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ymm0&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;ymm2&lt;/span&gt;             &lt;span style=&#34;color:#75715e&#34;&gt;# ymm0 = ymm2
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;1134:&lt;/span&gt;      &lt;span style=&#34;color:#a6e22e&#34;&gt;ff&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;c0&lt;/span&gt;                 &lt;span style=&#34;color:#66d9ef&#34;&gt;inc&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;eax&lt;/span&gt;                    &lt;span style=&#34;color:#75715e&#34;&gt;# eax += 1
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;1136:&lt;/span&gt;      &lt;span style=&#34;color:#a6e22e&#34;&gt;c5&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ed&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;fe&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;d7&lt;/span&gt;           &lt;span style=&#34;color:#66d9ef&#34;&gt;vpaddd&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ymm2&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;ymm2&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;ymm7&lt;/span&gt;         &lt;span style=&#34;color:#75715e&#34;&gt;# ymm2 += (4xi64)ymm7
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;113&lt;/span&gt;a:      &lt;span style=&#34;color:#a6e22e&#34;&gt;c5&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;fd&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;db&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ce&lt;/span&gt;           &lt;span style=&#34;color:#66d9ef&#34;&gt;vpand&lt;/span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;ymm1&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;ymm0&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;ymm6&lt;/span&gt;         &lt;span style=&#34;color:#75715e&#34;&gt;# ymm1 = (4xi64)ymm0 &amp;amp; ymm6
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;113&lt;/span&gt;e:      &lt;span style=&#34;color:#a6e22e&#34;&gt;c5&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;fd&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;72&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;f0&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;01&lt;/span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;vpslld&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ymm0&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;ymm0&lt;/span&gt;,&lt;span style=&#34;color:#ae81ff&#34;&gt;0x1&lt;/span&gt;          &lt;span style=&#34;color:#75715e&#34;&gt;# ymm0 &amp;lt;&amp;lt;= 1, ie. ymm0 *= 2
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;1143:&lt;/span&gt;      &lt;span style=&#34;color:#a6e22e&#34;&gt;c5&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;fd&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;fe&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;c5&lt;/span&gt;           &lt;span style=&#34;color:#66d9ef&#34;&gt;vpaddd&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ymm0&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;ymm0&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;ymm5&lt;/span&gt;         &lt;span style=&#34;color:#75715e&#34;&gt;# ymm0 += ymm5     (ymm5 = -1?, see 1117)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;1147:&lt;/span&gt;      &lt;span style=&#34;color:#a6e22e&#34;&gt;c5&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;7&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;e&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;e6&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;c9&lt;/span&gt;           &lt;span style=&#34;color:#66d9ef&#34;&gt;vcvtdq2pd&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ymm9&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm1&lt;/span&gt;           &lt;span style=&#34;color:#75715e&#34;&gt;# (4xi64) ymm9 = (4x double?)xmm1 ... https://www.felixcloutier.com/x86/cvtdq2pd
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;114&lt;/span&gt;b:      &lt;span style=&#34;color:#a6e22e&#34;&gt;c4&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;e3&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;7&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;d&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;39&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;c9&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;01&lt;/span&gt;     &lt;span style=&#34;color:#66d9ef&#34;&gt;vextracti128&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;xmm1&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;ymm1&lt;/span&gt;,&lt;span style=&#34;color:#ae81ff&#34;&gt;0x1&lt;/span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# xmm1 = ymm1[255:128]
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;1151:&lt;/span&gt;      &lt;span style=&#34;color:#a6e22e&#34;&gt;c5&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;fe&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;e6&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;c9&lt;/span&gt;           &lt;span style=&#34;color:#66d9ef&#34;&gt;vcvtdq2pd&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ymm1&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm1&lt;/span&gt;           &lt;span style=&#34;color:#75715e&#34;&gt;# (4xi64) ymm1 = (4x double?)xmm1
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;1155:&lt;/span&gt;      &lt;span style=&#34;color:#a6e22e&#34;&gt;c5&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;7&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;e&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;e6&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;d0&lt;/span&gt;           &lt;span style=&#34;color:#66d9ef&#34;&gt;vcvtdq2pd&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ymm10&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm0&lt;/span&gt;          &lt;span style=&#34;color:#75715e&#34;&gt;# (4xi64) ymm10 = (4x double?)xmm0
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;1159:&lt;/span&gt;      &lt;span style=&#34;color:#a6e22e&#34;&gt;c4&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;e3&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;7&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;d&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;39&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;c0&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;01&lt;/span&gt;     &lt;span style=&#34;color:#66d9ef&#34;&gt;vextracti128&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;xmm0&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;ymm0&lt;/span&gt;,&lt;span style=&#34;color:#ae81ff&#34;&gt;0x1&lt;/span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# xmm0 = ymm0[255:128]
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;115&lt;/span&gt;f:      &lt;span style=&#34;color:#a6e22e&#34;&gt;c4&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;62&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;e5&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;98&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;cc&lt;/span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;vfmadd132pd&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ymm9&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;ymm3&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;ymm4&lt;/span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# (4x double): ymm9 = ymm9 * ymm4 + ymm3
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;1164:&lt;/span&gt;      &lt;span style=&#34;color:#a6e22e&#34;&gt;c5&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;fe&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;e6&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;c0&lt;/span&gt;           &lt;span style=&#34;color:#66d9ef&#34;&gt;vcvtdq2pd&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ymm0&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm0&lt;/span&gt;           &lt;span style=&#34;color:#75715e&#34;&gt;# (4xi64) ymm0 = (4x double?)xmm0
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;1168:&lt;/span&gt;      &lt;span style=&#34;color:#a6e22e&#34;&gt;c4&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;e2&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;e5&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;98&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;cc&lt;/span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;vfmadd132pd&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ymm1&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;ymm3&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;ymm4&lt;/span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# (4x double): ymm1 = ymm1 * ymm4 + ymm3
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;116&lt;/span&gt;d:      &lt;span style=&#34;color:#a6e22e&#34;&gt;c4&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;41&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;35&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;e&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ca&lt;/span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;vdivpd&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ymm9&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;ymm9&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;ymm10&lt;/span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;# ymm9 /= ymm10
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;1172:&lt;/span&gt;      &lt;span style=&#34;color:#a6e22e&#34;&gt;c5&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;f5&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;e&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;c0&lt;/span&gt;           &lt;span style=&#34;color:#66d9ef&#34;&gt;vdivpd&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ymm0&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;ymm1&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;ymm0&lt;/span&gt;         &lt;span style=&#34;color:#75715e&#34;&gt;# ymm0 = ymm1/ymm0
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;1176:&lt;/span&gt;      &lt;span style=&#34;color:#a6e22e&#34;&gt;c5&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;b5&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;58&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;c0&lt;/span&gt;           &lt;span style=&#34;color:#66d9ef&#34;&gt;vaddpd&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ymm0&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;ymm9&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;ymm0&lt;/span&gt;         &lt;span style=&#34;color:#75715e&#34;&gt;# ymm0 += ymm9
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;117&lt;/span&gt;a:      &lt;span style=&#34;color:#a6e22e&#34;&gt;c5&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;d&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;58&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;c0&lt;/span&gt;           &lt;span style=&#34;color:#66d9ef&#34;&gt;vaddpd&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ymm8&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;ymm8&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;ymm0&lt;/span&gt;         &lt;span style=&#34;color:#75715e&#34;&gt;# ymm8 += ymm0
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;117&lt;/span&gt;e:      &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;3&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;d&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;20&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;bc&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;be&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;00&lt;/span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;cmp&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;eax&lt;/span&gt;,&lt;span style=&#34;color:#ae81ff&#34;&gt;0xbebc20&lt;/span&gt;           &lt;span style=&#34;color:#75715e&#34;&gt;# if eax != 12500000 (=100M/8)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;1183:&lt;/span&gt;      &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;75&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;ab&lt;/span&gt;                 &lt;span style=&#34;color:#66d9ef&#34;&gt;jne&lt;/span&gt;    &lt;span style=&#34;color:#ae81ff&#34;&gt;1130&lt;/span&gt; &amp;lt;&lt;span style=&#34;color:#66d9ef&#34;&gt;main&lt;/span&gt;+&lt;span style=&#34;color:#ae81ff&#34;&gt;0x90&lt;/span&gt;&amp;gt;       &lt;span style=&#34;color:#75715e&#34;&gt;# goto 1130
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Safe C (&lt;code&gt;-O3 -march=native&lt;/code&gt;, 120ms):&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-asm&#34; data-lang=&#34;asm&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;;address:  instruction (bytes)   instruction (assembly)        # my understanding of what&amp;#39;s happening
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;1120:&lt;/span&gt;      &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;89&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;c1&lt;/span&gt;                 &lt;span style=&#34;color:#66d9ef&#34;&gt;mov&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;ecx&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;eax&lt;/span&gt;                &lt;span style=&#34;color:#75715e&#34;&gt;# ecx = eax
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;1122:&lt;/span&gt;      &lt;span style=&#34;color:#a6e22e&#34;&gt;c5&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;e3&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;a&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;d2&lt;/span&gt;           &lt;span style=&#34;color:#66d9ef&#34;&gt;vcvtsi2sd&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;xmm2&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm3&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;edx&lt;/span&gt;       &lt;span style=&#34;color:#75715e&#34;&gt;# xmm2 = (double)edx?  https://www.felixcloutier.com/x86/cvtsi2sd
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;1126:&lt;/span&gt;      &lt;span style=&#34;color:#a6e22e&#34;&gt;ff&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;c0&lt;/span&gt;                 &lt;span style=&#34;color:#66d9ef&#34;&gt;inc&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;eax&lt;/span&gt;                    &lt;span style=&#34;color:#75715e&#34;&gt;# eax += 1
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;1128:&lt;/span&gt;      &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;83&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;c2&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;02&lt;/span&gt;              &lt;span style=&#34;color:#66d9ef&#34;&gt;add&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;edx&lt;/span&gt;,&lt;span style=&#34;color:#ae81ff&#34;&gt;0x2&lt;/span&gt;                &lt;span style=&#34;color:#75715e&#34;&gt;# edx += 2
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;112&lt;/span&gt;b:      &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;83&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;e1&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;01&lt;/span&gt;              &lt;span style=&#34;color:#66d9ef&#34;&gt;and&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;ecx&lt;/span&gt;,&lt;span style=&#34;color:#ae81ff&#34;&gt;0x1&lt;/span&gt;                &lt;span style=&#34;color:#75715e&#34;&gt;# ecx &amp;amp;= 1
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;112&lt;/span&gt;e:      &lt;span style=&#34;color:#a6e22e&#34;&gt;c5&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;e3&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;a&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;c9&lt;/span&gt;           &lt;span style=&#34;color:#66d9ef&#34;&gt;vcvtsi2sd&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;xmm1&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm3&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;ecx&lt;/span&gt;       &lt;span style=&#34;color:#75715e&#34;&gt;# xmm1 = (double)ecx?
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;1132:&lt;/span&gt;      &lt;span style=&#34;color:#a6e22e&#34;&gt;c4&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;e2&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;d9&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;99&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;cd&lt;/span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;vfmadd132sd&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;xmm1&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm4&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm5&lt;/span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# xmm1 = xmm1 * xmm5 + xmm4
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;1137:&lt;/span&gt;      &lt;span style=&#34;color:#a6e22e&#34;&gt;c5&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;f3&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;e&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ca&lt;/span&gt;           &lt;span style=&#34;color:#66d9ef&#34;&gt;vdivsd&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;xmm1&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm1&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm2&lt;/span&gt;         &lt;span style=&#34;color:#75715e&#34;&gt;# xmm1 /= xmm2
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;113&lt;/span&gt;b:      &lt;span style=&#34;color:#a6e22e&#34;&gt;c5&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;fb&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;58&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;c1&lt;/span&gt;           &lt;span style=&#34;color:#66d9ef&#34;&gt;vaddsd&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;xmm0&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm0&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm1&lt;/span&gt;         &lt;span style=&#34;color:#75715e&#34;&gt;# xmm0 += xmm1
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;113&lt;/span&gt;f:      &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;3&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;d&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;02&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;e1&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;f5&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;05&lt;/span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;cmp&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;eax&lt;/span&gt;,&lt;span style=&#34;color:#ae81ff&#34;&gt;0x5f5e102&lt;/span&gt;          &lt;span style=&#34;color:#75715e&#34;&gt;# if eax != 100M+2
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;1144:&lt;/span&gt;      &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;75&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;da&lt;/span&gt;                 &lt;span style=&#34;color:#66d9ef&#34;&gt;jne&lt;/span&gt;    &lt;span style=&#34;color:#ae81ff&#34;&gt;1120&lt;/span&gt; &amp;lt;&lt;span style=&#34;color:#66d9ef&#34;&gt;main&lt;/span&gt;+&lt;span style=&#34;color:#ae81ff&#34;&gt;0x80&lt;/span&gt;&amp;gt;       &lt;span style=&#34;color:#75715e&#34;&gt;# goto 1120
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;C# (BenchmarkDotNet):&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-asm&#34; data-lang=&#34;asm&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;M01_L00:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;; instruction    params               # my understanding
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;  &lt;span style=&#34;color:#a6e22e&#34;&gt;vmulsd&lt;/span&gt;           &lt;span style=&#34;color:#66d9ef&#34;&gt;xmm0&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm0&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm2&lt;/span&gt;     &lt;span style=&#34;color:#75715e&#34;&gt;# xmm0 *= xmm2
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;  &lt;span style=&#34;color:#a6e22e&#34;&gt;lea&lt;/span&gt;              &lt;span style=&#34;color:#66d9ef&#34;&gt;edx&lt;/span&gt;,[&lt;span style=&#34;color:#66d9ef&#34;&gt;rax&lt;/span&gt;*&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;-&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;]      &lt;span style=&#34;color:#75715e&#34;&gt;# edx = *(rax*2-1)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;  &lt;span style=&#34;color:#a6e22e&#34;&gt;vxorps&lt;/span&gt;           &lt;span style=&#34;color:#66d9ef&#34;&gt;xmm3&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm3&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm3&lt;/span&gt;     &lt;span style=&#34;color:#75715e&#34;&gt;# xmm3 = 0
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;  &lt;span style=&#34;color:#a6e22e&#34;&gt;vcvtsi2sd&lt;/span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;xmm3&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm3&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;edx&lt;/span&gt;      &lt;span style=&#34;color:#75715e&#34;&gt;# xmm3 = (double)edx
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;  &lt;span style=&#34;color:#a6e22e&#34;&gt;vdivsd&lt;/span&gt;           &lt;span style=&#34;color:#66d9ef&#34;&gt;xmm3&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm0&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm3&lt;/span&gt;     &lt;span style=&#34;color:#75715e&#34;&gt;# xmm3 = xmm0 / xmm3
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;  &lt;span style=&#34;color:#a6e22e&#34;&gt;vaddsd&lt;/span&gt;           &lt;span style=&#34;color:#66d9ef&#34;&gt;xmm1&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm3&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm1&lt;/span&gt;     &lt;span style=&#34;color:#75715e&#34;&gt;# xmm1 = xmm3 + xmm1
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;  &lt;span style=&#34;color:#a6e22e&#34;&gt;inc&lt;/span&gt;              &lt;span style=&#34;color:#66d9ef&#34;&gt;eax&lt;/span&gt;                &lt;span style=&#34;color:#75715e&#34;&gt;# eax += 1
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;  &lt;span style=&#34;color:#a6e22e&#34;&gt;cmp&lt;/span&gt;              &lt;span style=&#34;color:#66d9ef&#34;&gt;eax&lt;/span&gt;,&lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;F5E102&lt;/span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;# if eax &amp;lt; 100M+2
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;  &lt;span style=&#34;color:#a6e22e&#34;&gt;jl&lt;/span&gt;               &lt;span style=&#34;color:#66d9ef&#34;&gt;short&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;M01_L00&lt;/span&gt;      &lt;span style=&#34;color:#75715e&#34;&gt;# goto M01_L00
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;C# (Visual Studio, not optimised):&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-asm&#34; data-lang=&#34;asm&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;;address          instruction (assembly)                      # my understanding of what&amp;#39;s happening
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;00007&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;FFF1835417B&lt;/span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;vmovsd&lt;/span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;xmm0&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;qword&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ptr&lt;/span&gt; [&lt;span style=&#34;color:#66d9ef&#34;&gt;rbp-48h&lt;/span&gt;]        &lt;span style=&#34;color:#75715e&#34;&gt;# xmm0 = *(rbp-48h)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;00007&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;FFF18354180&lt;/span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;vmulsd&lt;/span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;xmm0&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm0&lt;/span&gt;,                      &lt;span style=&#34;color:#75715e&#34;&gt;# xmm0 = xmm0 * *(07FFF18354210)    mmword ptr [Program.&amp;lt;&amp;lt;Main&amp;gt;$&amp;gt;g__CalcPi|0_0()+0E0h (07FFF18354210h)]
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;00007&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;FFF18354188&lt;/span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;vmovsd&lt;/span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;qword&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ptr&lt;/span&gt; [&lt;span style=&#34;color:#66d9ef&#34;&gt;rbp-48h&lt;/span&gt;],&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm0&lt;/span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;# *(rbp-48h) = xmm0
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;00007&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;FFF1835418D&lt;/span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;vmovsd&lt;/span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;xmm0&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;qword&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ptr&lt;/span&gt; [&lt;span style=&#34;color:#66d9ef&#34;&gt;rbp-48h&lt;/span&gt;]        &lt;span style=&#34;color:#75715e&#34;&gt;# xmm0 = *(rbp-48h)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;00007&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;FFF18354192&lt;/span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;mov&lt;/span&gt;         &lt;span style=&#34;color:#66d9ef&#34;&gt;eax&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;dword&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ptr&lt;/span&gt; [&lt;span style=&#34;color:#66d9ef&#34;&gt;rbp-4Ch&lt;/span&gt;]         &lt;span style=&#34;color:#75715e&#34;&gt;# eax = *(rbp-4Ch)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;00007&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;FFF18354195&lt;/span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;lea&lt;/span&gt;         &lt;span style=&#34;color:#66d9ef&#34;&gt;eax&lt;/span&gt;,[&lt;span style=&#34;color:#66d9ef&#34;&gt;rax&lt;/span&gt;*&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;-&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;]                   &lt;span style=&#34;color:#75715e&#34;&gt;# eax = *(rax*2-1)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;00007&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;FFF1835419C&lt;/span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;vxorps&lt;/span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;xmm1&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm1&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm1&lt;/span&gt;                  &lt;span style=&#34;color:#75715e&#34;&gt;# xmm1 = 0
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;00007&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;FFF183541A0&lt;/span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;vcvtsi2sd&lt;/span&gt;   &lt;span style=&#34;color:#66d9ef&#34;&gt;xmm1&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm1&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;eax&lt;/span&gt;                   &lt;span style=&#34;color:#75715e&#34;&gt;# xmm1 = (double)eax?  https://www.felixcloutier.com/x86/cvtsi2sd
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;00007&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;FFF183541A4&lt;/span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;vdivsd&lt;/span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;xmm0&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm0&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm1&lt;/span&gt;                  &lt;span style=&#34;color:#75715e&#34;&gt;# xmm0 /= xmm1
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;00007&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;FFF183541A8&lt;/span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;vaddsd&lt;/span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;xmm0&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm0&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;mmword&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ptr&lt;/span&gt; [&lt;span style=&#34;color:#66d9ef&#34;&gt;rbp-40h&lt;/span&gt;]  &lt;span style=&#34;color:#75715e&#34;&gt;# xmm0 += *(rbp-40h)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;00007&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;FFF183541AD&lt;/span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;vmovsd&lt;/span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;qword&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ptr&lt;/span&gt; [&lt;span style=&#34;color:#66d9ef&#34;&gt;rbp-40h&lt;/span&gt;],&lt;span style=&#34;color:#66d9ef&#34;&gt;xmm0&lt;/span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;# *(rbp-40h) = xmm0
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;00007&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;FFF183541B2&lt;/span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;mov&lt;/span&gt;         &lt;span style=&#34;color:#66d9ef&#34;&gt;eax&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;dword&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ptr&lt;/span&gt; [&lt;span style=&#34;color:#66d9ef&#34;&gt;rbp-4Ch&lt;/span&gt;]         &lt;span style=&#34;color:#75715e&#34;&gt;# eax = *(rbp-4Ch)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;00007&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;FFF183541B5&lt;/span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;inc&lt;/span&gt;         &lt;span style=&#34;color:#66d9ef&#34;&gt;eax&lt;/span&gt;                             &lt;span style=&#34;color:#75715e&#34;&gt;# eax += 1
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;00007&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;FFF183541B7&lt;/span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;mov&lt;/span&gt;         &lt;span style=&#34;color:#66d9ef&#34;&gt;dword&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ptr&lt;/span&gt; [&lt;span style=&#34;color:#66d9ef&#34;&gt;rbp-4Ch&lt;/span&gt;],&lt;span style=&#34;color:#66d9ef&#34;&gt;eax&lt;/span&gt;         &lt;span style=&#34;color:#75715e&#34;&gt;# *(rbp-4Ch) = eax
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;00007&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;FFF183541BA&lt;/span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;mov&lt;/span&gt;         &lt;span style=&#34;color:#66d9ef&#34;&gt;ecx&lt;/span&gt;,&lt;span style=&#34;color:#66d9ef&#34;&gt;dword&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ptr&lt;/span&gt; [&lt;span style=&#34;color:#66d9ef&#34;&gt;rbp-58h&lt;/span&gt;]         &lt;span style=&#34;color:#75715e&#34;&gt;# ecx = *(rbp-58h)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;00007&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;FFF183541BD&lt;/span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;dec&lt;/span&gt;         &lt;span style=&#34;color:#66d9ef&#34;&gt;ecx&lt;/span&gt;                             &lt;span style=&#34;color:#75715e&#34;&gt;# ecx -= 1
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;00007&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;FFF183541BF&lt;/span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;mov&lt;/span&gt;         &lt;span style=&#34;color:#66d9ef&#34;&gt;dword&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ptr&lt;/span&gt; [&lt;span style=&#34;color:#66d9ef&#34;&gt;rbp-58h&lt;/span&gt;],&lt;span style=&#34;color:#66d9ef&#34;&gt;ecx&lt;/span&gt;         &lt;span style=&#34;color:#75715e&#34;&gt;# *(rbp-58h) = ecx
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;00007&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;FFF183541C2&lt;/span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;cmp&lt;/span&gt;         &lt;span style=&#34;color:#66d9ef&#34;&gt;dword&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ptr&lt;/span&gt; [&lt;span style=&#34;color:#66d9ef&#34;&gt;rbp-58h&lt;/span&gt;],&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;           &lt;span style=&#34;color:#75715e&#34;&gt;# if *(rbp-58h) &amp;gt; 0
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;00007&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;FFF183541C6&lt;/span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;jg&lt;/span&gt;                                          &lt;span style=&#34;color:#75715e&#34;&gt;# goto 07FFF183541D6   Program.&amp;lt;&amp;lt;Main&amp;gt;$&amp;gt;g__CalcPi|0_0()+0A6h (07FFF183541D6h)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;00007&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;FFF183541C8&lt;/span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;lea&lt;/span&gt;         &lt;span style=&#34;color:#66d9ef&#34;&gt;rcx&lt;/span&gt;,[&lt;span style=&#34;color:#66d9ef&#34;&gt;rbp-58h&lt;/span&gt;]                   &lt;span style=&#34;color:#75715e&#34;&gt;# rcx = *(rbp-58h)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;00007&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;FFF183541CC&lt;/span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;mov&lt;/span&gt;         &lt;span style=&#34;color:#66d9ef&#34;&gt;edx&lt;/span&gt;,&lt;span style=&#34;color:#ae81ff&#34;&gt;33&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;h&lt;/span&gt;                         &lt;span style=&#34;color:#75715e&#34;&gt;# edx = 51
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;00007&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;FFF183541D1&lt;/span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;call&lt;/span&gt;        &lt;span style=&#34;color:#ae81ff&#34;&gt;00007&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;FFF77D8C9B0&lt;/span&gt;                &lt;span style=&#34;color:#75715e&#34;&gt;# call mystery function. appears to be JIT related
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;00007&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;FFF183541D6&lt;/span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;cmp&lt;/span&gt;         &lt;span style=&#34;color:#66d9ef&#34;&gt;dword&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;ptr&lt;/span&gt; [&lt;span style=&#34;color:#66d9ef&#34;&gt;rbp-4Ch&lt;/span&gt;],&lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;F5E102h&lt;/span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# if *(rbp-4Ch) &amp;lt; 100M +2
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;00007&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;FFF183541DD&lt;/span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;jl&lt;/span&gt;                                          &lt;span style=&#34;color:#75715e&#34;&gt;# goto 07FFF1835417B
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h1 id=&#34;readings&#34;&gt;Appendix B: Interesting reading&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://stackoverflow.com/questions/5326269/is-c-sharp-really-slower-than-say-c&#34;&gt;Is C# slower than say C++?&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://stackoverflow.com/a/5331574/2670469&#34;&gt;detailed generic answer&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;covers language features, VM, GC, benchmarks&lt;/li&gt;
+&lt;li&gt;conclusion: you can almost always write C/C++ that&amp;rsquo;s faster than C#,
+but not the other way around&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://stackoverflow.com/a/37103437/2670469&#34;&gt;specific case answer&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;yes, but it may take a C++ expert significant time to make it run
+faster than C#&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://blog.codinghorror.com/the-bloated-world-of-managed-code/&#34;&gt;Jeff Atwood: The bloated world of Managed Code&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;C# cons: slower, uses more memory&lt;/li&gt;
+&lt;li&gt;C# pros: faster development&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://blog.codinghorror.com/on-managed-code-performance/&#34;&gt;Jeff Atwood: On Managed Code Performance&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;C# pro: security: buffer overruns possible in C/C++ can&amp;rsquo;t happen in C#&lt;/li&gt;
+&lt;li&gt;quake 2 .NET port was initially faster than the C version, but 15% slower
+after C targeted the host CPU, and 30% slower than the hand-optimised
+assembly version&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;references&#34;&gt;References&lt;/h1&gt;
+&lt;div class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
+&lt;hr&gt;
+&lt;ol&gt;
+&lt;li id=&#34;fn:1&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://learn.microsoft.com/en-us/dotnet/standard/assembly/file-format&#34;&gt;.NET assembly file format&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:2&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://learn.microsoft.com/en-us/dotnet/standard/managed-execution-process#compiling-msil-to-native-code&#34;&gt;Compiling MSIL to Native Code&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:3&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.intel.com/content/dam/develop/external/us/en/documents/introduction-to-x64-assembly-181178.pdf&#34;&gt;Introduction to x64 assembly&lt;/a&gt; (pdf)&amp;#160;&lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:4&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.felixcloutier.com/x86/&#34;&gt;x86 and amd64 instruction reference&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:5&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html&#34;&gt;GCC: Options That Control Optimization&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:6&#34;&gt;
+&lt;p&gt;&lt;a href=&#34;https://gcc.gnu.org/onlinedocs/gcc/Option-Summary.html&#34;&gt;GCC: Option Summary&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:6&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;
+</description>
+    </item>
+    
     <item>
       <title>Making C# Go Fast</title>
       <link>https://iamwoz.com/blog/20230330_making_csharp_go_fast/</link>

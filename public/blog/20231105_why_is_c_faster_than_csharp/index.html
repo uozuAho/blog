@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+      <meta name="description" content="A deep dive into why a small piece of equivalent code in C and C# perform differently"/>
+    
+    <title>Why Is C Faster Than C#? | woz</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">Home</a></li>
+      
+      <li><a href="/blog/">Blog</a></li>
+      
+      <li><a href="/index.xml">RSS</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+  <h1 class="page_title"><span class="title">Why Is C Faster Than C#?</span></h1>
+  <h2 class="date">2023-11-05</h2>
+</div>
+
+<main>
+<h1 id="contents">Contents</h1>
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#contents">Contents</a></li>
+    <li><a href="#this-blog-post-in-a-paragraph">This blog post in a paragraph</a></li>
+    <li><a href="#the-long-story">The long story</a></li>
+    <li><a href="#running-the-speed-comparison-poking-around">Running the speed comparison, poking around</a></li>
+    <li><a href="#digging-into-the-machine-code">Digging into the machine code</a>
+      <ul>
+        <li><a href="#c">C</a></li>
+        <li><a href="#c-1">C#</a></li>
+        <li><a href="#what-does-it-all-mean">What does it all mean?</a></li>
+        <li><a href="#vectorization">Vectorization</a></li>
+      </ul>
+    </li>
+    <li><a href="#the-end">The end</a></li>
+    <li><a href="#assembly">Appendix A: assembly</a></li>
+    <li><a href="#readings">Appendix B: Interesting reading</a></li>
+    <li><a href="#references">References</a></li>
+  </ul>
+</nav>
+
+<h1 id="this-blog-post-in-a-paragraph">This blog post in a paragraph</h1>
+<p>Why is <a href="https://github.com/niklas-heer/speed-comparison/blob/master/src/leibniz.c">this C code</a>
+5x faster than <a href="https://github.com/niklas-heer/speed-comparison/blob/master/src/cs/Program.cs">this equivalent C# code</a>?
+On my machine, the C program completes in 32ms versus 150ms for the C# program.
+30ms of the difference is due to C# start-up/shutdown overhead. The other 90ms
+is due to <code>gcc</code> vectorizing the loop, after being allowed to ignore some
+standards around floating-point calculations. This is a very specific case of
+numerically-intensive code: it&rsquo;s not guaranteed that C will always be 5x faster
+than C#!</p>
+<h1 id="the-long-story">The long story</h1>
+<p>After <a href="https://iamwoz.com/blog/20230330_making_csharp_go_fast/">making C# go fast</a>,
+I wondered if I could do much better using a non-managed language like C.
+Rewriting my game in C is a large project, so I went hunting for smaller
+examples. Before long, I came across <a href="https://niklas-heer.github.io/speed-comparison/">speed comparison</a>,
+which compares many languages performing the same small calculation of pi. It&rsquo;s
+a trivially small piece of code which only compares a tiny portion of what each
+language is capable of, but it&rsquo;s a good starting point for a learning exercise.</p>
+<p>C comes in at 3 times faster than C# in the above comparison. In this blog post,
+I&rsquo;ll investigate why, as someone with a rather patchy understanding of low level
+code and performance (me).</p>
+<p>The questions of which language is the fastest, and whether managed languages
+like C# are slow have been around forever, and many people smarter than me have
+written about it online. See <a href="#readings">appendix B</a> for some
+interesting reads. The generic reasons given are VM/runtime overhead, garbage
+collection (GC), just-in-time compilation (JIT), array bounds checking and more.
+I wasn&rsquo;t satisfied with generic reasons, and wanted to know specifically why two
+pieces of comparable code differed.</p>
+<h1 id="running-the-speed-comparison-poking-around">Running the speed comparison, poking around</h1>
+<p><a href="https://github.com/niklas-heer/speed-comparison">Speed comparison</a> is relatively
+straightforward to run on a Linux-like environment. On my machine, C performed
+even better than reported, averaging 35ms per run, versus 155ms for C#.</p>
+<p>The code:</p>
+<ul>
+<li>reads a number <code>rounds</code> from a file</li>
+<li>iteratively calculates the value of pi, looping as many times as <code>rounds</code>
+specifies</li>
+<li>prints the value of pi</li>
+</ul>
+<p>I tinkered with the code a bit to get an understanding of where the time was
+being spent. Eliminating file I/O by hard coding <code>rounds</code> saved a few
+milliseconds in both C and C#. Setting <code>rounds</code> to 1 reduced C&rsquo;s run time to
+effectively zero, while C# still took 30ms. I assume this time is
+start-up/shutdown time of the C# runtime (CLR), which I don&rsquo;t particularly care
+about.</p>
+<p>Out of curiosity, I quickly checked out ahead-of-time compilation
+<a href="https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/?tabs=net7%2Cwindows">(AOT)</a>
+for C#. It only had a small impact on overall run time, and start-up time was
+still around 20ms. I didn&rsquo;t investigate any further.</p>
+<p>So: ignoring file I/O and start-up time, C completes the pi calculation in 30ms,
+while C# takes 120ms. The code for the calculation is almost identical:</p>
+<p>C:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">unsigned</span> i<span style="color:#f92672">=</span><span style="color:#ae81ff">2u</span>; i <span style="color:#f92672">&lt;</span> rounds; <span style="color:#f92672">++</span>i) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">double</span> x <span style="color:#f92672">=</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1.0</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">2.0</span> <span style="color:#f92672">*</span> (i <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">0x1</span>);
+</span></span><span style="display:flex;"><span>    pi <span style="color:#f92672">+=</span> (x <span style="color:#f92672">/</span> (<span style="color:#ae81ff">2u</span> <span style="color:#f92672">*</span> i <span style="color:#f92672">-</span> <span style="color:#ae81ff">1u</span>));
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>C#:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cs" data-lang="cs"><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i = <span style="color:#ae81ff">2</span>; i &lt; rounds + <span style="color:#ae81ff">2</span>; i++) {
+</span></span><span style="display:flex;"><span>    x *= -<span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>    pi += (x / (<span style="color:#ae81ff">2</span> * i - <span style="color:#ae81ff">1</span>));
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Changing the signed-ness of variables and the time at which to increment <code>i</code>
+made no difference. The line <code>double x = -1.0 + 2.0 * (i &amp; 0x1);</code> produces the
+same value of <code>x</code> as <code>x *= -1</code>, but is important for reasons I&rsquo;ll talk about
+later. First, let&rsquo;s take a look at the machine code that is generated by C and
+C#.</p>
+<h1 id="digging-into-the-machine-code">Digging into the machine code</h1>
+<h2 id="c">C</h2>
+<p>To see C disassembly, I used a tool called <a href="https://en.wikipedia.org/wiki/Objdump">objdump</a>.
+I bypassed Earthly and ran <code>gcc</code> and <code>objdump</code> directly.
+The <a href="https://github.com/niklas-heer/speed-comparison/blob/fbe72677a25df85e1bcc6386c6069dd163f04962/Earthfile#L116">C compilation command in the Earthfile</a>
+is:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>gcc leibniz.c -o leibniz -O3 -s -static -flto -march<span style="color:#f92672">=</span>native <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    -mtune<span style="color:#f92672">=</span>native -fomit-frame-pointer -fno-signed-zeros <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    -fno-trapping-math -fassociative-math
+</span></span></code></pre></div><p>I modified this slightly to make the objdump output easier to understand:</p>
+<ul>
+<li>removed <code>-s</code> to keep symbol information</li>
+<li>removed <code>-static</code>, so that external library code was excluded from the executable</li>
+<li>added <code>-g</code> to add debugging information</li>
+</ul>
+<p>This didn&rsquo;t affect the speed of the program.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span><span style="color:#75715e"># compile the program</span>
+</span></span><span style="display:flex;"><span>gcc leibniz.c -o leibniz -O3 -g -flto -march<span style="color:#f92672">=</span>native <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    -mtune<span style="color:#f92672">=</span>native -fomit-frame-pointer -fno-signed-zeros <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    -fno-trapping-math -fassociative-math
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># extract the machine code in intel assembly format,</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># along with other useful details to help understand</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># which part of the code the assembly is for</span>
+</span></span><span style="display:flex;"><span>objdump -drwlCS -Mintel leibniz &gt; leibniz.asm
+</span></span></code></pre></div><p>I&rsquo;ve put all the assembly together in an <a href="#assembly">appendix</a>.</p>
+<p>I&rsquo;ll cover the <code>gcc</code> options in more detail later. The <code>objdump</code> options are
+described here: <a href="https://www.man7.org/linux/man-pages/man1/objdump.1.html">objdump man page</a>.</p>
+<h2 id="c-1">C#</h2>
+<p>Accessing C# disassembly has a much more &lsquo;Windows-y&rsquo; feel to it. The most common
+advice is to use Visual Studio, pause the program at a breakpoint, then access
+the disassembly via a menu: Debug menu -&gt; Windows -&gt; Disassembly. To make sure
+you&rsquo;re looking at optimised code, before running the debugger, you need to
+disable &lsquo;Suppress JIT optimization on module load&rsquo; and &lsquo;Enable Just My Code&rsquo;
+within the menus Tools -&gt; Options -&gt; Debugging -&gt; General.</p>
+<figure>
+  <img src="/blog/20231105_why_is_c_faster_than_c/vs_disassembly.png"
+  alt="A screenshot of Visual Studio, showing the disassembly menu item being selected"
+  width="933"
+  loading="lazy" />
+  <figcaption>How to show native disassembly of your C# program</figcaption>
+</figure>
+<p>This process makes sense, as .NET executables are distributed in .NET&rsquo;s
+intermediate language format (IL), and IL is only compiled to native code by the
+JIT as needed. <sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup> <sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup></p>
+<p><strong>However</strong>, the assembly shown by Visual Studio was suspiciously long compared
+to the C program&rsquo;s assembly. With certain compilation settings (more on this
+later), the C program completed in a similar time to the C# program, yet the C
+assembly code was less than half as long as the C# disassembly. It didn&rsquo;t make
+sense that they could run at the same speed.</p>
+<p><a href="https://stackoverflow.com/a/38159398/2670469">This stack overflow answer</a> says
+that the JIT behaves differently when run under the debugger. I had a feeling
+that this was the case even with the Visual Studio option set to allow JIT
+optimization. I tried using <code>vsjitdebugger</code>, spending hours manually stepping
+through all the C# runtime start-up until eventually reaching my code, only to
+find that it was still the same long set of instructions. If you ever find
+yourself needing to use <code>vsjitdebugger</code>, I found that I could only get it to
+work by running Visual Studio as admin, then running <code>vsjitdebugger</code> from the
+Powershell terminal within Visual Studio.</p>
+<p>Eventually, I came across this <a href="https://mijailovic.net/2018/07/05/generated-code/">post about viewing code generated by the JIT</a>.
+It outlines a number of ways to view the disassembly, one being to use <a href="https://benchmarkdotnet.org/">BenchmarkDotNet</a>
+with <a href="https://benchmarkdotnet.org/articles/features/disassembler.html">DisassemblyDiagnoser</a>.
+I extracted out the pi calculation to a method, put a benchmark around it, and
+finally got some assembly code that was comparable to the C program&rsquo;s assembly.</p>
+<p>See the <a href="#assembly">appendix</a> for the C# disassembly.</p>
+<h2 id="what-does-it-all-mean">What does it all mean?</h2>
+<p>Having the machine code generated from the C and C# code let me do a like for
+like comparison of each program. I&rsquo;ve put the assembly code of just the for
+loops in an <a href="#assembly">appendix</a> at the end of this post.</p>
+<p>The first challenge was understanding what all the instructions meant! This
+<a href="https://www.intel.com/content/dam/develop/external/us/en/documents/introduction-to-x64-assembly-181178.pdf">quick introduction to x64 assembly</a>
+(pdf) <sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup> was a good primer. This <a href="https://www.felixcloutier.com/x86/">x86 reference</a> <sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup>
+got me the rest of the way to a basic understanding of what was happening.
+Rather than decode every instruction and figure out which variables were being
+stored in which registers, I thought I&rsquo;d just play around with the C compilation
+options to get a feel for what changes.</p>
+<p>Gcc has many options to control the generated machine code. I&rsquo;ll summarise the
+relevant options here. For more details, see <a href="https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html">gcc&rsquo;s optimize options</a> <sup id="fnref:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup>
+and <a href="https://gcc.gnu.org/onlinedocs/gcc/Option-Summary.html">gcc options summary</a>.<sup id="fnref:6"><a href="#fn:6" class="footnote-ref" role="doc-noteref">6</a></sup></p>
+<p>I found that the top contributors to program run time were
+<code>-O3 -march=native -fassociative-math -fno-signed-zeros -fno-trapping-math</code>.</p>
+<ul>
+<li><code>O1</code>, <code>O2</code>, <code>O3</code> are shorthand for a collection of optimisation settings, <code>O3</code>
+being the highest setting</li>
+<li><code>-march=native</code>: compile for the host CPU, using any instructions it supports.
+This is generally only done for numerically intensive code, at the cost of
+portability. Most widely distributed C programs won&rsquo;t use this option, as it
+limits the number of CPUs the program can run on. For more details see this
+stack overflow question: <a href="https://stackoverflow.com/questions/52653025/why-is-march-native-used-so-rarely">Why is -march=native used so rarely?</a></li>
+<li><code>-fassociative-math</code>: reorders floating point operations for efficiency,
+possibly causing underflow / overflow / NaNs</li>
+<li><code>-fno-signed-zeros</code>: ignore the sign of zeros</li>
+<li><code>-fno-trapping-math</code>: assume that there will be no &ldquo;division by zero, overflow,
+underflow, inexact result and invalid operation&rdquo;</li>
+</ul>
+<p>The last three options may cause violations of IEEE or ANSI standards, and are
+referred to as <a href="https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html#index-funsafe-math-optimizations">unsafe math optimizations</a>.
+I assume this is not necessarily a bad thing, if you know what you&rsquo;re doing.
+Indeed, the value of pi calculated with these options varied slightly from the
+value calculated without them (and by the C# code), but all calculated pi values
+were still accurate to 7 decimal places.</p>
+<p>Using just the <code>-O3</code> option, the C program took 120ms, which is the same as C#
+program, ignoring start-up time. <code>-march=native</code> didn&rsquo;t make a big difference
+unless the unsafe math options were enabled. If you compare the assembly of the
+&lsquo;unsafe&rsquo; and the &lsquo;safe&rsquo; options, you can see that the unsafe assembly uses <code>ymm</code>
+registers (256 bit registers), allowing more calculations to be done per CPU
+instruction. It also only loops 12.5 million times, versus the 100 million times
+for the safe assembly. Intuitively, this explains the speedup to me: The unsafe
+assembly runs 8x fewer loops, but runs about twice as many instructions per
+loop, resulting in a 4x speedup. I don&rsquo;t know if that&rsquo;s the exact reason, but
+I&rsquo;m satisfied enough with that answer for now.</p>
+<h2 id="vectorization">Vectorization</h2>
+<p>What gcc is doing with the unsafe compilation options above is vectorizing the
+loop. There&rsquo;s a great explanation of vectorization here: <a href="https://stackoverflow.com/questions/1422149/what-is-vectorization">Stack Overflow: What is &ldquo;vectorization&rdquo;?</a>.
+In a sentence, it&rsquo;s the compiler generating code that executes multiple loop
+iterations at once, using more efficient CPU instructions.</p>
+<p>Gcc was able to automatically vectorize the C code, albeit with the unsafe math
+options. The C programmer also needed to know that writing
+<code>double x = -1.0 + 2.0 * (i &amp; 0x1)</code> allows the compiler to vectorize, while <code>x *= -1</code>
+doesn&rsquo;t. I didn&rsquo;t investigate why, but I assume it&rsquo;s due to the first code
+determining the value of <code>x</code> using only the loop counter, while the second code
+determines <code>x</code> from the value of <code>x</code> in the previous loop.</p>
+<p>It&rsquo;s also possible to write vectorized code yourself, as demonstrated by the
+<a href="https://github.com/niklas-heer/speed-comparison/blob/master/src/leibniz_avx2.cpp">leibniz_avx2.cpp</a>
+code in speed-comparison. On my machine, this beat the auto-vectorized C by a
+couple of milliseconds, without needing the unsafe math options. Java and C# also
+support manual vectorization, however the result in speed-comparison is underwhelming:
+<a href="https://github.com/niklas-heer/speed-comparison/blob/master/src/leibnizVecOps.java">this vectorized Java code</a>
+performs 3 times worse than its <a href="https://github.com/niklas-heer/speed-comparison/blob/master/src/leibniz.java">non-vectorized counterpart</a>!
+It&rsquo;d be interesting to see if C# fares any better. <a href="https://learn.microsoft.com/en-us/dotnet/standard/simd">Microsoft remarks</a>:</p>
+<blockquote>
+<p>SIMD [vectorization] is more likely to remove one bottleneck and expose the
+next, for example memory throughput. In general the performance benefit of
+using SIMD varies depending on the specific scenario, and in some cases it can
+even perform worse than simpler non-SIMD equivalent code.</p>
+</blockquote>
+<h1 id="the-end">The end</h1>
+<p>So there we have it! For this particular code, C runs 5x faster than C# by
+relaxing some strict IEEE calculation rules, auto-vectorizing the loop, and
+having a very low start-up time.</p>
+<p>Ignoring start-up time, C# was as fast as standards-compliant C, but vastly
+outperformed by manually vectorized C++ code. It may be possible to manually
+vectorize the C# code, but I&rsquo;ll leave that for a later post.</p>
+<p>It&rsquo;s important to note that the code compared in this post is by no means a fair
+comparison of the performance of C and C# in general, and there are many more
+factors to consider when choosing a programming language. Have a look at the
+links in <a href="#readings">appendix B</a> for some more perspective.</p>
+<h1 id="assembly">Appendix A: assembly</h1>
+<p>Assembly for C and C#. Only the pi calculation loop is shown.</p>
+<p>C with unsafe math optimizations: (<code>-O3 -march=native -fassociative-math -fno-signed-zeros -fno-trapping-math</code>, 30ms):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-asm" data-lang="asm"><span style="display:flex;"><span><span style="color:#75715e">;address:  instruction (bytes)   instruction (assembly)        # my understanding of what&#39;s happening
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">1130:</span>      <span style="color:#a6e22e">c5</span> <span style="color:#66d9ef">fd</span> <span style="color:#ae81ff">6</span><span style="color:#66d9ef">f</span> <span style="color:#66d9ef">c2</span>           <span style="color:#66d9ef">vmovdqa</span> <span style="color:#66d9ef">ymm0</span>,<span style="color:#66d9ef">ymm2</span>             <span style="color:#75715e"># ymm0 = ymm2
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">1134:</span>      <span style="color:#a6e22e">ff</span> <span style="color:#66d9ef">c0</span>                 <span style="color:#66d9ef">inc</span>    <span style="color:#66d9ef">eax</span>                    <span style="color:#75715e"># eax += 1
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">1136:</span>      <span style="color:#a6e22e">c5</span> <span style="color:#66d9ef">ed</span> <span style="color:#66d9ef">fe</span> <span style="color:#66d9ef">d7</span>           <span style="color:#66d9ef">vpaddd</span> <span style="color:#66d9ef">ymm2</span>,<span style="color:#66d9ef">ymm2</span>,<span style="color:#66d9ef">ymm7</span>         <span style="color:#75715e"># ymm2 += (4xi64)ymm7
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">113</span>a:      <span style="color:#a6e22e">c5</span> <span style="color:#66d9ef">fd</span> <span style="color:#66d9ef">db</span> <span style="color:#66d9ef">ce</span>           <span style="color:#66d9ef">vpand</span>  <span style="color:#66d9ef">ymm1</span>,<span style="color:#66d9ef">ymm0</span>,<span style="color:#66d9ef">ymm6</span>         <span style="color:#75715e"># ymm1 = (4xi64)ymm0 &amp; ymm6
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">113</span>e:      <span style="color:#a6e22e">c5</span> <span style="color:#66d9ef">fd</span> <span style="color:#ae81ff">72</span> <span style="color:#66d9ef">f0</span> <span style="color:#ae81ff">01</span>        <span style="color:#66d9ef">vpslld</span> <span style="color:#66d9ef">ymm0</span>,<span style="color:#66d9ef">ymm0</span>,<span style="color:#ae81ff">0x1</span>          <span style="color:#75715e"># ymm0 &lt;&lt;= 1, ie. ymm0 *= 2
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">1143:</span>      <span style="color:#a6e22e">c5</span> <span style="color:#66d9ef">fd</span> <span style="color:#66d9ef">fe</span> <span style="color:#66d9ef">c5</span>           <span style="color:#66d9ef">vpaddd</span> <span style="color:#66d9ef">ymm0</span>,<span style="color:#66d9ef">ymm0</span>,<span style="color:#66d9ef">ymm5</span>         <span style="color:#75715e"># ymm0 += ymm5     (ymm5 = -1?, see 1117)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">1147:</span>      <span style="color:#a6e22e">c5</span> <span style="color:#ae81ff">7</span><span style="color:#66d9ef">e</span> <span style="color:#66d9ef">e6</span> <span style="color:#66d9ef">c9</span>           <span style="color:#66d9ef">vcvtdq2pd</span> <span style="color:#66d9ef">ymm9</span>,<span style="color:#66d9ef">xmm1</span>           <span style="color:#75715e"># (4xi64) ymm9 = (4x double?)xmm1 ... https://www.felixcloutier.com/x86/cvtdq2pd
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">114</span>b:      <span style="color:#a6e22e">c4</span> <span style="color:#66d9ef">e3</span> <span style="color:#ae81ff">7</span><span style="color:#66d9ef">d</span> <span style="color:#ae81ff">39</span> <span style="color:#66d9ef">c9</span> <span style="color:#ae81ff">01</span>     <span style="color:#66d9ef">vextracti128</span> <span style="color:#66d9ef">xmm1</span>,<span style="color:#66d9ef">ymm1</span>,<span style="color:#ae81ff">0x1</span>    <span style="color:#75715e"># xmm1 = ymm1[255:128]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">1151:</span>      <span style="color:#a6e22e">c5</span> <span style="color:#66d9ef">fe</span> <span style="color:#66d9ef">e6</span> <span style="color:#66d9ef">c9</span>           <span style="color:#66d9ef">vcvtdq2pd</span> <span style="color:#66d9ef">ymm1</span>,<span style="color:#66d9ef">xmm1</span>           <span style="color:#75715e"># (4xi64) ymm1 = (4x double?)xmm1
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">1155:</span>      <span style="color:#a6e22e">c5</span> <span style="color:#ae81ff">7</span><span style="color:#66d9ef">e</span> <span style="color:#66d9ef">e6</span> <span style="color:#66d9ef">d0</span>           <span style="color:#66d9ef">vcvtdq2pd</span> <span style="color:#66d9ef">ymm10</span>,<span style="color:#66d9ef">xmm0</span>          <span style="color:#75715e"># (4xi64) ymm10 = (4x double?)xmm0
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">1159:</span>      <span style="color:#a6e22e">c4</span> <span style="color:#66d9ef">e3</span> <span style="color:#ae81ff">7</span><span style="color:#66d9ef">d</span> <span style="color:#ae81ff">39</span> <span style="color:#66d9ef">c0</span> <span style="color:#ae81ff">01</span>     <span style="color:#66d9ef">vextracti128</span> <span style="color:#66d9ef">xmm0</span>,<span style="color:#66d9ef">ymm0</span>,<span style="color:#ae81ff">0x1</span>    <span style="color:#75715e"># xmm0 = ymm0[255:128]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">115</span>f:      <span style="color:#a6e22e">c4</span> <span style="color:#ae81ff">62</span> <span style="color:#66d9ef">e5</span> <span style="color:#ae81ff">98</span> <span style="color:#66d9ef">cc</span>        <span style="color:#66d9ef">vfmadd132pd</span> <span style="color:#66d9ef">ymm9</span>,<span style="color:#66d9ef">ymm3</span>,<span style="color:#66d9ef">ymm4</span>    <span style="color:#75715e"># (4x double): ymm9 = ymm9 * ymm4 + ymm3
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">1164:</span>      <span style="color:#a6e22e">c5</span> <span style="color:#66d9ef">fe</span> <span style="color:#66d9ef">e6</span> <span style="color:#66d9ef">c0</span>           <span style="color:#66d9ef">vcvtdq2pd</span> <span style="color:#66d9ef">ymm0</span>,<span style="color:#66d9ef">xmm0</span>           <span style="color:#75715e"># (4xi64) ymm0 = (4x double?)xmm0
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">1168:</span>      <span style="color:#a6e22e">c4</span> <span style="color:#66d9ef">e2</span> <span style="color:#66d9ef">e5</span> <span style="color:#ae81ff">98</span> <span style="color:#66d9ef">cc</span>        <span style="color:#66d9ef">vfmadd132pd</span> <span style="color:#66d9ef">ymm1</span>,<span style="color:#66d9ef">ymm3</span>,<span style="color:#66d9ef">ymm4</span>    <span style="color:#75715e"># (4x double): ymm1 = ymm1 * ymm4 + ymm3
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">116</span>d:      <span style="color:#a6e22e">c4</span> <span style="color:#ae81ff">41</span> <span style="color:#ae81ff">35</span> <span style="color:#ae81ff">5</span><span style="color:#66d9ef">e</span> <span style="color:#66d9ef">ca</span>        <span style="color:#66d9ef">vdivpd</span> <span style="color:#66d9ef">ymm9</span>,<span style="color:#66d9ef">ymm9</span>,<span style="color:#66d9ef">ymm10</span>        <span style="color:#75715e"># ymm9 /= ymm10
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">1172:</span>      <span style="color:#a6e22e">c5</span> <span style="color:#66d9ef">f5</span> <span style="color:#ae81ff">5</span><span style="color:#66d9ef">e</span> <span style="color:#66d9ef">c0</span>           <span style="color:#66d9ef">vdivpd</span> <span style="color:#66d9ef">ymm0</span>,<span style="color:#66d9ef">ymm1</span>,<span style="color:#66d9ef">ymm0</span>         <span style="color:#75715e"># ymm0 = ymm1/ymm0
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">1176:</span>      <span style="color:#a6e22e">c5</span> <span style="color:#66d9ef">b5</span> <span style="color:#ae81ff">58</span> <span style="color:#66d9ef">c0</span>           <span style="color:#66d9ef">vaddpd</span> <span style="color:#66d9ef">ymm0</span>,<span style="color:#66d9ef">ymm9</span>,<span style="color:#66d9ef">ymm0</span>         <span style="color:#75715e"># ymm0 += ymm9
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">117</span>a:      <span style="color:#a6e22e">c5</span> <span style="color:#ae81ff">3</span><span style="color:#66d9ef">d</span> <span style="color:#ae81ff">58</span> <span style="color:#66d9ef">c0</span>           <span style="color:#66d9ef">vaddpd</span> <span style="color:#66d9ef">ymm8</span>,<span style="color:#66d9ef">ymm8</span>,<span style="color:#66d9ef">ymm0</span>         <span style="color:#75715e"># ymm8 += ymm0
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">117</span>e:      <span style="color:#960050;background-color:#1e0010">3</span><span style="color:#a6e22e">d</span> <span style="color:#ae81ff">20</span> <span style="color:#66d9ef">bc</span> <span style="color:#66d9ef">be</span> <span style="color:#ae81ff">00</span>        <span style="color:#66d9ef">cmp</span>    <span style="color:#66d9ef">eax</span>,<span style="color:#ae81ff">0xbebc20</span>           <span style="color:#75715e"># if eax != 12500000 (=100M/8)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">1183:</span>      <span style="color:#960050;background-color:#1e0010">75</span> <span style="color:#a6e22e">ab</span>                 <span style="color:#66d9ef">jne</span>    <span style="color:#ae81ff">1130</span> &lt;<span style="color:#66d9ef">main</span>+<span style="color:#ae81ff">0x90</span>&gt;       <span style="color:#75715e"># goto 1130
+</span></span></span></code></pre></div><p>Safe C (<code>-O3 -march=native</code>, 120ms):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-asm" data-lang="asm"><span style="display:flex;"><span><span style="color:#75715e">;address:  instruction (bytes)   instruction (assembly)        # my understanding of what&#39;s happening
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">1120:</span>      <span style="color:#960050;background-color:#1e0010">89</span> <span style="color:#a6e22e">c1</span>                 <span style="color:#66d9ef">mov</span>    <span style="color:#66d9ef">ecx</span>,<span style="color:#66d9ef">eax</span>                <span style="color:#75715e"># ecx = eax
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">1122:</span>      <span style="color:#a6e22e">c5</span> <span style="color:#66d9ef">e3</span> <span style="color:#ae81ff">2</span><span style="color:#66d9ef">a</span> <span style="color:#66d9ef">d2</span>           <span style="color:#66d9ef">vcvtsi2sd</span> <span style="color:#66d9ef">xmm2</span>,<span style="color:#66d9ef">xmm3</span>,<span style="color:#66d9ef">edx</span>       <span style="color:#75715e"># xmm2 = (double)edx?  https://www.felixcloutier.com/x86/cvtsi2sd
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">1126:</span>      <span style="color:#a6e22e">ff</span> <span style="color:#66d9ef">c0</span>                 <span style="color:#66d9ef">inc</span>    <span style="color:#66d9ef">eax</span>                    <span style="color:#75715e"># eax += 1
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">1128:</span>      <span style="color:#960050;background-color:#1e0010">83</span> <span style="color:#a6e22e">c2</span> <span style="color:#ae81ff">02</span>              <span style="color:#66d9ef">add</span>    <span style="color:#66d9ef">edx</span>,<span style="color:#ae81ff">0x2</span>                <span style="color:#75715e"># edx += 2
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">112</span>b:      <span style="color:#960050;background-color:#1e0010">83</span> <span style="color:#a6e22e">e1</span> <span style="color:#ae81ff">01</span>              <span style="color:#66d9ef">and</span>    <span style="color:#66d9ef">ecx</span>,<span style="color:#ae81ff">0x1</span>                <span style="color:#75715e"># ecx &amp;= 1
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">112</span>e:      <span style="color:#a6e22e">c5</span> <span style="color:#66d9ef">e3</span> <span style="color:#ae81ff">2</span><span style="color:#66d9ef">a</span> <span style="color:#66d9ef">c9</span>           <span style="color:#66d9ef">vcvtsi2sd</span> <span style="color:#66d9ef">xmm1</span>,<span style="color:#66d9ef">xmm3</span>,<span style="color:#66d9ef">ecx</span>       <span style="color:#75715e"># xmm1 = (double)ecx?
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">1132:</span>      <span style="color:#a6e22e">c4</span> <span style="color:#66d9ef">e2</span> <span style="color:#66d9ef">d9</span> <span style="color:#ae81ff">99</span> <span style="color:#66d9ef">cd</span>        <span style="color:#66d9ef">vfmadd132sd</span> <span style="color:#66d9ef">xmm1</span>,<span style="color:#66d9ef">xmm4</span>,<span style="color:#66d9ef">xmm5</span>    <span style="color:#75715e"># xmm1 = xmm1 * xmm5 + xmm4
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">1137:</span>      <span style="color:#a6e22e">c5</span> <span style="color:#66d9ef">f3</span> <span style="color:#ae81ff">5</span><span style="color:#66d9ef">e</span> <span style="color:#66d9ef">ca</span>           <span style="color:#66d9ef">vdivsd</span> <span style="color:#66d9ef">xmm1</span>,<span style="color:#66d9ef">xmm1</span>,<span style="color:#66d9ef">xmm2</span>         <span style="color:#75715e"># xmm1 /= xmm2
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">113</span>b:      <span style="color:#a6e22e">c5</span> <span style="color:#66d9ef">fb</span> <span style="color:#ae81ff">58</span> <span style="color:#66d9ef">c1</span>           <span style="color:#66d9ef">vaddsd</span> <span style="color:#66d9ef">xmm0</span>,<span style="color:#66d9ef">xmm0</span>,<span style="color:#66d9ef">xmm1</span>         <span style="color:#75715e"># xmm0 += xmm1
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">113</span>f:      <span style="color:#960050;background-color:#1e0010">3</span><span style="color:#a6e22e">d</span> <span style="color:#ae81ff">02</span> <span style="color:#66d9ef">e1</span> <span style="color:#66d9ef">f5</span> <span style="color:#ae81ff">05</span>        <span style="color:#66d9ef">cmp</span>    <span style="color:#66d9ef">eax</span>,<span style="color:#ae81ff">0x5f5e102</span>          <span style="color:#75715e"># if eax != 100M+2
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">1144:</span>      <span style="color:#960050;background-color:#1e0010">75</span> <span style="color:#a6e22e">da</span>                 <span style="color:#66d9ef">jne</span>    <span style="color:#ae81ff">1120</span> &lt;<span style="color:#66d9ef">main</span>+<span style="color:#ae81ff">0x80</span>&gt;       <span style="color:#75715e"># goto 1120
+</span></span></span></code></pre></div><p>C# (BenchmarkDotNet):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-asm" data-lang="asm"><span style="display:flex;"><span>M01_L00:
+</span></span><span style="display:flex;"><span><span style="color:#75715e">; instruction    params               # my understanding
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#a6e22e">vmulsd</span>           <span style="color:#66d9ef">xmm0</span>,<span style="color:#66d9ef">xmm0</span>,<span style="color:#66d9ef">xmm2</span>     <span style="color:#75715e"># xmm0 *= xmm2
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#a6e22e">lea</span>              <span style="color:#66d9ef">edx</span>,[<span style="color:#66d9ef">rax</span>*<span style="color:#ae81ff">2</span>-<span style="color:#ae81ff">1</span>]      <span style="color:#75715e"># edx = *(rax*2-1)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#a6e22e">vxorps</span>           <span style="color:#66d9ef">xmm3</span>,<span style="color:#66d9ef">xmm3</span>,<span style="color:#66d9ef">xmm3</span>     <span style="color:#75715e"># xmm3 = 0
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#a6e22e">vcvtsi2sd</span>        <span style="color:#66d9ef">xmm3</span>,<span style="color:#66d9ef">xmm3</span>,<span style="color:#66d9ef">edx</span>      <span style="color:#75715e"># xmm3 = (double)edx
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#a6e22e">vdivsd</span>           <span style="color:#66d9ef">xmm3</span>,<span style="color:#66d9ef">xmm0</span>,<span style="color:#66d9ef">xmm3</span>     <span style="color:#75715e"># xmm3 = xmm0 / xmm3
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#a6e22e">vaddsd</span>           <span style="color:#66d9ef">xmm1</span>,<span style="color:#66d9ef">xmm3</span>,<span style="color:#66d9ef">xmm1</span>     <span style="color:#75715e"># xmm1 = xmm3 + xmm1
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#a6e22e">inc</span>              <span style="color:#66d9ef">eax</span>                <span style="color:#75715e"># eax += 1
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#a6e22e">cmp</span>              <span style="color:#66d9ef">eax</span>,<span style="color:#ae81ff">5</span><span style="color:#66d9ef">F5E102</span>        <span style="color:#75715e"># if eax &lt; 100M+2
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#a6e22e">jl</span>               <span style="color:#66d9ef">short</span> <span style="color:#66d9ef">M01_L00</span>      <span style="color:#75715e"># goto M01_L00
+</span></span></span></code></pre></div><p>C# (Visual Studio, not optimised):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-asm" data-lang="asm"><span style="display:flex;"><span><span style="color:#75715e">;address          instruction (assembly)                      # my understanding of what&#39;s happening
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">00007</span><span style="color:#a6e22e">FFF1835417B</span>  <span style="color:#66d9ef">vmovsd</span>      <span style="color:#66d9ef">xmm0</span>,<span style="color:#66d9ef">qword</span> <span style="color:#66d9ef">ptr</span> [<span style="color:#66d9ef">rbp-48h</span>]        <span style="color:#75715e"># xmm0 = *(rbp-48h)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">00007</span><span style="color:#a6e22e">FFF18354180</span>  <span style="color:#66d9ef">vmulsd</span>      <span style="color:#66d9ef">xmm0</span>,<span style="color:#66d9ef">xmm0</span>,                      <span style="color:#75715e"># xmm0 = xmm0 * *(07FFF18354210)    mmword ptr [Program.&lt;&lt;Main&gt;$&gt;g__CalcPi|0_0()+0E0h (07FFF18354210h)]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">00007</span><span style="color:#a6e22e">FFF18354188</span>  <span style="color:#66d9ef">vmovsd</span>      <span style="color:#66d9ef">qword</span> <span style="color:#66d9ef">ptr</span> [<span style="color:#66d9ef">rbp-48h</span>],<span style="color:#66d9ef">xmm0</span>        <span style="color:#75715e"># *(rbp-48h) = xmm0
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">00007</span><span style="color:#a6e22e">FFF1835418D</span>  <span style="color:#66d9ef">vmovsd</span>      <span style="color:#66d9ef">xmm0</span>,<span style="color:#66d9ef">qword</span> <span style="color:#66d9ef">ptr</span> [<span style="color:#66d9ef">rbp-48h</span>]        <span style="color:#75715e"># xmm0 = *(rbp-48h)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">00007</span><span style="color:#a6e22e">FFF18354192</span>  <span style="color:#66d9ef">mov</span>         <span style="color:#66d9ef">eax</span>,<span style="color:#66d9ef">dword</span> <span style="color:#66d9ef">ptr</span> [<span style="color:#66d9ef">rbp-4Ch</span>]         <span style="color:#75715e"># eax = *(rbp-4Ch)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">00007</span><span style="color:#a6e22e">FFF18354195</span>  <span style="color:#66d9ef">lea</span>         <span style="color:#66d9ef">eax</span>,[<span style="color:#66d9ef">rax</span>*<span style="color:#ae81ff">2</span>-<span style="color:#ae81ff">1</span>]                   <span style="color:#75715e"># eax = *(rax*2-1)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">00007</span><span style="color:#a6e22e">FFF1835419C</span>  <span style="color:#66d9ef">vxorps</span>      <span style="color:#66d9ef">xmm1</span>,<span style="color:#66d9ef">xmm1</span>,<span style="color:#66d9ef">xmm1</span>                  <span style="color:#75715e"># xmm1 = 0
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">00007</span><span style="color:#a6e22e">FFF183541A0</span>  <span style="color:#66d9ef">vcvtsi2sd</span>   <span style="color:#66d9ef">xmm1</span>,<span style="color:#66d9ef">xmm1</span>,<span style="color:#66d9ef">eax</span>                   <span style="color:#75715e"># xmm1 = (double)eax?  https://www.felixcloutier.com/x86/cvtsi2sd
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">00007</span><span style="color:#a6e22e">FFF183541A4</span>  <span style="color:#66d9ef">vdivsd</span>      <span style="color:#66d9ef">xmm0</span>,<span style="color:#66d9ef">xmm0</span>,<span style="color:#66d9ef">xmm1</span>                  <span style="color:#75715e"># xmm0 /= xmm1
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">00007</span><span style="color:#a6e22e">FFF183541A8</span>  <span style="color:#66d9ef">vaddsd</span>      <span style="color:#66d9ef">xmm0</span>,<span style="color:#66d9ef">xmm0</span>,<span style="color:#66d9ef">mmword</span> <span style="color:#66d9ef">ptr</span> [<span style="color:#66d9ef">rbp-40h</span>]  <span style="color:#75715e"># xmm0 += *(rbp-40h)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">00007</span><span style="color:#a6e22e">FFF183541AD</span>  <span style="color:#66d9ef">vmovsd</span>      <span style="color:#66d9ef">qword</span> <span style="color:#66d9ef">ptr</span> [<span style="color:#66d9ef">rbp-40h</span>],<span style="color:#66d9ef">xmm0</span>        <span style="color:#75715e"># *(rbp-40h) = xmm0
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">00007</span><span style="color:#a6e22e">FFF183541B2</span>  <span style="color:#66d9ef">mov</span>         <span style="color:#66d9ef">eax</span>,<span style="color:#66d9ef">dword</span> <span style="color:#66d9ef">ptr</span> [<span style="color:#66d9ef">rbp-4Ch</span>]         <span style="color:#75715e"># eax = *(rbp-4Ch)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">00007</span><span style="color:#a6e22e">FFF183541B5</span>  <span style="color:#66d9ef">inc</span>         <span style="color:#66d9ef">eax</span>                             <span style="color:#75715e"># eax += 1
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">00007</span><span style="color:#a6e22e">FFF183541B7</span>  <span style="color:#66d9ef">mov</span>         <span style="color:#66d9ef">dword</span> <span style="color:#66d9ef">ptr</span> [<span style="color:#66d9ef">rbp-4Ch</span>],<span style="color:#66d9ef">eax</span>         <span style="color:#75715e"># *(rbp-4Ch) = eax
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">00007</span><span style="color:#a6e22e">FFF183541BA</span>  <span style="color:#66d9ef">mov</span>         <span style="color:#66d9ef">ecx</span>,<span style="color:#66d9ef">dword</span> <span style="color:#66d9ef">ptr</span> [<span style="color:#66d9ef">rbp-58h</span>]         <span style="color:#75715e"># ecx = *(rbp-58h)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">00007</span><span style="color:#a6e22e">FFF183541BD</span>  <span style="color:#66d9ef">dec</span>         <span style="color:#66d9ef">ecx</span>                             <span style="color:#75715e"># ecx -= 1
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">00007</span><span style="color:#a6e22e">FFF183541BF</span>  <span style="color:#66d9ef">mov</span>         <span style="color:#66d9ef">dword</span> <span style="color:#66d9ef">ptr</span> [<span style="color:#66d9ef">rbp-58h</span>],<span style="color:#66d9ef">ecx</span>         <span style="color:#75715e"># *(rbp-58h) = ecx
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">00007</span><span style="color:#a6e22e">FFF183541C2</span>  <span style="color:#66d9ef">cmp</span>         <span style="color:#66d9ef">dword</span> <span style="color:#66d9ef">ptr</span> [<span style="color:#66d9ef">rbp-58h</span>],<span style="color:#ae81ff">0</span>           <span style="color:#75715e"># if *(rbp-58h) &gt; 0
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">00007</span><span style="color:#a6e22e">FFF183541C6</span>  <span style="color:#66d9ef">jg</span>                                          <span style="color:#75715e"># goto 07FFF183541D6   Program.&lt;&lt;Main&gt;$&gt;g__CalcPi|0_0()+0A6h (07FFF183541D6h)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">00007</span><span style="color:#a6e22e">FFF183541C8</span>  <span style="color:#66d9ef">lea</span>         <span style="color:#66d9ef">rcx</span>,[<span style="color:#66d9ef">rbp-58h</span>]                   <span style="color:#75715e"># rcx = *(rbp-58h)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">00007</span><span style="color:#a6e22e">FFF183541CC</span>  <span style="color:#66d9ef">mov</span>         <span style="color:#66d9ef">edx</span>,<span style="color:#ae81ff">33</span><span style="color:#66d9ef">h</span>                         <span style="color:#75715e"># edx = 51
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">00007</span><span style="color:#a6e22e">FFF183541D1</span>  <span style="color:#66d9ef">call</span>        <span style="color:#ae81ff">00007</span><span style="color:#66d9ef">FFF77D8C9B0</span>                <span style="color:#75715e"># call mystery function. appears to be JIT related
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">00007</span><span style="color:#a6e22e">FFF183541D6</span>  <span style="color:#66d9ef">cmp</span>         <span style="color:#66d9ef">dword</span> <span style="color:#66d9ef">ptr</span> [<span style="color:#66d9ef">rbp-4Ch</span>],<span style="color:#ae81ff">5</span><span style="color:#66d9ef">F5E102h</span>    <span style="color:#75715e"># if *(rbp-4Ch) &lt; 100M +2
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">00007</span><span style="color:#a6e22e">FFF183541DD</span>  <span style="color:#66d9ef">jl</span>                                          <span style="color:#75715e"># goto 07FFF1835417B
+</span></span></span></code></pre></div><h1 id="readings">Appendix B: Interesting reading</h1>
+<ul>
+<li><a href="https://stackoverflow.com/questions/5326269/is-c-sharp-really-slower-than-say-c">Is C# slower than say C++?</a>
+<ul>
+<li><a href="https://stackoverflow.com/a/5331574/2670469">detailed generic answer</a>
+<ul>
+<li>covers language features, VM, GC, benchmarks</li>
+<li>conclusion: you can almost always write C/C++ that&rsquo;s faster than C#,
+but not the other way around</li>
+</ul>
+</li>
+<li><a href="https://stackoverflow.com/a/37103437/2670469">specific case answer</a>
+<ul>
+<li>yes, but it may take a C++ expert significant time to make it run
+faster than C#</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="https://blog.codinghorror.com/the-bloated-world-of-managed-code/">Jeff Atwood: The bloated world of Managed Code</a>
+<ul>
+<li>C# cons: slower, uses more memory</li>
+<li>C# pros: faster development</li>
+</ul>
+</li>
+<li><a href="https://blog.codinghorror.com/on-managed-code-performance/">Jeff Atwood: On Managed Code Performance</a>
+<ul>
+<li>C# pro: security: buffer overruns possible in C/C++ can&rsquo;t happen in C#</li>
+<li>quake 2 .NET port was initially faster than the C version, but 15% slower
+after C targeted the host CPU, and 30% slower than the hand-optimised
+assembly version</li>
+</ul>
+</li>
+</ul>
+<h1 id="references">References</h1>
+<div class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1">
+<p><a href="https://learn.microsoft.com/en-us/dotnet/standard/assembly/file-format">.NET assembly file format</a>&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2">
+<p><a href="https://learn.microsoft.com/en-us/dotnet/standard/managed-execution-process#compiling-msil-to-native-code">Compiling MSIL to Native Code</a>&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:3">
+<p><a href="https://www.intel.com/content/dam/develop/external/us/en/documents/introduction-to-x64-assembly-181178.pdf">Introduction to x64 assembly</a> (pdf)&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:4">
+<p><a href="https://www.felixcloutier.com/x86/">x86 and amd64 instruction reference</a>&#160;<a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:5">
+<p><a href="https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html">GCC: Options That Control Optimization</a>&#160;<a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:6">
+<p><a href="https://gcc.gnu.org/onlinedocs/gcc/Option-Summary.html">GCC: Option Summary</a>&#160;<a href="#fnref:6" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</div>
+
+</main>
+
+  <footer>
+    <hr/>
+    <nav>
+      <ul class="menu">
+        
+        <li><a href="/">Home</a></li>
+        
+        <li><a href="/blog/">Blog</a></li>
+        
+        <li><a href="/index.xml">RSS</a></li>
+        
+      </ul>
+    </nav>
+  </footer>
+  </body>
+</html>
+

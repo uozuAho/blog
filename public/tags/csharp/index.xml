@@ -6,7 +6,16 @@
     <description>Recent content in csharp on woz</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-GB</language>
-    <lastBuildDate>Tue, 16 May 2023 12:20:53 +1100</lastBuildDate><atom:link href="https://iamwoz.com/tags/csharp/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 05 Nov 2023 15:42:51 +1100</lastBuildDate><atom:link href="https://iamwoz.com/tags/csharp/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Why Is C Faster Than C#?</title>
+      <link>https://iamwoz.com/blog/20231105_why_is_c_faster_than_csharp/</link>
+      <pubDate>Sun, 05 Nov 2023 15:42:51 +1100</pubDate>
+      
+      <guid>https://iamwoz.com/blog/20231105_why_is_c_faster_than_csharp/</guid>
+      <description>A deep dive into why a small piece of equivalent code in C and C# perform differently</description>
+    </item>
+    
     <item>
       <title>Making C# Go Fast</title>
       <link>https://iamwoz.com/blog/20230330_making_csharp_go_fast/</link>

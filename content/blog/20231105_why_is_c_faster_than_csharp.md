@@ -10,8 +10,8 @@ tags:
 ---
 
 # to do
-- move assembly appendix into machine code section, remove assembly links
-- answer/do later: why is O3 C the same speed as C#, even though the C assembly is much smaller?
+- inline todo. fix the C# assembly section
+- proof read
 
 # Contents
 {{< toc >}}
@@ -129,11 +129,13 @@ gcc leibniz.c -o leibniz -O3 -g -flto -march=native \
 objdump -drwlCS -Mintel leibniz > leibniz.asm
 ```
 
+I've put all the assembly together in an [appendix]({{< ref "#assembly" >}}).
+
 I'll cover the `gcc` options in more detail later. The `objdump` options are
 described here: [objdump man page](https://www.man7.org/linux/man-pages/man1/objdump.1.html).
 
 ## C#
-Accessing C# disassembly has a much more 'Microsoft-y' feel to it. You need to
+Accessing C# disassembly has a much more 'Windows-y' feel to it. You need to
 use Visual Studio, pause the program at a breakpoint, then access the
 disassembly via a menu: Debug menu -> Windows -> Disassembly.
 
@@ -148,6 +150,8 @@ disassembly via a menu: Debug menu -> Windows -> Disassembly.
 This process makes sense, as .NET executables are distributed in .NET's
 intermediate language format (IL), and IL is only compiled to native code by the
 JIT as needed. [^1] [^2]
+
+See the [appendix]({{< ref "#assembly" >}}) for the C# disassembly.
 
 ## What does it all mean?
 Having the machine code generated from the C and C# code let me do a like for
@@ -199,6 +203,114 @@ for the safe assembly. Intuitively, this explains the speedup to me: The unsafe
 assembly runs 8x fewer loops, but runs about twice as many instructions per
 loop, resulting in a 4x speedup. I don't know if that's the exact reason, but
 I'm satisfied enough with that answer for now.
+
+I don't understand why the C# program is as fast as the safe C. They both loop
+100 million times, but the C# disassembly has more than twice as many instructions.
+Maybe the C# disassembly viewed from the debugger isn't actually what gets run
+when the debugger isn't attached. **todo** try
+
+https://stackoverflow.com/a/38159398/2670469: can't if process exits quickly
+    - good tip tho: menu route alerts JIT that you're trying to debug, output is different
+https://stackoverflow.com/a/4042545/2670469: same result as vsjitdebugger X
+run vs as admin, go to terminal, run vsjitdebugger bin/Release....
+    - may be no good. no debugging info, just stepping through mountains of CLR
+      code to try to find my code. can save breakpoints, but addresses aren't
+      guaranteed to be the same between runs
+    - change approach: attempt to load debug symbols from wherever u can find them
+        - MS servers
+        - debug again. seems to take multiple goes to load all symbols?
+        - spent hours stepping through, still missed the call to my code.
+          Found the assembly though! ARGGHHH it's almost identical!! :((
+
+```asm
+00007FFF89470715  vmovsd      xmm0,qword ptr [rbp-50h]
+00007FFF8947071A  vmulsd      xmm0,xmm0,mmword ptr [7FFF894707C0h]
+00007FFF89470722  vmovsd      qword ptr [rbp-50h],xmm0
+00007FFF89470727  vmovsd      xmm0,qword ptr [rbp-50h]
+00007FFF8947072C  mov         eax,dword ptr [rbp-54h]
+00007FFF8947072F  lea         eax,[rax*2-1]
+00007FFF89470736  vxorps      xmm1,xmm1,xmm1
+00007FFF8947073A  vcvtsi2sd   xmm1,xmm1,eax
+00007FFF8947073E  vdivsd      xmm0,xmm0,xmm1
+00007FFF89470742  vaddsd      xmm0,xmm0,mmword ptr [rbp-48h]
+00007FFF89470747  vmovsd      qword ptr [rbp-48h],xmm0
+00007FFF8947074C  mov         eax,dword ptr [rbp-54h]
+00007FFF8947074F  inc         eax
+00007FFF89470751  mov         dword ptr [rbp-54h],eax
+00007FFF89470754  mov         ecx,dword ptr [rbp-60h]
+00007FFF89470757  dec         ecx
+00007FFF89470759  mov         dword ptr [rbp-60h],ecx
+00007FFF8947075C  cmp         dword ptr [rbp-60h],0
+00007FFF89470760  jg          00007FFF89470770
+00007FFF89470762  lea         rcx,[rbp-60h]
+00007FFF89470766  mov         edx,49h
+00007FFF8947076B  call        JIT_Patchpoint (07FFFE8EBC9B0h)
+00007FFF89470770  mov         eax,dword ptr [rbp-3Ch]
+00007FFF89470773  add         eax,2
+00007FFF89470776  cmp         dword ptr [rbp-54h],eax
+00007FFF89470779  jl          00007FFF89470715
+```
+
+    Next try: https://learn.microsoft.com/en-us/archive/blogs/vancem/how-to-use-visual-studio-to-investigate-code-generation-questions-in-managed-code
+    - nup, assm still the same, const func doesn't get inlined
+    - plus when stepping through the assembly, the instruction pointer jumps from
+      00007FFF89470751 to 00007FFF89470776. Seems like the code between these
+      points has been optimised away, but the disassembly view doesn't know about it???
+    **todo**
+        - do this: https://mijailovic.net/2018/07/05/generated-code/
+        - try other tools here?: https://mijailovic.net/2018/07/05/generated-code/
+        - also shows some vectorization
+
+    turn on suppress jit optimisation:
+
+```asm
+00007FFF17B10FCD  vmovsd      xmm0,qword ptr [rbp-18h]
+00007FFF17B10FD2  vmulsd      xmm0,xmm0,mmword ptr [Program.<Main>$(System.String[])+0E8h (07FFF17B11058h)]
+00007FFF17B10FDA  vmovsd      qword ptr [rbp-18h],xmm0
+00007FFF17B10FDF  vmovsd      xmm0,qword ptr [rbp-18h]
+00007FFF17B10FE4  mov         eax,dword ptr [rbp-1Ch]
+00007FFF17B10FE7  lea         eax,[rax*2-1]
+00007FFF17B10FEE  vxorps      xmm1,xmm1,xmm1
+00007FFF17B10FF2  vcvtsi2sd   xmm1,xmm1,eax
+00007FFF17B10FF6  vdivsd      xmm0,xmm0,xmm1
+00007FFF17B10FFA  vaddsd      xmm0,xmm0,mmword ptr [rbp-10h]
+00007FFF17B10FFF  vmovsd      qword ptr [rbp-10h],xmm0
+00007FFF17B11004  mov         eax,dword ptr [rbp-1Ch]
+00007FFF17B11007  inc         eax
+00007FFF17B11009  mov         dword ptr [rbp-1Ch],eax
+00007FFF17B1100C  mov         eax,dword ptr [rbp-4]
+00007FFF17B1100F  add         eax,2
+00007FFF17B11012  cmp         dword ptr [rbp-1Ch],eax
+00007FFF17B11015  jl          Program.<Main>$(System.String[])+05Dh (07FFF17B10FCDh)
+```
+
+    fewer lines!? is the setting backwards?
+    also, the assembly adds 2 to rounds every loop, even though this value is
+    a constant. I don't believe the optimised code would do this. Doing it manually
+    in code made no difference to the run time. I'm pretty convinced that this
+    functionality is broken in VS, and that the actual optimised assembly running
+    is not what I was able to extract using VS.
+
+    Try BenchmarkDotNet + DisassemblyDiagnoser as suggested here https://mijailovic.net/2018/07/05/generated-code/
+    Yay! The output looks very similar to C, even 2 instructions shorter:
+
+```asm
+M01_L00:
+  vmulsd    xmm0,xmm0,xmm2
+  lea       edx,[rax*2-1]
+  vxorps    xmm3,xmm3,xmm3
+  vcvtsi2sd xmm3,xmm3,edx
+  vdivsd    xmm3,xmm0,xmm3
+  vaddsd    xmm1,xmm3,xmm1
+  inc       eax
+  cmp       eax,5F5E102
+  jl        short M01_L00
+```
+
+    I dunno WTF is going on with VS, it's super frustrating that the docs are rather
+    scattered and wrong (at least in this case. Following the steps here worked: https://mijailovic.net/2018/07/05/generated-code/,
+    but not for the leibniz code). I'm glad I finally got assembly that matches my expectations.
+
 
 ## Vectorization
 What gcc is doing with the unsafe compilation options above is vectorizing the
@@ -287,7 +399,7 @@ Safe C (`-O3 -march=native`, 120ms):
 1144:      75 da                 jne    1120 <main+0x80>       # goto 1120
 ```
 
-C# (120ms):
+C# (Visual Studio, Release, not optimised):
 ```asm
 ;address          instruction (assembly)                      # my understanding of what's happening
 00007FFF1835417B  vmovsd      xmm0,qword ptr [rbp-48h]        # xmm0 = *(rbp-48h)
@@ -311,7 +423,7 @@ C# (120ms):
 00007FFF183541C6  jg                                          # goto 07FFF183541D6   Program.<<Main>$>g__CalcPi|0_0()+0A6h (07FFF183541D6h)
 00007FFF183541C8  lea         rcx,[rbp-58h]                   # rcx = *(rbp-58h)
 00007FFF183541CC  mov         edx,33h                         # edx = 51
-00007FFF183541D1  call        00007FFF77D8C9B0                # call mystery function. C# runtime 'stuff'? GC?
+00007FFF183541D1  call        00007FFF77D8C9B0                # call mystery function. appears to be JIT related
 00007FFF183541D6  cmp         dword ptr [rbp-4Ch],5F5E102h    # if *(rbp-4Ch) < 100M +2
 00007FFF183541DD  jl                                          # goto 07FFF1835417B
 ```
